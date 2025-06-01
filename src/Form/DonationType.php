@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Extension\Core\Type\{CheckboxType, IntegerType, TextType, EmailType, TextareaType, HiddenType};
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Entity\Don;
+use App\Entity\Donation;
 
 class DonationType extends AbstractType
 {
@@ -19,7 +19,7 @@ class DonationType extends AbstractType
                 'label' => 'Montant du don (en €)',
                 'required' => true,
             ])
-            ->add('recuFiscal', CheckboxType::class, [
+            ->add('has_recu_fiscal', CheckboxType::class, [
                 'label' => 'Je souhaite un reçu fiscal pour pouvoir déduire ce don de mes impots',
                 'required' => false,
             ])
@@ -30,21 +30,25 @@ class DonationType extends AbstractType
                 'help' => 'Le recu fiscal vous sera envoyé par mail à cette adresse.',
             ])
             ->add('adresse', TextareaType::class, [
+                'mapped' => false,
                 'required' => false,
                 'label' => 'Recherche de l\'adresse',
                 ])
-            ->add('numero', TextType::class, ['required' => false])
-            ->add('rue', TextType::class, ['required' => false])
-            ->add('code_postal', TextType::class, ['required' => false])
-            ->add('ville', TextType::class, ['required' => false])
-            ->add('pays', TextType::class, ['required' => false]);
+            ->add('adresse_numero', TextType::class, ['required' => false])
+            ->add('adresse_rue', TextType::class, ['required' => false])
+            ->add('adresse_code_postal', TextType::class, ['required' => false])
+            ->add('adresse_ville', TextType::class, ['required' => false])
+            ->add('adresse_pays', TextType::class, [
+                'mapped' => false,
+                'required' => false
+            ]);
 
         // ✅ Ajout de l'EventListener ici
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
             $form = $event->getForm();
 
-            if (!empty($data['recuFiscal'])) {
+            if (!empty($data['has_recu_fiscal'])) {
                 $form->add('nom', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
@@ -54,22 +58,19 @@ class DonationType extends AbstractType
                 $form->add('email', EmailType::class, [
                     'constraints' => [new Assert\NotBlank(), new Assert\Email()],
                 ]);
-                $form->add('adresse', TextareaType::class, [
+                $form->add('adresse_numero', HiddenType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('numero', HiddenType::class, [
+                $form->add('adresse_rue', HiddenType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('rue', HiddenType::class, [
+                $form->add('adresse_code_postal', HiddenType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('code_postal', HiddenType::class, [
+                $form->add('adresse_ville', HiddenType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('ville', HiddenType::class, [
-                    'constraints' => [new Assert\NotBlank()],
-                ]);
-                $form->add('pays', HiddenType::class, [
+                $form->add('adresse_pays', HiddenType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
             }
@@ -79,7 +80,7 @@ class DonationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Don::class,
+            'data_class' => Donation::class,
         ]);
     }
 }

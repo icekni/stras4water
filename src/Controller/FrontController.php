@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Donation;
+use App\Form\DonationType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -37,11 +40,28 @@ final class FrontController extends AbstractController
         ]);
     }
 
-    #[Route('/abonnement', name: 'abonnement')]
+    #[Route('/bachata', name: 'bachata')]
     public function abonnement(): Response
     {
-        return $this->render('front/abonnement.html.twig', [
-            'controller_name' => 'FrontController',
+        return $this->render('front/bachata.html.twig', []);
+    }
+
+    #[Route('/donation', name: 'donation')]
+    public function donation(Request $request): Response
+    {
+        $don = new Donation();
+
+        $form = $this->createForm(DonationType::class, $don);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            dd($form);
+            // $don est automatiquement rempli avec les données du formulaire
+            // Tu peux maintenant le persister
+        }
+
+        return $this->render('front/donation.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

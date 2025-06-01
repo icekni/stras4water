@@ -184,8 +184,8 @@
                             <button type="submit" class="btn btn-outline-danger rounded-pill mb-2">Se déconnecter</button>
                         </form>
                     {% else %} #}
-                        <a href="#" class="btn btn-outline-primary rounded-pill me-2 mb-2">Se connecter</a>
-                        <a href="#" class="btn btn-outline-secondary rounded-pill mb-2">S'inscrire</a>
+                        {# <a href="#" class="btn btn-outline-primary rounded-pill me-2 mb-2">Se connecter</a>
+                        <a href="#" class="btn btn-outline-secondary rounded-pill mb-2">S'inscrire</a> #}
                     {# {% endif %} #}
                 </div>
 
@@ -209,7 +209,7 @@
                                     Cours de danse
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownDanse">
-                                    <li><a class="dropdown-item" href="{{ path('abonnement') }}">Bachata</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('bachata') }}">Bachata</a></li>
                                     <li><a class="dropdown-item" href="#">Salsa</a></li>
                                     <li><a class="dropdown-item" href="#">Kizomba</a></li>
                                 </ul>
@@ -235,37 +235,37 @@
                 </ul>
 
                 <div class="hearer_icon d-none d-lg-flex align-items-center gap-3">
-                    <a class="btn btn-success rounded-pill" href="#">Je fais un don</a>
-                    <a href="cart.html">
+                    <a class="btn btn-success rounded-pill" href="{{ path('donation') }}">Je fais un don</a>
+                    {# <a href="cart.html">
                         <i class="bi bi-cart3"></i> (0.00 €)
-                    </a>
-                    <div class="dropdown">
+                    </a> #}
+                    {# <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle me-2"></i> <!-- Icône Bootstrap -->
                             <!-- Optionnel : texte ou rien du tout -->
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            {# {% if app.user %} #}
+                            {% if app.user %}
                             <li><a class="dropdown-item" href="#">Mon compte</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#">Se déconnecter</a></li>
-                            {# {% else %} #}
+                            {% else %}
                             <li><a class="dropdown-item" href="#">Se connecter</a></li>
                             <li><a class="dropdown-item" href="#">S'inscrire</a></li>
-                            {# {% endif %} #}
+                            {% endif %}
                         </ul>
-                    </div>
+                    </div> #}
 
                 </div>
 
                 {# Mobile panier en bas du menu #}
-                <div class="d-lg-none mt-3 text-center">
+                {# <div class="d-lg-none mt-3 text-center">
                     <hr>
                     <a href="/panier" class="text-decoration-none">
                         <i class="bi bi-cart3 me-1"></i> Panier : 25€
                     </a>
-                </div>
+                </div> #}
 
             </div>
         </div>

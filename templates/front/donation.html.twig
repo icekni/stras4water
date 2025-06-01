@@ -10,36 +10,28 @@
 		{{ form_start(form) }}
 		{{ form_row(form.montant) }}
 
-		{% if not app.user %}
-			{{ form_row(form.recuFiscal) }}
+		{{ form_row(form.has_recu_fiscal) }}
 
-			<div id="fiscalFields" class="border rounded p-3 mb-3 d-none">
-				{{ form_row(form.nom) }}
-				{{ form_row(form.prenom) }}
-				{{ form_row(form.email) }}
-				<div id="adresseContainer">
-					{{ form_row(form.adresse) }}
+		<div id="fiscalFields" class="border rounded p-3 mb-3 d-none">
+			{{ form_row(form.nom) }}
+			{{ form_row(form.prenom) }}
+			{{ form_row(form.email) }}
+			<div id="adresseContainer">
+				{{ form_row(form.adresse) }}
 
-					<ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
+				<ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
 
-					<button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
-				</div>
-
-				<div id="detailedFields" class="d-none">
-					{{ form_row(form.numero) }}
-					{{ form_row(form.rue) }}
-					{{ form_row(form.code_postal) }}
-					{{ form_row(form.ville) }}
-					{{ form_row(form.pays) }}
-				</div>
+				<button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
 			</div>
-		{% endif %}
 
-		{% if app.user %}
-			<div class="alert alert-info">
-				Votre don sera automatiquement ajouté à votre compte. Vous pourrez éditer votre reçu fiscal en fin d'année, avec l'ensemble de vos dons.
+			<div id="detailedFields" class="d-none">
+				{{ form_row(form.adresse_numero) }}
+				{{ form_row(form.adresse_rue) }}
+				{{ form_row(form.adresse_code_postal) }}
+				{{ form_row(form.adresse_ville) }}
+				{{ form_row(form.adresse_pays) }}
 			</div>
-		{% endif %}
+		</div>
 
 		<button type="submit" class="btn btn-success">Faire un don</button>
 		{{ form_end(form) }}
@@ -51,7 +43,7 @@
 		const fields = document.getElementById('fiscalFields');
 	
 		checkbox.addEventListener('change', () => {
-		fields.classList.toggle('d-none', !checkbox.checked);
+			fields.classList.toggle('d-none', !checkbox.checked);
 		});
 	
 		// Elements

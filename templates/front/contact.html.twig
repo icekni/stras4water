@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - Stras4Water{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+  <h1 class="mb-4 text-center" style="color: #1f9d55;">Contactez-nous</h1>
+
+  <div class="row">
+    <!-- Formulaire de contact -->
+    <div class="col-md-7">
+      <form method="post" action="{{ path('contact_submit') }}">
+        <div class="mb-3">
+          <label for="name" class="form-label">Nom complet</label>
+          <input type="text" class="form-control" id="name" name="name" required placeholder="Votre nom complet">
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Adresse e-mail</label>
+          <input type="email" class="form-control" id="email" name="email" required placeholder="Votre adresse e-mail">
+        </div>
+
+        <div class="mb-3">
+          <label for="subject" class="form-label">Sujet</label>
+          <input type="text" class="form-control" id="subject" name="subject" required placeholder="Sujet de votre message">
+        </div>
+
+        <div class="mb-3">
+          <label for="message" class="form-label">Message</label>
+          <textarea class="form-control" id="message" name="message" rows="6" required placeholder="Votre message"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success rounded-pill">Envoyer</button>
+      </form>
+    </div>
+
+    <!-- Coordonnées et réseaux sociaux -->
+    <div class="col-md-5">
+      <div class="p-4 bg-light rounded shadow-sm">
+        <h4>Autres moyens de nous contacter</h4>
+
+        <p><strong>Email :</strong> <a href="mailto:contact@stras4water.org">contact@stras4water.org</a></p>
+
+        <p><strong>WhatsApp :</strong> <a href="https://wa.me/330612345678" target="_blank" rel="noopener">+33 6 12 34 56 78</a></p>
+
+        <p><strong>Facebook :</strong> <a href="https://www.facebook.com/stras4water" target="_blank" rel="noopener">facebook.com/stras4water</a></p>
+
+        <p><strong>Instagram :</strong> <a href="https://www.instagram.com/stras4water" target="_blank" rel="noopener">@stras4water</a></p>
+
+        <hr>
+
+        <p>
+          Nous sommes à votre écoute pour toute question, suggestion ou demande d'information.
+          N'hésitez pas à nous contacter via le formulaire, par email, WhatsApp ou sur nos réseaux sociaux.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

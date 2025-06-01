@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cours de Salsa{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+  <h2 class="mb-4">Cours de Salsa</h2>
+
+  <p>
+    Nos cours de Salsa sont ouverts à toutes et tous ! Venez découvrir ou approfondir cette danse joyeuse et rythmée.
+    <br>
+    <strong>Jour et heure :</strong> chaque <strong>lundi à 20h30</strong>
+    <br>
+    <strong>Professeurs :</strong> Amine & Clémence
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    <!-- Type d'abonnement -->
+    <h3 class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+      <div class="col">
+        <input type="radio" class="btn-check" name="type_abonnement" id="annuel" value="annuel" required>
+        <label class="btn btn-outline-primary w-100 text-start" for="annuel">
+          <strong>Abonnement annuel</strong><br>
+          Du 1er septembre 2025 au 30 juin 2026<br>
+          Tarif normal : 120€, réduit : 100€
+        </label>
+      </div>
+      <div class="col">
+        <input type="radio" class="btn-check" name="type_abonnement" id="semestre1" value="semestre1">
+        <label class="btn btn-outline-primary w-100 text-start" for="semestre1">
+          <strong>Semestre 1</strong><br>
+          Du 1er septembre 2025 au 31 janvier 2026<br>
+          Tarif normal : 70€, réduit : 60€
+        </label>
+      </div>
+      <div class="col">
+        <input type="radio" class="btn-check" name="type_abonnement" id="semestre2" value="semestre2">
+        <label class="btn btn-outline-primary w-100 text-start" for="semestre2">
+          <strong>Semestre 2</strong><br>
+          Du 1er février 2026 au 30 juin 2026<br>
+          Tarif normal : 70€, réduit : 60€
+        </label>
+      </div>
+      <div class="col">
+        <input type="radio" class="btn-check" name="type_abonnement" id="carte" value="carte">
+        <label class="btn btn-outline-primary w-100 text-start" for="carte">
+          <strong>Carte 10 cours</strong><br>
+          Utilisable sans limite de temps<br>
+          Tarif normal : 60€, réduit : 50€
+        </label>
+      </div>
+    </div>
+
+    <!-- Tarif -->
+    <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
+    <div class="d-flex gap-3 mb-4">
+      <div>
+        <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
+        <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
+      </div>
+      <div>
+        <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
+        <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
+      </div>
+    </div>
+
+    <!-- Justificatif pour tarif réduit -->
+    <div class="mb-4 d-none" id="justificatif-wrapper">
+      <label for="justificatif" class="form-label">Merci de joindre un justificatif :</label>
+      <input class="form-control" type="file" name="justificatif" id="justificatif">
+    </div>
+
+    <!-- Niveau (fixe pour salsa) -->
+    <input type="hidden" name="niveau" value="unique">
+
+    <!-- Adhésion obligatoire -->
+    <div class="alert alert-info mt-4">
+      ⚠️ <strong>L'adhésion annuelle est obligatoire</strong> pour toute souscription.
+      Elle est automatiquement ajoutée au panier si vous n'êtes pas encore adhérent(e).
+      <br><br>
+      <strong>Si vous n'êtes pas connecté(e)</strong> : connectez-vous d’abord.<br>
+      Si vous êtes déjà adhérent(e), l'adhésion sera automatiquement retirée du panier une fois la connexion effectuée.
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
+  </form>
+</div>
+
+<script>
+  document.getElementById('tarif_normal').addEventListener('change', () => {
+    document.getElementById('justificatif-wrapper').classList.add('d-none');
+  });
+  document.getElementById('tarif_reduit').addEventListener('change', () => {
+    document.getElementById('justificatif-wrapper').classList.remove('d-none');
+  });
+</script>
+{% endblock %}
