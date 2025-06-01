@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>
+			{% block title %}Welcome!
+			{% endblock %}
+		</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous"> {% block stylesheets %}{% endblock %}
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+		<style>
+			/* Corps de page */
+			body {
+				background-color: #f3f9fb;
+				color: #2c3e50;
+				font-family: 'Segoe UI', sans-serif;
+			}
+
+			/* Bouton principal */
+			.btn-success {
+				background-color: #1f9d55;
+				color: white !important;
+				border: none;
+			}
+			.btn-success:hover {
+				background-color: #15803d;
+			}
+
+			/* Titres */
+			h1,
+			h2,
+			h3,
+			h4 {
+				color: #2c3e50;
+			}
+
+			/* Cartes Activités */
+			.card-body {
+				background-color: #f3f9fb;
+				border: 1px solid #dceef2;
+				box-shadow: 0 2px 10px rgba(59, 169, 200, 0.1);
+				border-radius: 1rem;
+				padding: 1.5rem;
+				transition: transform 0.2s ease;
+			}
+			.card-activite:hover {
+				transform: translateY(-5px);
+			}
+
+			/* Bouton dans carte */
+			.card-activite .btn {
+				background-color: #3ba9c8;
+				color: white;
+			}
+			.card-activite .btn:hover {
+				background-color: #2e94af;
+			}
+
+			/* Section "Nous soutenir" image centrée */
+			.section-soutenir img {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			/* Carousel points (si Swiper ou Bootstrap) */
+			.carousel-indicators [data-bs-target] {
+				background-color: #3ba9c8;
+			}
+			.carousel-control-prev-icon,
+			.carousel-control-next-icon {
+				filter: invert(55%) sepia(80%) saturate(300%) hue-rotate(150deg);
+			}
+
+			/* Navbar custom (si besoin) */
+			.navbar {
+				background-color: white;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+			}
+			.navbar a {
+				color: #2c3e50;
+			}
+			.navbar a:hover {
+				color: #3ba9c8;
+			}
+
+			body {
+				padding-top: 96px;
+			}
+
+			.container,
+			.container-fluid {
+				max-width: 1280px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			/* Coins arrondis uniquement à droite */
+			.custom-img {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				border-top-right-radius: 1rem;
+				border-bottom-right-radius: 1rem;
+				object-fit: cover;
+				width: 100%;
+				height: 100%;
+			}
+
+			/* Bloc chiffres flottant légèrement sur l'image */
+			.stats-box {
+				position: absolute;
+				bottom: -5%; /* dépasse d’un quart vers le bas */
+				right: -40%; /* dépasse d’un quart vers la droite */
+				z-index: 2;
+				max-width: 90%;
+				background-color: #f8f9fa;
+				border-radius: 1rem;
+				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+			}
+			.carousel-indicators {
+				margin-top: 20px;
+				bottom: -50px;
+				margin-bottom: 50px;
+			}
+
+			.carousel-indicators [data-bs-target] {
+				background-color: #00EE00;
+				opacity: 0.2;
+			}
+
+			.carousel-indicators .active {
+				opacity: 1;
+			}
+
+			.carousel-control-next-icon,
+			.carousel-control-prev-icon {
+				filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+			}
+
+			footer .text-dark:hover {
+				opacity: 0.6;
+			}
+
+			@media(max-width: 991.98px) {
+				.stats-box {
+					position: static;
+					margin-top: 2rem;
+				}
+
+				.custom-img {
+					border-radius: 1rem;
+				}
+			}
+		</style>
+
+		{% block javascripts %}
+		{% endblock %}
+	</head>
+	<body
+		class="py-30">
+		<!--::header part start::-->
+		<header class="main_menu home_menu">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+        <div class="container-fluid">
+            <a href="{{ path('home') }}" class="navbar-brand">
+                <img src="img/logo.png" height="80" alt="Logo Stras4Water">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                {# Mobile : boutons compte sous burger #}
+                <div class="d-lg-none mb-3 text-center">
+                    {# {% if app.user %}
+                        <a href="{{ path('app_account') }}" class="btn btn-outline-primary rounded-pill me-2 mb-2">Mon compte</a>
+
+                        <form method="post" action="{{ path('app_logout') }}" class="d-inline">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                            <button type="submit" class="btn btn-outline-danger rounded-pill mb-2">Se déconnecter</button>
+                        </form>
+                    {% else %} #}
+                        <a href="#" class="btn btn-outline-primary rounded-pill me-2 mb-2">Se connecter</a>
+                        <a href="#" class="btn btn-outline-secondary rounded-pill mb-2">S'inscrire</a>
+                    {# {% endif %} #}
+                </div>
+
+                <div class="d-lg-none mb-3 text-center">
+                    <a href="don" class="btn btn-success rounded-pill">Je fais un don</a>
+                </div>
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="#">Qui sommes nous</a></li>
+
+                    {# Dropdown Activités #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownActivites" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Activités
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownActivites">
+
+                            {# Dropright Cours de danse #}
+                            <li class="dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#" id="dropdownDanse" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Cours de danse
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownDanse">
+                                    <li><a class="dropdown-item" href="{{ path('abonnement') }}">Bachata</a></li>
+                                    <li><a class="dropdown-item" href="#">Salsa</a></li>
+                                    <li><a class="dropdown-item" href="#">Kizomba</a></li>
+                                </ul>
+                            </li>
+
+                            {# Dropright Cours de langue #}
+                            <li class="dropend">
+                                <a class="dropdown-item dropdown-toggle" href="#" id="dropdownLangue" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Cours de langue
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownLangue">
+                                    <li><a class="dropdown-item" href="#">Anglais</a></li>
+                                    <li><a class="dropdown-item" href="#">Espagnol</a></li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                    <li class="nav-item"><a class="nav-link" href="{{ path('adhesion') }}">Adhérer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Billeterie événements</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                </ul>
+
+                <div class="hearer_icon d-none d-lg-flex align-items-center gap-3">
+                    <a class="btn btn-success rounded-pill" href="#">Je fais un don</a>
+                    <a href="cart.html">
+                        <i class="bi bi-cart3"></i> (0.00 €)
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2"></i> <!-- Icône Bootstrap -->
+                            <!-- Optionnel : texte ou rien du tout -->
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            {# {% if app.user %} #}
+                            <li><a class="dropdown-item" href="#">Mon compte</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Se déconnecter</a></li>
+                            {# {% else %} #}
+                            <li><a class="dropdown-item" href="#">Se connecter</a></li>
+                            <li><a class="dropdown-item" href="#">S'inscrire</a></li>
+                            {# {% endif %} #}
+                        </ul>
+                    </div>
+
+                </div>
+
+                {# Mobile panier en bas du menu #}
+                <div class="d-lg-none mt-3 text-center">
+                    <hr>
+                    <a href="/panier" class="text-decoration-none">
+                        <i class="bi bi-cart3 me-1"></i> Panier : 25€
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+    </header>
+
+
+		{% block body %}{% endblock %}
+
+		<div id="cookie-banner" class="bg-light text-dark p-3 border-top shadow-sm fixed-bottom d-none" style="z-index: 1050;">
+			<div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+				<p class="mb-2 mb-md-0 small">
+					Ce site utilise uniquement des cookies techniques nécessaires à la navigation (ex : gestion des sessions). Aucun cookie publicitaire ou de tracking n’est utilisé.
+				</p>
+				<button id="cookie-banner-close" class="btn btn-outline-primary btn-sm">J'ai compris</button>
+			</div>
+		</div>
+
+		<footer class="bg-light text-dark pt-4 pb-4 mt-5 border-top">
+			<div class="container">
+				<div
+					class="row">
+					<!-- Réseaux sociaux -->
+					<div class="col-md-6 mb-3 mb-md-0">
+						<h5>Suivez-nous</h5>
+						<div class="d-flex align-items-center">
+							<a href="https://www.facebook.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Facebook">
+								<i class="bi bi-facebook"></i>
+							</a>
+							<a href="https://www.instagram.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Instagram">
+								<i class="bi bi-instagram"></i>
+							</a>
+							<a href="https://www.youtube.com/@Stras4Water" class="text-dark fs-4" target="_blank" aria-label="YouTube">
+								<i class="bi bi-youtube"></i>
+							</a>
+						</div>
+					</div>
+
+					<!-- Liens utiles -->
+					<div class="col-md-6 text-md-end">
+						<h5>Liens utiles</h5>
+						<ul class="list-unstyled mb-0">
+							<li>
+								<a href="/contact" class="text-decoration-none text-dark">Contact</a>
+							</li>
+							<li>
+								<a href="/mentions-legales" class="text-decoration-none text-dark">Mentions légales</a>
+							</li>
+							<li>
+								<a href="/faire-un-don" class="text-decoration-none text-dark">Faire un don</a>
+							</li>
+							<li>
+								<a href="/politique-de-confidentialite" class="text-decoration-none text-dark">Politique de confidentialité</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<hr class="mt-4 mb-3">
+				<div class="text-center small">
+					© 2025 Stras4Water – Association loi 1908 (Alsace-Moselle), reconnue d’intérêt général  <br />
+SIRET : 929 570 497 00024 – Siège : 1a place des Orphelins, 67000 Strasbourg
+				</div>
+			</div>
+		</footer>
+
+
+		 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+		 <script>
+			document.addEventListener("DOMContentLoaded", function () {
+			if (!localStorage.getItem("cookieConsentGiven")) {
+				document.getElementById("cookie-banner").classList.remove("d-none");
+			}
+		
+			document.getElementById("cookie-banner-close").addEventListener("click", function () {
+				localStorage.setItem("cookieConsentGiven", "true");
+				document.getElementById("cookie-banner").classList.add("d-none");
+			});
+			});
+
+	document.addEventListener('DOMContentLoaded', function () {
+        var dropdownSubmenus = document.querySelectorAll('.dropdown-menu .dropend > .dropdown-toggle');
+
+        dropdownSubmenus.forEach(function (toggle) {
+            toggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var parent = toggle.parentElement;
+                var openSubmenu = parent.classList.contains('show');
+
+                // Fermer tous les autres sous-menus dropend dans ce menu
+                var allOpenSubmenus = parent.parentElement.querySelectorAll('.dropend.show');
+                allOpenSubmenus.forEach(function (submenu) {
+                    if (submenu !== parent) {
+                        submenu.classList.remove('show');
+                        submenu.querySelector('.dropdown-menu').classList.remove('show');
+                    }
+                });
+
+                if (!openSubmenu) {
+                    parent.classList.add('show');
+                    parent.querySelector('.dropdown-menu').classList.add('show');
+                } else {
+                    parent.classList.remove('show');
+                    parent.querySelector('.dropdown-menu').classList.remove('show');
+                }
+            });
+        });
+
+        // Fermer sous-menus si clic en dehors
+        document.addEventListener('click', function () {
+            var openSubmenus = document.querySelectorAll('.dropdown-menu .dropend.show');
+            openSubmenus.forEach(function (submenu) {
+                submenu.classList.remove('show');
+                submenu.querySelector('.dropdown-menu').classList.remove('show');
+            });
+        });
+    });
+
+	</script>
+
+
+	</body>
+</html>

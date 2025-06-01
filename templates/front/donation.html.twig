@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Faire un don
+{% endblock %}
+
+{% block body %}
+	<div class="container mt-5">
+		<h1 class="mb-4">Faire un don</h1>
+
+		{{ form_start(form) }}
+		{{ form_row(form.montant) }}
+
+		{% if not app.user %}
+			{{ form_row(form.recuFiscal) }}
+
+			<div id="fiscalFields" class="border rounded p-3 mb-3 d-none">
+				{{ form_row(form.nom) }}
+				{{ form_row(form.prenom) }}
+				{{ form_row(form.email) }}
+				<div id="adresseContainer">
+					{{ form_row(form.adresse) }}
+
+					<ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
+
+					<button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
+				</div>
+
+				<div id="detailedFields" class="d-none">
+					{{ form_row(form.numero) }}
+					{{ form_row(form.rue) }}
+					{{ form_row(form.code_postal) }}
+					{{ form_row(form.ville) }}
+					{{ form_row(form.pays) }}
+				</div>
+			</div>
+		{% endif %}
+
+		{% if app.user %}
+			<div class="alert alert-info">
+				Votre don sera automatiquement ajouté à votre compte. Vous pourrez éditer votre reçu fiscal en fin d'année, avec l'ensemble de vos dons.
+			</div>
+		{% endif %}
+
+		<button type="submit" class="btn btn-success">Faire un don</button>
+		{{ form_end(form) }}
+
+	</div>
+
+	 <script>
+		const  checkbox = document.getElementById('don_recuFiscal');
+		const fields = document.getElementById('fiscalFields');
+	
+		checkbox.addEventListener('change', () => {
+		fields.classList.toggle('d-none', !checkbox.checked);
+		});
+	
+		// Elements
+		const adresseInput = document.getElementById('don_adresse');
+		const suggestionsList = document.getElementById('adresseSuggestions');
+		const numeroInput = document.getElementById('don_numero');
+		const rueInput = document.getElementById('don_rue');
+		const codePostalInput = document.getElementById('don_code_postal');
+		const villeInput = document.getElementById('don_ville');
+		const paysInput = document.getElementById('don_pays');
+
+	
+		let lastAutofillValue = '';
+	
+		// Vider champs cachés
+		function clearHiddenFields() {
+			numeroInput.value = '';
+			rueInput.value = '';
+			codePostalInput.value = '';
+			villeInput.value = '';
+			paysInput.value = '';
+			lastAutofillValue = '';
+		}
+	
+		// Remplir champs cachés depuis suggestion
+		function fillAddressFields(feature) {
+			const props = feature.properties;
+
+			let numero = props.housenumber || '';
+			let rue = props.street || '';
+
+			if (!numero) {
+				const match = rue.match(/^(\d+\s*[\w-]*)\s+(.*)$/);
+				if (match) {
+					numero = match[1];
+					rue = match[2];
+				}
+			}
+
+			numeroInput.value = numero;
+			rueInput.value = rue;
+			codePostalInput.value = props.postcode || '';
+			villeInput.value = props.city || props.citycode || '';
+			paysInput.value = 'France';
+			lastAutofillValue = adresseInput.value;
+
+			// Affichage/masquage des champs
+			document.getElementById('adresseContainer').classList.add('d-none');
+			document.getElementById('detailedFields').classList.remove('d-none');
+		}	
+	
+		// Affiche les suggestions sous le textarea
+		function showSuggestions(features) {
+			suggestionsList.innerHTML = '';
+			if (features.length === 0) {
+				const li = document.createElement('li');
+				li.textContent = 'Aucune suggestion';
+				li.classList.add('list-group-item', 'disabled');
+				suggestionsList.appendChild(li);
+				return;
+			}
+			features.forEach(feature => {
+				const li = document.createElement('li');
+				li.classList.add('list-group-item', 'list-group-item-action');
+				li.textContent = feature.properties.label;
+				li.addEventListener('click', () => {
+				adresseInput.value = feature.properties.label;
+				fillAddressFields(feature);
+				suggestionsList.innerHTML = '';
+				});
+				suggestionsList.appendChild(li);
+			});
+		}
+	
+		// Requête API adresse.data.gouv.fr
+		async function fetchAddress(query) {
+			if (query.length < 3) {
+				suggestionsList.innerHTML = '';
+				clearHiddenFields();
+				return;
+			}
+			try {
+				const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+				if (!response.ok) {
+				throw new Error('Erreur API');
+				}
+				const data = await response.json();
+				showSuggestions(data.features);
+			} catch (error) {
+				console.error(error);
+				suggestionsList.innerHTML = '';
+				clearHiddenFields();
+			}
+		}
+	
+		// Écoute input adresse
+		adresseInput.addEventListener('input', () => {
+			const val = adresseInput.value;
+			if (val !== lastAutofillValue) {
+				clearHiddenFields();
+			}
+			fetchAddress(val);
+		});
+	
+		// Clic en dehors pour cacher les suggestions
+		document.addEventListener('click', (event) => {
+		if (!adresseInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+			suggestionsList.innerHTML = '';
+		}
+		});
+
+		document.getElementById('manualAddressBtn').addEventListener('click', () => {
+			// Masque le champ adresse et suggestions
+			document.getElementById('adresseContainer').classList.add('d-none');
+			suggestionsList.innerHTML = '';
+			
+			// Vide les champs cachés
+			clearHiddenFields();
+
+			// Affiche les champs détaillés
+			document.getElementById('detailedFields').classList.remove('d-none');
+		});
+
+	</script>
+{% endblock %}

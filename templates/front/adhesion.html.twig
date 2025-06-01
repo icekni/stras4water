@@ -1,0 +1,52 @@
+{# templates/adhesion.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Adhésion - Stras4Water{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="mb-4 text-center">Adhérez à Stras4Water</h1>
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <p>
+                <strong>Stras4Water</strong> est une association qui finance des projets d’accès à l’eau potable
+                et à l’hygiène dans les pays les plus touchés, via des cours de danse et des événements solidaires.
+            </p>
+
+            <p>
+                En adhérant, vous soutenez ces projets et rejoignez une communauté dynamique autour de la danse, des langues et du bien-être.
+            </p>
+
+            <ul>
+                <li>Accès à nos cours, stages et soirées</li>
+                <li>Participation à une cause solidaire</li>
+                <li>Déduction fiscale à 66% (ex : 10€ = 3,40€ après déduction)</li>
+            </ul>
+
+            <p class="fw-bold text-danger">
+                ⚠️ L’adhésion est <strong>obligatoire</strong> pour toute inscription à un abonnement ou une carte de 10 cours,<br>
+                sauf pour le <strong>cours d’essai gratuit</strong> proposé dans chaque discipline.
+            </p>
+        </div>
+
+        <div class="col-md-6 text-center">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+                 alt="Solidarité et danse" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <div class="text-center">
+        <h2 class="mb-3">Adhésion annuelle</h2>
+        <p>Montant fixe : <strong>10 €</strong></p>
+        
+        <form method="post" action="#">
+            <input type="hidden" name="_token" value="#">
+            <button type="submit" class="btn btn-success btn-lg">
+                Ajouter l’adhésion au panier
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

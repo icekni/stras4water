@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bachata - Stras4Water{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h2 class="my-4">À venir</h2>
+
+    {# <div class="row g-4">
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">#</h5>
+                        <form method="post" action="#" enctype="multipart/form-data">
+                            <input type="hidden" name="saison_id" value="#">
+
+                            <div class="mb-3">
+                                <label class="form-label">Choix du tarif</label>
+                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
+                                    <option value="normal">Tarif normal (60€)</option>
+                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 d-none justificatif-section">
+                                <label class="form-label">Justificatif</label>
+                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ajouter un don (facultatif)</label>
+                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">#</h5>
+                        <form method="post" action="#" enctype="multipart/form-data">
+                            <input type="hidden" name="saison_id" value="#">
+
+                            <div class="mb-3">
+                                <label class="form-label">Choix du tarif</label>
+                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
+                                    <option value="normal">Tarif normal (60€)</option>
+                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 d-none justificatif-section">
+                                <label class="form-label">Justificatif</label>
+                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ajouter un don (facultatif)</label>
+                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">#</h5>
+                        <form method="post" action="#" enctype="multipart/form-data">
+                            <input type="hidden" name="saison_id" value="#">
+
+                            <div class="mb-3">
+                                <label class="form-label">Choix du tarif</label>
+                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
+                                    <option value="normal">Tarif normal (60€)</option>
+                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 d-none justificatif-section">
+                                <label class="form-label">Justificatif</label>
+                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ajouter un don (facultatif)</label>
+                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Carte de 10 cours</h5>
+                    <form method="post" action="#" enctype="multipart/form-data">
+                        <input type="hidden" name="type_abonnement" value="carte">
+
+                        <div class="mb-3">
+                            <label class="form-label">Choix du tarif</label>
+                            <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
+                                <option value="normal">Tarif normal (60€)</option>
+                                <option value="reduit">Tarif réduit (50€, justificatif requis)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 d-none justificatif-section">
+                            <label class="form-label">Justificatif</label>
+                            <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ajouter un don (facultatif)</label>
+                            <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Ajouter la carte au panier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> #}
+</div>
+
+<script>
+    function toggleJustificatif(selectElement) {
+        const form = selectElement.closest('form');
+        const justificatif = form.querySelector('.justificatif-section');
+        justificatif.classList.toggle('d-none', selectElement.value !== 'reduit');
+    }
+</script>
+{% endblock %}

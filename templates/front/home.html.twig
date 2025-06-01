@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!
+{% endblock %}
+
+{% block body %}
+	<section
+		id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+		<!-- Indicateurs -->
+		<div class="carousel-indicators">
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+		</div>
+
+		<!-- Slides -->
+		<div
+			class="carousel-inner">
+
+			<!-- SLIDE 1 -->
+			<div class="carousel-item active">
+				<div class="container my-5">
+					<div class="row align-items-center">
+						<div class="col-lg-6 position-relative">
+							<img src="img/wateraid.jpg" class="img-fluid rounded-end custom-img" alt="Illustration">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h3 class="mb-0">300</h3>
+										<small>Participants</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">12</h3>
+										<small>Événements</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">7500€</h3>
+										<small>Collectés</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<h2 class="mb-3">Titre accrocheur 1</h2>
+							<p class="mb-4">Texte d’introduction impactant pour la première slide.</p>
+							<a href="/don" class="btn btn-success mb-5 rounded-pill">Je fais un don</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- SLIDE 2 -->
+			<div class="carousel-item">
+				<div class="container my-5">
+					<div class="row align-items-center">
+						<div class="col-lg-6 position-relative">
+							<img src="img/wateraid.jpg" class="img-fluid rounded-end custom-img" alt="Illustration 2">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h3 class="mb-0">120</h3>
+										<small>Adhérents</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">8</h3>
+										<small>Formations</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">4000€</h3>
+										<small>Dons reçus</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<h2 class="mb-3">Titre accrocheur 2</h2>
+							<p class="mb-4">Un autre texte pour une nouvelle action ou événement.</p>
+							<a href="/don" class="btn btn-success mb-5 rounded-pill">Je fais un don</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- SLIDE 3 (exemple vide à personnaliser) -->
+			<div class="carousel-item">
+				<div class="container my-5">
+					<div class="row align-items-center">
+						<div class="col-lg-6 position-relative">
+							<img src="img/wateraid.jpg" class="img-fluid rounded-end custom-img" alt="Illustration 3">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h3 class="mb-0">500</h3>
+										<small>Personnes aidées</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">15</h3>
+										<small>Bénévoles</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">9000€</h3>
+										<small>Objectif atteint</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<h2 class="mb-3">Titre accrocheur 3</h2>
+							<p class="mb-4">Encore un exemple de texte engageant.</p>
+							<a href="/don" class="btn btn-success mb-5 rounded-pill">Je fais un don</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Flèches -->
+		<button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		</button>
+	</section>
+
+	<section class="bg-light py-5">
+		<div class="container">
+			<div
+				class="row align-items-center">
+				<!-- Texte à gauche -->
+				<div class="col-lg-6 mb-4 mb-lg-0">
+					<h2 class="mb-3">Nous soutenir</h2>
+					<p class="mb-4">Soutenez notre mission en faisant un don. Chaque contribution nous aide à financer des projets solidaires et durables.</p>
+					<a href="/don" class="btn btn-success rounded-pill">Je fais un don</a>
+				</div>
+
+				<!-- Image à droite -->
+				<div class="col-lg-6 d-flex justify-content-center align-items-center">
+					<img src="img/aide.png" alt="Soutenir notre action" class="img-fluid rounded" style="max-height: 300px;">
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="py-5 bg-white">
+		<div class="container">
+			<h2 class="text-center mb-5">Nos activités</h2>
+			<div
+				class="row justify-content-center">
+
+				<!-- Carte Danse -->
+				<div class="col-md-6 col-lg-5 mb-4">
+					<div class="card h-100 shadow border-0">
+						<div class="card-body text-center">
+							<h5 class="card-title">Cours de danse</h5>
+						    <img src="img/danse.png" class="card-img-top" style="max-width: 200px;" alt="Cours de danse">
+							<p class="card-text">Participez à nos ateliers de salsa, bachata et kizomba, ouverts à tous les niveaux.</p>
+							<a href="/danse" class="btn btn-outline-success rounded-pill">En savoir plus</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Carte Langue -->
+				<div class="col-md-6 col-lg-5 mb-4">
+					<div class="card h-100 shadow border-0">
+						<div class="card-body text-center">
+							<h5 class="card-title">Cours de langue</h5>
+						    <img src="img/langue.png" class="card-img-top" style="max-width: 200px;" alt="Cours de langue">
+							<p class="card-text">Rejoignez nos cours d’anglais solidaires dans une ambiance conviviale et bienveillante.</p>
+							<a href="/langues" class="btn btn-outline-success rounded-pill">En savoir plus</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+{% endblock %}
