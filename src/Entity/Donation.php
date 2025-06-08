@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Enum\DonationStatus;
+use App\Enum\MoyenPaiement;
+use App\Enum\TypeDon;
 use App\Repository\DonationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -42,6 +45,21 @@ class Donation
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
+
+    #[ORM\Column(length: 10)]
+    private ?DonationStatus $status = DonationStatus::CREATED;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $checkoutId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $urlRecuFiscal = null;
+
+    #[ORM\Column(length: 20)]
+    private ?TypeDon $TypeDon = null;
+
+    #[ORM\Column(length: 20)]
+    private ?MoyenPaiement $moyenPaiement = null;
 
     public function getId(): ?int
     {
@@ -164,6 +182,66 @@ class Donation
     public function setEmail(?string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(DonationStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCheckoutId(): ?int
+    {
+        return $this->checkoutId;
+    }
+
+    public function setCheckoutId(int $checkoutId): static
+    {
+        $this->checkoutId = $checkoutId;
+
+        return $this;
+    }
+
+    public function getUrlRecuFiscal(): ?string
+    {
+        return $this->urlRecuFiscal;
+    }
+
+    public function setUrlRecuFiscal(?string $urlRecuFiscal): static
+    {
+        $this->urlRecuFiscal = $urlRecuFiscal;
+
+        return $this;
+    }
+
+    public function getTypeDon(): ?TypeDon
+    {
+        return $this->TypeDon;
+    }
+
+    public function setTypeDon(TypeDon $TypeDon): static
+    {
+        $this->TypeDon = $TypeDon;
+
+        return $this;
+    }
+
+    public function getMoyenPaiement(): ?MoyenPaiement
+    {
+        return $this->moyenPaiement;
+    }
+
+    public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
+    {
+        $this->moyenPaiement = $moyenPaiement;
 
         return $this;
     }

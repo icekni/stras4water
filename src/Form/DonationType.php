@@ -48,6 +48,8 @@ class DonationType extends AbstractType
             $data = $event->getData();
             $form = $event->getForm();
 
+            // dd($data);
+
             if (!empty($data['has_recu_fiscal'])) {
                 $form->add('nom', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
@@ -58,19 +60,16 @@ class DonationType extends AbstractType
                 $form->add('email', EmailType::class, [
                     'constraints' => [new Assert\NotBlank(), new Assert\Email()],
                 ]);
-                $form->add('adresse_numero', HiddenType::class, [
+                $form->add('adresse_numero', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('adresse_rue', HiddenType::class, [
+                $form->add('adresse_rue', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('adresse_code_postal', HiddenType::class, [
+                $form->add('adresse_code_postal', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
-                $form->add('adresse_ville', HiddenType::class, [
-                    'constraints' => [new Assert\NotBlank()],
-                ]);
-                $form->add('adresse_pays', HiddenType::class, [
+                $form->add('adresse_ville', TextType::class, [
                     'constraints' => [new Assert\NotBlank()],
                 ]);
             }

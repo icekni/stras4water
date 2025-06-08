@@ -16,6 +16,21 @@ class DonationRepository extends ServiceEntityRepository
         parent::__construct($registry, Donation::class);
     }
 
+    public function countByYear(int $year) : int 
+    {
+        $start = new \DateTimeImmutable("$year-01-01 00:00:00");
+        $end = $start->modify('+1 year');
+
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.date >= :start')
+            ->andWhere('d.date < :end')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     //    /**
     //     * @return Donation[] Returns an array of Donation objects
     //     */
