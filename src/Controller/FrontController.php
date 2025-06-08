@@ -111,17 +111,14 @@ final class FrontController extends AbstractController
         {
             $anneeEnCours = new DateTimeImmutable();
             $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-            $pdfPath = $recuFiscalService->generate($donation, $numeroOrdre);
+            $donation = $recuFiscalService->generate($donation, $numeroOrdre);
             
             $donation->setStatus(DonationStatus::PENDING);
-            $donation->setUrlRecuFiscal($pdfPath);
             $entityManager->persist($donation);
             $entityManager->flush();
 
-            dd($pdfPath);
-
             $this->addFlash(
-                'succes',
+                'success',
                 'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
             );
         }

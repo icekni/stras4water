@@ -8,16 +8,20 @@ use App\Enum\TypeDon;
 use DateTimeImmutable;
 use setasign\Fpdi\Fpdi;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class RecuFiscalService
 {
     private string $projectDir;
+    private MailerInterface $mailer;
 
-    public function __construct(KernelInterface $kernel){
+    public function __construct(KernelInterface $kernel, MailerInterface $mailer){
         $this->projectDir = $kernel->getProjectDir();
+        $this->mailer = $mailer;
     }
         // generate("RF2025-00001", $user, "50.05", $dateDon, new DateTimeImmutable(), TypeDon::NUMERAIRE, MoyenPaiement::CASH);
-    public function generate(Donation $donation, string $numeroOrdre): string
+    public function generate(Donation $donation, string $numeroOrdre): Donation
     {
         $pdf = new Fpdi();
         $pagecount = $pdf->setSourceFile('recuFiscaux/modele-vierge.pdf');
@@ -159,6 +163,22 @@ class RecuFiscalService
         $filePath = $this->projectDir . '/public/recuFiscaux/' . $numeroOrdre . '.pdf';
         $pdf->Output($filePath, 'F');
 
-        return $filePath;
+        $donation->setUrlRecuFiscal($filePath);
+
+        $this->sendByEmail($donation);
+
+        return $donation;
+    }
+    
+    private function sendByEmail(Donation $donation): void
+    {
+        $email = (new Email())
+            ->from('contact@stras4water.org')
+            ->to($donation->getEmail())
+            ->subject('Votre recu fiscal')
+            ->text('Bonjour, vous trouverez en pièce jointe le reçu fiscal pour votre don de ' . $donation->getMontant() . '€ à Stras4Water.')
+            ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf');
+
+        $this->mailer->send($email);
     }
 }
