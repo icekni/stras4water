@@ -6,6 +6,8 @@ use App\Enum\DonationStatus;
 use App\Enum\MoyenPaiement;
 use App\Enum\TypeDon;
 use App\Repository\DonationRepository;
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DonationRepository::class)]
@@ -21,9 +23,6 @@ class Donation
 
     #[ORM\Column]
     private ?\DateTimeImmutable $date = null;
-
-    #[ORM\Column]
-    private ?bool $hasRecuFiscal = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $nom = null;
@@ -61,6 +60,12 @@ class Donation
     #[ORM\Column(length: 20)]
     private ?MoyenPaiement $moyenPaiement = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $adressePays = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?\DateTimeImmutable $dateDeNaissance = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,18 +91,6 @@ class Donation
     public function setDate(\DateTimeImmutable $date): static
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    public function hasRecuFiscal(): ?bool
-    {
-        return $this->hasRecuFiscal;
-    }
-
-    public function setHasRecuFiscal(bool $hasRecuFiscal): static
-    {
-        $this->hasRecuFiscal = $hasRecuFiscal;
 
         return $this;
     }
@@ -242,6 +235,30 @@ class Donation
     public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
     {
         $this->moyenPaiement = $moyenPaiement;
+
+        return $this;
+    }
+
+    public function getAdressePays(): ?string
+    {
+        return $this->adressePays;
+    }
+
+    public function setAdressePays(?string $adressePays): static
+    {
+        $this->adressePays = $adressePays;
+
+        return $this;
+    }
+
+    public function getDateDeNaissance(): ?DateTimeImmutable
+    {
+        return $this->dateDeNaissance;
+    }
+
+    public function setDateDeNaissance(\DateTimeImmutable $dateDeNaissance): static
+    {
+        $this->dateDeNaissance = $dateDeNaissance;
 
         return $this;
     }

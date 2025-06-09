@@ -8,6 +8,8 @@ use App\Enum\MoyenPaiement;
 use App\Enum\TypeDon;
 use App\Form\DonationType;
 use App\Repository\DonationRepository;
+use App\Service\CountryCodeService;
+use App\Service\HelloAssoTokenService;
 use App\Service\RecuFiscalService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
@@ -16,6 +18,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class FrontController extends AbstractController
 {
@@ -66,7 +70,7 @@ final class FrontController extends AbstractController
     }
 
     #[Route('/donation', name: 'donation')]
-    public function donation(Request $request, EntityManagerInterface $entityManager): Response
+    public function donation(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient, HelloAssoTokenService $helloAssoTokenService, CountryCodeService $countryCodeService): Response
     {
         $donation = new Donation();
 
@@ -78,17 +82,66 @@ final class FrontController extends AbstractController
             $donation->setStatus(DonationStatus::CREATED);
             $donation->setTypeDon(TypeDon::NUMERAIRE);
             $donation->setMoyenPaiement(MoyenPaiement::CARTE);
-            // TODO checkoutId à remplacer par le retour de helloasso
+            
+            $backUrl = $this->generateUrl('donation', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $backUrl = preg_replace('/^http:/', 'https:', $backUrl);
+            
+            $returnUrl = $this->generateUrl('donationValidate', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $returnUrl = preg_replace('/^http:/', 'https:', $returnUrl);
+            
+            $errorUrl = $this->generateUrl('donationCancel', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $errorUrl = preg_replace('/^http:/', 'https:', $errorUrl);
+            
+            $payload = [
+                "totalAmount" => intval($donation->getMontant() * 100),
+                "initialAmount" => intval($donation->getMontant() * 100),
+                "currency" => "EUR",
+                "itemName" => "Don par carte - ID: " . $donation->getId(),
+                "backUrl" => $backUrl,
+                "returnUrl" => $returnUrl,
+                "ErrorUrl" => $errorUrl,
+                "containsDonation" => true,
+                "metadata" => [
+                    "donation_id" => $donation->getId(),
+                ],
+                "manualContribution" => [
+                    "amount" => 0,
+                ],
+                "payer" => [
+                    "firstName" => $donation->getPrenom(),
+                    "lastName" => $donation->getNom(),
+                    "dateOfBirth" => $donation->getDateDeNaissance()->format('Y-m-d'),
+                    "email" => $donation->getEmail(),
+                    "address" => $donation->getAdresseNumero() . " " . $donation->getAdresseRue(),
+                    "city" => $donation->getAdresseVille(),
+                    "zipcode" => $donation->getAdresseCodePostal(),
+                    "country" => $countryCodeService->getIsoCodes($donation->getAdressePays()),
+                    // "acceptContributions" => false
+                ],
+                "customContribution" => [
+                    "amount" => 0
+                ],
+            ];
+                
+            $response = $httpClient->request('POST', 'https://api.helloasso-sandbox.com/v5/organizations/stras4water/checkout-intents', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $helloAssoTokenService->getValidAccessToken(),
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+                'json' => $payload,
+            ]);
+            
+            $data = $response->toArray();            
+            
+            $donation->setCheckoutId($data['id']);
 
             $entityManager->persist($donation);
             $entityManager->flush();
 
-            // TODO rediction vers paiement helloasso qui lui redirige vers validate
-            return $this->redirectToRoute('donationValidate', [
-                'checkoutId' => $donation->getId(),
-                'error' => null,
-            ]);
+            return $this->redirect($data['redirectUrl']);
         }
+
         return $this->render('front/donation.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -97,36 +150,49 @@ final class FrontController extends AbstractController
     #[Route('/donationValidate', name: 'donationValidate', methods: ['GET'])]
     public function donationValidate(Request $request, RecuFiscalService $recuFiscalService, DonationRepository $donationRepository, EntityManagerInterface $entityManager): Response
     {
-        // TODO a remplacer par le retour de helloasso
-        $donation = $donationRepository->findOneBy(['id' => $request->query->get('checkoutId')]);
+        $donation = $donationRepository->findOneBy(['checkoutId' => $request->query->get('checkoutIntentId')]);
 
-        if ($request->query->get('error') != null) {
+        if ($request->query->get('code') != 'succeeded') {
             $donation->setStatus(DonationStatus::CANCELLED);
             $this->addFlash(
                 'danger',
-                'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
+                'Une erreur s\'est produite!'
             );
         }
         else 
         {
-            $anneeEnCours = new DateTimeImmutable();
-            $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-            $donation = $recuFiscalService->generate($donation, $numeroOrdre);
-            
+            if ($donation->HasRecuFiscal()) 
+            {
+                $anneeEnCours = new DateTimeImmutable();
+                $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
+                $donation = $recuFiscalService->generate($donation, $numeroOrdre);
+            }
+
             $donation->setStatus(DonationStatus::PENDING);
             $entityManager->persist($donation);
             $entityManager->flush();
-
+            
             $this->addFlash(
                 'success',
                 'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
             );
         }
-
+        
         // return new Response($pdfContent, 200, [
         //     'Content-Type' => 'application/pdf',
         //     'Content-Disposition' => 'inline; filename="recu_fiscal.pdf"', // ou "attachment;" pour forcer le téléchargement
         // ]);
+
+        return $this->redirectToRoute('donation');
+    }
+
+    #[Route('/donationCancel', name: 'donationCancel')]
+    public function donationCancel(): Response
+    {
+        $this->addFlash(
+            'danger',
+            'Une erreur s\'est produite.'
+        );
 
         return $this->redirectToRoute('donation');
     }
