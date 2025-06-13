@@ -5,151 +5,60 @@
 {% block body %}
 <section class="container my-5">
 
-  <h1 class="mb-4 text-center text-success">Cours de Bachata</h1>
+<h1 class="mb-4 text-center text-success">Cours de Bachata à Strasbourg</h1>
 
   <!-- Description -->
   <div class="mb-5">
     <p>
       La <strong>bachata</strong> est une danse latine originaire de la République Dominicaine, aujourd’hui pratiquée dans le monde entier. 
-      Chez Stras4Water, nos cours sont accessibles à tous, quel que soit votre niveau ou vos moyens, dans une ambiance chaleureuse, bienveillante et inclusive.
+      Chez Stras4Water, nos cours sont ouverts à tous, quel que soit votre niveau ou vos moyens, dans une ambiance chaleureuse, bienveillante et inclusive.
     </p>
+
+    <div class="text-center my-4">
+      <img src="img/bachata-cours.jpeg" alt="Cours de bachata Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+    </div>
+
     <p>
-      Les cours ont lieu <strong>chaque mercredi soir</strong> :
+      Nous enseignons principalement la <strong>bachata moderne et la bachata sensuelle</strong>, deux styles très populaires en Europe. 
+      Il nous arrive également d’y glisser quelques pas de bachata dominicaine, pour enrichir la musicalité et la diversité de vos mouvements.
     </p>
+
+    <p>
+        Nos cours sont idéaux si vous souhaitez <strong>ajouter un jour de pratique</strong> en complément d’une école de danse classique, mais aussi si vous n’avez pas les moyens d’en fréquenter une : notre mission est de rendre la danse <strong>accessible financièrement à tous</strong>.
+    </p>
+
+    <p>
+      <strong>Les horaires pour la saison 2025/2026 (à partir de septembre 2025) sont en cours d’élaboration.</strong><br>
+      Lors de la saison précédente, les cours avaient lieu chaque mercredi soir à 19h30.
+    </p>
+
+    <p>
+      Les cours sont encadrés par une équipe dynamique : <strong>Jeremy, Coralie, Margo, Anna, Diane, Amine</strong> et <strong>Paul</strong>.
+    </p>
+
+    <h2 class="mt-5">Tarifs</h2> 
+    <small>(adhésion à l'association obligatoire - 10€)</small>
     <ul>
-      <li><strong>19h30</strong> — Bachata Débutant</li>
-      <li><strong>20h30</strong> — Bachata Intermédiaire</li>
+      <li><strong>60€</strong> l’année</li>
+      <li><strong>40€</strong> le semestre</li>
+      <li><strong>30€</strong> la carte de 10 cours</li>
     </ul>
+    <strong>Tarif réduit (50%)</strong> pour les personnes en situation précaire (sur justificatif)
+
     <p>
-      Encadrés par une équipe dynamique : <strong>Jeremy, Margo, Anna, Diane, Amine, Paul</strong> et <strong>Paul</strong>.
+      Grâce à ce système de tarification solidaire, <strong>nos cours sont financièrement très accessibles</strong>, car nous croyons que la danse devrait être ouverte à toutes et tous.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="img/bachata.jpeg" alt="Groupe de danseurs Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+    </div>
+
+    <p class="mt-4">
+      Pour toute question, n’hésitez pas à <a href="/contact">nous contacter</a> ou à venir nous rencontrer directement lors d’un cours ou événement Stras4Water.
     </p>
   </div>
-    {# <h2 class="my-4">À venir</h2> #}
 
-    {# <div class="row g-4">
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">#</h5>
-                        <form method="post" action="#" enctype="multipart/form-data">
-                            <input type="hidden" name="saison_id" value="#">
-
-                            <div class="mb-3">
-                                <label class="form-label">Choix du tarif</label>
-                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
-                                    <option value="normal">Tarif normal (60€)</option>
-                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3 d-none justificatif-section">
-                                <label class="form-label">Justificatif</label>
-                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Ajouter un don (facultatif)</label>
-                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">#</h5>
-                        <form method="post" action="#" enctype="multipart/form-data">
-                            <input type="hidden" name="saison_id" value="#">
-
-                            <div class="mb-3">
-                                <label class="form-label">Choix du tarif</label>
-                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
-                                    <option value="normal">Tarif normal (60€)</option>
-                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3 d-none justificatif-section">
-                                <label class="form-label">Justificatif</label>
-                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Ajouter un don (facultatif)</label>
-                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">#</h5>
-                        <form method="post" action="#" enctype="multipart/form-data">
-                            <input type="hidden" name="saison_id" value="#">
-
-                            <div class="mb-3">
-                                <label class="form-label">Choix du tarif</label>
-                                <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
-                                    <option value="normal">Tarif normal (60€)</option>
-                                    <option value="reduit">Tarif réduit (30}€, justificatif requis)</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3 d-none justificatif-section">
-                                <label class="form-label">Justificatif</label>
-                                <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Ajouter un don (facultatif)</label>
-                                <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">Ajouter # au panier</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-        <div class="col-12 col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Carte de 10 cours</h5>
-                    <form method="post" action="#" enctype="multipart/form-data">
-                        <input type="hidden" name="type_abonnement" value="carte">
-
-                        <div class="mb-3">
-                            <label class="form-label">Choix du tarif</label>
-                            <select class="form-select" name="tarif" onchange="toggleJustificatif(this)">
-                                <option value="normal">Tarif normal (60€)</option>
-                                <option value="reduit">Tarif réduit (50€, justificatif requis)</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3 d-none justificatif-section">
-                            <label class="form-label">Justificatif</label>
-                            <input type="file" name="justificatif" class="form-control" accept="application/pdf,image/*">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Ajouter un don (facultatif)</label>
-                            <input type="number" name="don" class="form-control" min="0" step="1" placeholder="Montant en €">
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100">Ajouter la carte au panier</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> #}
-</div>
+</section>
 
 <script>
     function toggleJustificatif(selectElement) {

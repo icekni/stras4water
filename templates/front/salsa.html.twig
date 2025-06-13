@@ -1,98 +1,69 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cours de Salsa{% endblock %}
+{% block title %}Cours de Salsa - Stras4Water{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-  <h2 class="mb-4">Cours de Salsa</h2>
+<section class="container my-5">
 
-  <p>
-    Nos cours de Salsa sont ouverts à toutes et tous ! Venez découvrir ou approfondir cette danse joyeuse et rythmée.
-    <br>
-    <strong>Jour et heure :</strong> chaque <strong>lundi à 20h30</strong>
-    <br>
-    <strong>Professeurs :</strong> Amine & Clémence
-  </p>
+<h1 class="mb-4 text-center text-danger">Cours de Salsa à Strasbourg</h1>
 
-  <form method="post" enctype="multipart/form-data">
-    <!-- Type d'abonnement -->
-    <h3 class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
-      <div class="col">
-        <input type="radio" class="btn-check" name="type_abonnement" id="annuel" value="annuel" required>
-        <label class="btn btn-outline-primary w-100 text-start" for="annuel">
-          <strong>Abonnement annuel</strong><br>
-          Du 1er septembre 2025 au 30 juin 2026<br>
-          Tarif normal : 120€, réduit : 100€
-        </label>
-      </div>
-      <div class="col">
-        <input type="radio" class="btn-check" name="type_abonnement" id="semestre1" value="semestre1">
-        <label class="btn btn-outline-primary w-100 text-start" for="semestre1">
-          <strong>Semestre 1</strong><br>
-          Du 1er septembre 2025 au 31 janvier 2026<br>
-          Tarif normal : 70€, réduit : 60€
-        </label>
-      </div>
-      <div class="col">
-        <input type="radio" class="btn-check" name="type_abonnement" id="semestre2" value="semestre2">
-        <label class="btn btn-outline-primary w-100 text-start" for="semestre2">
-          <strong>Semestre 2</strong><br>
-          Du 1er février 2026 au 30 juin 2026<br>
-          Tarif normal : 70€, réduit : 60€
-        </label>
-      </div>
-      <div class="col">
-        <input type="radio" class="btn-check" name="type_abonnement" id="carte" value="carte">
-        <label class="btn btn-outline-primary w-100 text-start" for="carte">
-          <strong>Carte 10 cours</strong><br>
-          Utilisable sans limite de temps<br>
-          Tarif normal : 60€, réduit : 50€
-        </label>
-      </div>
+  <!-- Description -->
+  <div class="mb-5">
+    <p>
+      La <strong>salsa</strong> est une danse afro-caribéenne populaire et dynamique, pratiquée à travers le monde. 
+      Chez Stras4Water, nos cours sont ouverts à tous, dans une ambiance conviviale, inclusive et respectueuse du rythme de chacun.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="img/rueda.jpg" alt="Cours de salsa Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
 
-    <!-- Tarif -->
-    <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
-    <div class="d-flex gap-3 mb-4">
-      <div>
-        <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
-        <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
-      </div>
-      <div>
-        <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
-        <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
-      </div>
+    <p>
+      Nous enseignons principalement la <strong>salsa cubaine</strong>, un style festif et interactif qui permet à chacun de s’exprimer tout en apprenant à danser en <strong>rueda de casino</strong> (ronde de danseurs avec changements de partenaires).
+    </p>
+
+    <p>
+      Que vous soyez débutant ou que vous souhaitiez renforcer votre pratique hebdomadaire, nos cours sont pensés pour être <strong>accessibles financièrement</strong> à toutes et tous.
+    </p>
+
+    <p>
+      <strong>Les horaires pour la saison 2025/2026 (à partir de septembre 2025) sont en cours d’élaboration.</strong><br>
+      Lors de la saison précédente, les cours avaient lieu chaque mercredi soir à 20h30.
+    </p>
+
+    <p>
+      Les cours sont encadrés par une équipe de passionné·e·s : <strong>Amine, Clémence</strong> et <strong>June</strong>.
+    </p>
+
+    <h2 class="mt-5">Tarifs</h2> 
+    <small>(adhésion à l'association obligatoire - 10€)</small>
+    <ul>
+      <li><strong>60€</strong> l’année</li>
+      <li><strong>40€</strong> le semestre</li>
+      <li><strong>30€</strong> la carte de 10 cours</li>
+    </ul>
+    <strong>Tarif réduit (50%)</strong> pour les personnes en situation précaire (sur justificatif)
+
+    <p>
+      Grâce à cette tarification solidaire, <strong>nos cours de salsa sont très accessibles</strong>. La danse doit rester un plaisir partagé, quel que soit votre budget.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="img/salsa-cours.jpg" alt="Danseurs salsa Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
 
-    <!-- Justificatif pour tarif réduit -->
-    <div class="mb-4 d-none" id="justificatif-wrapper">
-      <label for="justificatif" class="form-label">Merci de joindre un justificatif :</label>
-      <input class="form-control" type="file" name="justificatif" id="justificatif">
-    </div>
+    <p class="mt-4">
+      Pour toute question, n’hésitez pas à <a href="/contact">nous contacter</a> ou à venir nous rencontrer lors d’un cours ou d’un événement Stras4Water.
+    </p>
+  </div>
 
-    <!-- Niveau (fixe pour salsa) -->
-    <input type="hidden" name="niveau" value="unique">
-
-    <!-- Adhésion obligatoire -->
-    <div class="alert alert-info mt-4">
-      ⚠️ <strong>L'adhésion annuelle est obligatoire</strong> pour toute souscription.
-      Elle est automatiquement ajoutée au panier si vous n'êtes pas encore adhérent(e).
-      <br><br>
-      <strong>Si vous n'êtes pas connecté(e)</strong> : connectez-vous d’abord.<br>
-      Si vous êtes déjà adhérent(e), l'adhésion sera automatiquement retirée du panier une fois la connexion effectuée.
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
-  </form>
-</div>
+</section>
 
 <script>
-  document.getElementById('tarif_normal').addEventListener('change', () => {
-    document.getElementById('justificatif-wrapper').classList.add('d-none');
-  });
-  document.getElementById('tarif_reduit').addEventListener('change', () => {
-    document.getElementById('justificatif-wrapper').classList.remove('d-none');
-  });
+    function toggleJustificatif(selectElement) {
+        const form = selectElement.closest('form');
+        const justificatif = form.querySelector('.justificatif-section');
+        justificatif.classList.toggle('d-none', selectElement.value !== 'reduit');
+    }
 </script>
 {% endblock %}

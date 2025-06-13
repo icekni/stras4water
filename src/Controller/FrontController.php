@@ -64,9 +64,33 @@ final class FrontController extends AbstractController
     }
 
     #[Route('/bachata', name: 'bachata')]
-    public function abonnement(): Response
+    public function bachata(): Response
     {
         return $this->render('front/bachata.html.twig', []);
+    }
+
+    #[Route('/salsa', name: 'salsa')]
+    public function salsa(): Response
+    {
+        return $this->render('front/salsa.html.twig', []);
+    }
+
+    #[Route('/kizomba', name: 'kizomba')]
+    public function kizomba(): Response
+    {
+        return $this->render('front/kizomba.html.twig', []);
+    }
+
+    #[Route('/anglais', name: 'anglais')]
+    public function anglais(): Response
+    {
+        return $this->render('front/anglais.html.twig', []);
+    }
+
+    #[Route('/espagnol', name: 'espagnol')]
+    public function espagnol(): Response
+    {
+        return $this->render('front/espagnol.html.twig', []);
     }
 
     #[Route('/donation', name: 'donation')]
@@ -161,12 +185,9 @@ final class FrontController extends AbstractController
         }
         else 
         {
-            if ($donation->HasRecuFiscal()) 
-            {
-                $anneeEnCours = new DateTimeImmutable();
-                $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-                $donation = $recuFiscalService->generate($donation, $numeroOrdre);
-            }
+            $anneeEnCours = new DateTimeImmutable();
+            $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
+            $donation = $recuFiscalService->generate($donation, $numeroOrdre);
 
             $donation->setStatus(DonationStatus::PENDING);
             $entityManager->persist($donation);

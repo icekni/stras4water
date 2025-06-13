@@ -3,10 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>
-			{% block title %}Welcome!
-			{% endblock %}
-		</title>
+		<title>{% block title %}Welcome!{% endblock %}</title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous"> {% block stylesheets %}{% endblock %}
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -87,7 +84,7 @@
 			}
 
 			body {
-				padding-top: 96px;
+				padding-top: 130px;
 			}
 
 			.container,
@@ -156,18 +153,14 @@
 		</style>
 		{% block style %}
 		{% endblock %}
-
-		{% block javascripts %}
-		{% endblock %}
 	</head>
-	<body
-		class="py-30">
+	<body>
 		<!--::header part start::-->
 		<header class="main_menu home_menu">
     <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
         <div class="container-fluid">
             <a href="{{ path('home') }}" class="navbar-brand">
-                <img src="img/logo.png" height="80" alt="Logo Stras4Water">
+				<img src="{{ asset('img/logo.png') }}" alt="Logo Stras4Water" height="80">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -192,7 +185,7 @@
                 </div>
 
                 <div class="d-lg-none mb-3 text-center">
-                    <a href="don" class="btn btn-success rounded-pill">Je fais un don</a>
+                    <a href="{{ path('donation') }}" class="btn btn-success rounded-pill" aria-label="Faire un don">Je fais un don</a>
                 </div>
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -212,8 +205,8 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownDanse">
                                     <li><a class="dropdown-item" href="{{ path('bachata') }}">Bachata</a></li>
-                                    <li><a class="dropdown-item" href="#">Salsa</a></li>
-                                    <li><a class="dropdown-item" href="#">Kizomba</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('salsa') }}">Salsa</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('kizomba') }}">Kizomba</a></li>
                                 </ul>
                             </li>
 
@@ -223,8 +216,8 @@
                                     Cours de langue
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownLangue">
-                                    <li><a class="dropdown-item" href="#">Anglais</a></li>
-                                    <li><a class="dropdown-item" href="#">Espagnol</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('anglais') }}">Anglais</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('espagnol') }}">Espagnol</a></li>
                                 </ul>
                             </li>
 
@@ -237,7 +230,7 @@
                 </ul>
 
                 <div class="hearer_icon d-none d-lg-flex align-items-center gap-3">
-                    <a class="btn btn-success rounded-pill" href="{{ path('donation') }}">Je fais un don</a>
+                    <a class="btn btn-success rounded-pill" href="{{ path('donation') }}" aria-label="Faire un don">Je fais un don</a>
                     {# <a href="cart.html">
                         <i class="bi bi-cart3"></i> (0.00 €)
                     </a> #}
@@ -401,5 +394,8 @@ SIRET : 929 570 497 00024 – Siège : 1a place des Orphelins, 67000 Strasbourg
 	</script>
 
 
+
+	{% block javascripts %}
+	{% endblock %}
 	</body>
 </html>
