@@ -93,6 +93,36 @@ final class FrontController extends AbstractController
         return $this->render('front/espagnol.html.twig', []);
     }
 
+    #[Route('/about', name: 'about')]
+    public function about(): Response
+    {
+        return $this->render('front/about.html.twig', []);
+    }
+
+    #[Route('/contact', name: 'contact')]
+    public function contact(): Response
+    {
+        return $this->render('front/contact.html.twig', []);
+    }
+
+    #[Route('/events', name: 'events')]
+    public function events(): Response
+    {
+        return $this->render('front/events.html.twig', []);
+    }
+
+    #[Route('/ml', name: 'ml')]
+    public function ml(): Response
+    {
+        return $this->render('front/ml.html.twig', []);
+    }
+
+    #[Route('/confidentialite', name: 'confidentialite')]
+    public function confidentialite(): Response
+    {
+        return $this->render('front/confidentialite.html.twig', []);
+    }
+
     #[Route('/donation', name: 'donation')]
     public function donation(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient, HelloAssoTokenService $helloAssoTokenService, CountryCodeService $countryCodeService): Response
     {

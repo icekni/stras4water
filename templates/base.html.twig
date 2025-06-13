@@ -189,7 +189,7 @@
                 </div>
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="#">Qui sommes nous</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('about') }}">Qui sommes nous</a></li>
 
                     {# Dropdown Activités #}
                     <li class="nav-item dropdown">
@@ -225,8 +225,8 @@
                     </li>
 
                     <li class="nav-item"><a class="nav-link" href="{{ path('adhesion') }}">Adhérer</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Billeterie événements</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('events') }}">Billeterie événements</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('contact') }}">Contact</a></li>
                 </ul>
 
                 <div class="hearer_icon d-none d-lg-flex align-items-center gap-3">
@@ -300,11 +300,8 @@
 							<a href="https://www.facebook.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Facebook">
 								<i class="bi bi-facebook"></i>
 							</a>
-							<a href="https://www.instagram.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Instagram">
+							<a href="https://www.instagram.com/Stras_4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Instagram">
 								<i class="bi bi-instagram"></i>
-							</a>
-							<a href="https://www.youtube.com/@Stras4Water" class="text-dark fs-4" target="_blank" aria-label="YouTube">
-								<i class="bi bi-youtube"></i>
 							</a>
 						</div>
 					</div>
@@ -314,16 +311,16 @@
 						<h5>Liens utiles</h5>
 						<ul class="list-unstyled mb-0">
 							<li>
-								<a href="/contact" class="text-decoration-none text-dark">Contact</a>
+								<a href="{{ path('contact') }}" class="text-decoration-none text-dark">Contact</a>
 							</li>
 							<li>
-								<a href="/mentions-legales" class="text-decoration-none text-dark">Mentions légales</a>
+								<a href="{{ path('ml') }}" class="text-decoration-none text-dark">Mentions légales</a>
 							</li>
 							<li>
-								<a href="/faire-un-don" class="text-decoration-none text-dark">Faire un don</a>
+								<a href="{{ path('donation') }}" class="text-decoration-none text-dark">Faire un don</a>
 							</li>
 							<li>
-								<a href="/politique-de-confidentialite" class="text-decoration-none text-dark">Politique de confidentialité</a>
+								<a href="{{ path('confidentialite') }}" class="text-decoration-none text-dark">Politique de confidentialité</a>
 							</li>
 						</ul>
 					</div>
