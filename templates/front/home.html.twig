@@ -14,7 +14,7 @@
 		</div>
 
 		<!-- Slides -->
-		<div
+		<divbachata
 			class="carousel-inner">
 
 			<!-- SLIDE 1 -->
@@ -22,7 +22,7 @@
 				<div class="container my-5">
 					<div class="row align-items-start">
 						<div class="col-lg-6 position-relative">
-							<img src="img/wateraid.webp" class="img-fluid rounded-end custom-img" alt="Illustration">
+							<img src="{{ asset('img/wateraid.webp') }}" class="img-fluid rounded-end custom-img" alt="Illustration">
 
 							<div class="stats-box bg-light p-4 rounded shadow">
 								<div class="row text-center">
@@ -56,7 +56,7 @@ Déjà + de 470 000£ levés par 4Water pour l’accès à l’eau.</p>
 				<div class="container my-5">
 					<div class="row align-items-start">
 						<div class="col-lg-6 position-relative">
-							<img src="img/danse.jpeg" class="img-fluid rounded-end custom-img" alt="Illustration 2">
+							<img src="{{ asset('img/danse.jpeg') }}" class="img-fluid rounded-end custom-img" alt="Illustration 2">
 
 							<div class="stats-box bg-light p-4 rounded shadow">
 								<div class="row text-center">
@@ -90,7 +90,7 @@ Local, solidaire, joyeux.</p>
 				<div class="container my-5">
 					<div class="row align-items-start">
 						<div class="col-lg-6 position-relative">
-							<img src="img/passions.webp" class="img-fluid rounded-end custom-img" alt="Illustration 3">
+							<img src="{{ asset('img/passions.webp') }}" class="img-fluid rounded-end custom-img" alt="Illustration 3">
 
 							<div class="stats-box bg-light p-4 rounded shadow">
 								<div class="row text-center">
@@ -137,12 +137,12 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 				<div class="col-lg-6 mb-4 mb-lg-0">
 					<h2 class="mb-3">Nous soutenir</h2>
 					<p class="mb-4">Soutenez notre mission en faisant un don. Chaque contribution nous aide à financer des projets solidaires et durables.</p>
-					<a href="/don" class="btn btn-success rounded-pill">Je fais un don</a>
+					<a href="{{ path('donation') }}" class="btn btn-success rounded-pill">Je fais un don</a>
 				</div>
 
 				<!-- Image à droite -->
 				<div class="col-lg-6 d-flex justify-content-center align-items-center">
-					<img src="img/aide.png" alt="Soutenir notre action" class="img-fluid rounded" style="max-height: 300px;">
+					<img src="{{ asset('img/aide.png') }}" alt="Soutenir notre action" class="img-fluid rounded" style="max-height: 300px;">
 				</div>
 			</div>
 		</div>
@@ -159,11 +159,11 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 					<div class="card h-100 shadow border-0">
 						<div class="card-body text-center">
 							<h5 class="card-title">Cours de danse</h5>
-						    <img src="img/danse.png" class="card-img-top" style="max-width: 200px;" alt="Cours de danse">
+						    <img src="{{ asset('img/danse.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de danse">
 							<p class="card-text">Participez à nos ateliers de salsa, bachata et kizomba, ouverts à tous les niveaux.</p>
 							<a href="{{ path('bachata') }}" class="btn btn-outline-success rounded-pill">Bachata</a>
-							<a href="/salsa" class="btn btn-outline-success rounded-pill">Salsa</a>
-							<a href="/kizomba" class="btn btn-outline-success rounded-pill">Kizomba</a>
+							<a href="{{ path('salsa') }}" class="btn btn-outline-success rounded-pill">Salsa</a>
+							<a href="{{ path('kizomba') }}" class="btn btn-outline-success rounded-pill">Kizomba</a>
 						</div>
 					</div>
 				</div>
@@ -173,10 +173,10 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 					<div class="card h-100 shadow border-0">
 						<div class="card-body text-center">
 							<h5 class="card-title">Cours de langue</h5>
-						    <img src="img/langue.png" class="card-img-top" style="max-width: 200px;" alt="Cours de langue">
+						    <img src="{{ asset('img/langue.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de langue">
 							<p class="card-text">Rejoignez nos cours d’anglais et d'espagnol solidaires dans une ambiance conviviale et bienveillante.</p>
-							<a href="/anglais" class="btn btn-outline-success rounded-pill">Anglais</a>
-							<a href="/espagnol" class="btn btn-outline-success rounded-pill">Espagnol</a>
+							<a href="{{ path('anglais') }}" class="btn btn-outline-success rounded-pill">Anglais</a>
+							<a href="{{ path('espagnol') }}" class="btn btn-outline-success rounded-pill">Espagnol</a>
 						</div>
 					</div>
 				</div>
