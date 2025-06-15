@@ -291,48 +291,52 @@
 
 		<footer class="bg-light text-dark pt-4 pb-4 mt-5 border-top">
 			<div class="container">
-				<div
-					class="row">
-					<!-- Réseaux sociaux -->
-					<div class="col-md-6 mb-3 mb-md-0">
-						<h5>Suivez-nous</h5>
-						<div class="d-flex align-items-center">
-							<a href="https://www.facebook.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Facebook">
-								<i class="bi bi-facebook"></i>
-							</a>
-							<a href="https://www.instagram.com/Stras_4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Instagram">
-								<i class="bi bi-instagram"></i>
-							</a>
-						</div>
+				<div class="row">
+				<!-- Réseaux sociaux -->
+				<div class="col-md-6 mb-3 mb-md-0">
+					<h5>Suivez-nous</h5>
+					<div class="d-flex align-items-center">
+					<a href="https://www.facebook.com/Stras4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Facebook">
+						<i class="bi bi-facebook"></i>
+					</a>
+					<a href="https://www.instagram.com/Stras_4Water" class="text-dark me-3 fs-4" target="_blank" aria-label="Instagram">
+						<i class="bi bi-instagram"></i>
+					</a>
 					</div>
+				</div>
 
-					<!-- Liens utiles -->
-					<div class="col-md-6 text-md-end">
-						<h5>Liens utiles</h5>
-						<ul class="list-unstyled mb-0">
-							<li>
-								<a href="{{ path('contact') }}" class="text-decoration-none text-dark">Contact</a>
-							</li>
-							<li>
-								<a href="{{ path('ml') }}" class="text-decoration-none text-dark">Mentions légales</a>
-							</li>
-							<li>
-								<a href="{{ path('donation') }}" class="text-decoration-none text-dark">Faire un don</a>
-							</li>
-							<li>
-								<a href="{{ path('confidentialite') }}" class="text-decoration-none text-dark">Politique de confidentialité</a>
-							</li>
-						</ul>
-					</div>
+				<!-- Liens utiles -->
+				<div class="col-md-6 text-md-end">
+					<h5>Liens utiles</h5>
+					<ul class="list-unstyled mb-0">
+					<li><a href="{{ path('contact') }}" class="text-decoration-none text-dark">Contact</a></li>
+					<li><a href="{{ path('ml') }}" class="text-decoration-none text-dark">Mentions légales</a></li>
+					<li><a href="{{ path('donation') }}" class="text-decoration-none text-dark">Faire un don</a></li>
+					<li><a href="{{ path('confidentialite') }}" class="text-decoration-none text-dark">Politique de confidentialité</a></li>
+					</ul>
+				</div>
 				</div>
 
 				<hr class="mt-4 mb-3">
-				<div class="text-center small">
-					© 2025 Stras4Water – Association loi 1908 (Alsace-Moselle), reconnue d’intérêt général  <br />
-SIRET : 929 570 497 00024 – Siège : 1a place des Orphelins, 67000 Strasbourg
+
+				<div class="row">
+				<div class="col-md-8 text-start">
+					<p class="small mb-1">
+					SIRET : 929 570 497 00024 &nbsp;–&nbsp; Adresse : 1a place des Orphelins, 67000 Strasbourg
+					</p>
+					<p class="small mb-0">
+					<a href="{{ asset('docs/statuts.pdf') }}" target="_blank" class="text-decoration-underline">Statuts</a> &nbsp;|&nbsp;
+					<a href="{{ asset('docs/reglement-interieur.pdf') }}" target="_blank" class="text-decoration-underline">Règlement intérieur</a>
+					</p>
+				</div>
+
+				<div class="col-md-4 text-md-end">
+					<p class="small mb-0">© {{ "now"|date("Y") }} Stras4Water – Association loi 1908 (Alsace‑Moselle), reconnue d’intérêt général</p>
+				</div>
 				</div>
 			</div>
-		</footer>
+			</footer>
+
 
 
 		 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
