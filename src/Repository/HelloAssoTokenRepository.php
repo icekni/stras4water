@@ -11,9 +11,11 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class HelloAssoTokenRepository extends ServiceEntityRepository
 {
+    private $em;
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, HelloAssoToken::class);
+        $this->em = $this->getEntityManager();
     }
 
     public function getSingleton(): HelloAssoToken
@@ -30,8 +32,8 @@ class HelloAssoTokenRepository extends ServiceEntityRepository
                   ->setRefreshToken('')
                   ->setRefreshTokenExpiresAt(new \DateTimeImmutable('-1 hour'));
 
-            $this->_em->persist($token);
-            $this->_em->flush();
+            $this->em->persist($token);
+            $this->em->flush();
         }
 
         return $token;
