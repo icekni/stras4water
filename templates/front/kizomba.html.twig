@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cours de Kizomba - Stras4Water{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+
+<h1 class="mb-4 text-center text-primary">Cours de Kizomba à Strasbourg</h1>
+
+  <!-- Description -->
+  <div class="mb-5">
+    <p>
+      La <strong>kizomba</strong> est une danse de couple originaire d’Angola, connue pour sa musicalité douce, ses connexions proches et son élégance.
+      Elle séduit de plus en plus de danseurs à Strasbourg et ailleurs.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="{{ asset('img/kizomba.webp') }}" alt="Cours de kizomba Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+    </div>
+
+    <p>
+      Chez Stras4Water, nous avons déjà proposé plusieurs <strong>stages et initiations de kizomba</strong> lors de nos événements passés, toujours dans un esprit d’apprentissage accessible, respectueux et bienveillant.
+    </p>
+
+    <p>
+      Pour le moment, <strong>nous ne proposons pas encore de cours hebdomadaires de kizomba</strong>, mais cela pourrait évoluer en fonction de nos moyens et des disponibilités de salle.
+    </p>
+
+    <p>
+      Si vous êtes intéressé·e par des cours ou stages de kizomba à Strasbourg avec Stras4Water, nous vous invitons à <strong>nous suivre sur les réseaux sociaux</strong> pour rester informé·e de l’ouverture éventuelle de cours réguliers.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="{{ asset('img/kizomba-cours.webp') }}" alt="Danseurs kizomba Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+    </div>
+
+    <p class="mt-4">
+      Vous pouvez également <a href="/contact">nous contacter</a> pour nous faire part de votre intérêt ou poser vos questions.
+    </p>
+  </div>
+
+</section>
+{% endblock %}

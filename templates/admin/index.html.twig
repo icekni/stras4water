@@ -1,0 +1,98 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="container-fluid pt-4 px-4">
+        <!-- Statistiques -->
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="bi bi-people fs-1 text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Utilisateurs</p>
+                        <h6 class="mb-0">42</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="bi bi-link-45deg fs-1 text-success"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Liens</p>
+                        <h6 class="mb-0">18</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="bi bi-cash-coin fs-1 text-warning"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Dons</p>
+                        <h6 class="mb-0">3 540 €</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="bi bi-receipt fs-1 text-danger"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Reçus</p>
+                        <h6 class="mb-0">36</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des utilisateurs -->
+        <div class="bg-white rounded shadow-sm p-4">
+            <h5 class="mb-4">Liste des utilisateurs</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dupont</td>
+                            <td>Jean</td>
+                            <td>jean.dupont@example.com</td>
+                            <td class="text-center">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Consulter</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Martin</td>
+                            <td>Claire</td>
+                            <td>claire.martin@example.com</td>
+                            <td class="text-center">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Consulter</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lemoine</td>
+                            <td>Thomas</td>
+                            <td>thomas.lemoine@example.com</td>
+                            <td class="text-center">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Consulter</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Petit</td>
+                            <td>Lucie</td>
+                            <td>lucie.petit@example.com</td>
+                            <td class="text-center">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Consulter</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!
+{% endblock %}
+
+{% block body %}
+	<section
+		id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+		<!-- Indicateurs -->
+		<div class="carousel-indicators">
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+			<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+		</div>
+
+		<!-- Slides -->
+		<divbachata
+			class="carousel-inner">
+
+			<!-- SLIDE 1 -->
+			<div class="carousel-item active">
+				<div class="container my-5">
+					<div class="row align-items-start">
+						<div class="col-lg-6 position-relative">
+							<img src="{{ asset('img/wateraid.webp') }}" class="img-fluid rounded-end custom-img" alt="Illustration">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h5 class="mb-0">34</h5>
+										<small>Pays aidés</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h5 class="mb-0">+ de 40</h5>
+										<small>Années d'action</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h5 class="mb-0">470 k£</h5>
+										<small>Collectés grace à 4Water</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 mt-5">
+							<h2 class="mb-3">Un impact mondial grâce à votre soutien</h2>
+							<p class="mb-4">Stras4Water fait partie du réseau 4Water.<br/>
+Les fonds collectés soutiennent WaterAid, active dans plus de 30 pays depuis 40 ans.<br/>
+Déjà + de 470 000£ levés par 4Water pour l’accès à l’eau.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- SLIDE 2 -->
+			<div class="carousel-item">
+				<div class="container my-5">
+					<div class="row align-items-start">
+						<div class="col-lg-6 position-relative">
+							<img src="{{ asset('img/danse.jpeg') }}" class="img-fluid rounded-end custom-img" alt="Illustration 2">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h3 class="mb-0">100M</h3>
+										<small>des bénéfices reversés à WaterAid</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">0€</h3>
+										<small>Prix minimum pour acceder à nos soirées</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">+ de 500</h3>
+										<small>danseurs en 2025 à nos soirées</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 mt-5">
+							<h2 class="mb-3">La danse, accessible, locale et solidaire</h2>
+							<p class="mb-4">Des cours et soirées accessibles à tous, organisés localement à prix libre ou mini.<br/>
+En dansant, vous soutenez des projets d’accès à l’eau dans le monde.<br/>
+Local, solidaire, joyeux.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- SLIDE 3 (exemple vide à personnaliser) -->
+			<div class="carousel-item">
+				<div class="container my-5">
+					<div class="row align-items-start">
+						<div class="col-lg-6 position-relative">
+							<img src="{{ asset('img/passions.webp') }}" class="img-fluid rounded-end custom-img" alt="Illustration 3">
+
+							<div class="stats-box bg-light p-4 rounded shadow">
+								<div class="row text-center">
+									<div class="col">
+										<h3 class="mb-0">500</h3>
+										<small>Personnes aidées</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">15</h3>
+										<small>Bénévoles</small>
+									</div>
+									<div class="col border-start border-secondary-subtle">
+										<h3 class="mb-0">9000€</h3>
+										<small>Objectif atteint</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6 mt-5">
+							<h2 class="mb-3">Une association, mille passions</h2>
+							<p class="mb-4">À Stras4Water, on partage ce qu’on aime : danse, langues, sport, bien-être...<br/>
+Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Flèches -->
+		<button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		</button>
+	</section>
+
+	<section class="bg-light py-5">
+		<div class="container">
+			<div
+				class="row align-items-center">
+				<!-- Texte à gauche -->
+				<div class="col-lg-6 mb-4 mb-lg-0">
+					<h2 class="mb-3">Nous soutenir</h2>
+					<p class="mb-4">Soutenez notre mission en faisant un don. Chaque contribution nous aide à financer des projets solidaires et durables.</p>
+					<a href="{{ path('donation') }}" class="btn btn-success rounded-pill">Je fais un don</a>
+				</div>
+
+				<!-- Image à droite -->
+				<div class="col-lg-6 d-flex justify-content-center align-items-center">
+					<img src="{{ asset('img/aide.png') }}" alt="Soutenir notre action" class="img-fluid rounded" style="max-height: 300px;">
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="py-5 bg-white">
+		<div class="container">
+			<h2 class="text-center mb-5">Nos activités</h2>
+			<div
+				class="row justify-content-center">
+
+				<!-- Carte Danse -->
+				<div class="col-md-6 col-lg-5 mb-4">
+					<div class="card h-100 shadow border-0">
+						<div class="card-body text-center">
+							<h5 class="card-title">Cours de danse</h5>
+						    <img src="{{ asset('img/danse.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de danse">
+							<p class="card-text">Participez à nos ateliers de salsa, bachata et kizomba, ouverts à tous les niveaux.</p>
+							<a href="{{ path('bachata') }}" class="btn btn-outline-success rounded-pill">Bachata</a>
+							<a href="{{ path('salsa') }}" class="btn btn-outline-success rounded-pill">Salsa</a>
+							<a href="{{ path('kizomba') }}" class="btn btn-outline-success rounded-pill">Kizomba</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Carte Langue -->
+				<div class="col-md-6 col-lg-5 mb-4">
+					<div class="card h-100 shadow border-0">
+						<div class="card-body text-center">
+							<h5 class="card-title">Cours de langue</h5>
+						    <img src="{{ asset('img/langue.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de langue">
+							<p class="card-text">Rejoignez nos cours d’anglais et d'espagnol solidaires dans une ambiance conviviale et bienveillante.</p>
+							<a href="{{ path('anglais') }}" class="btn btn-outline-success rounded-pill">Anglais</a>
+							<a href="{{ path('espagnol') }}" class="btn btn-outline-success rounded-pill">Espagnol</a>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+{% endblock %}
