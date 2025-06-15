@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\HelloAssoToken;
 use App\Repository\HelloAssoTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HelloAssoTokenService
@@ -17,13 +18,12 @@ class HelloAssoTokenService
         private readonly HelloAssoTokenRepository $repository,
         private readonly EntityManagerInterface $em,
         private readonly HttpClientInterface $httpClient,
-        string $clientId = '283e4bdf4d5d465ebb76fcf2a9d63ee8',
-        string $clientSecret = 'ZujUY1t7Tqafpe5MJUfixpl9BXmFfzh+',
-        string $tokenUrl = 'https://api.helloasso-sandbox.com/oauth2/token'
+        ParameterBagInterface $params
     ) {
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->tokenUrl = $tokenUrl;
+        $this->clientId = $params->get('env(HELLO_ASSO_CLIENT_ID)');
+        $this->tokenUrl = $params->get('env(HELLOASSO_API_URL)') . '/oauth2/token';
+        $this->clientSecret = $params->get('env(HELLO_ASSO_CLIENT_SECRET)');
+
     }
 
     public function getValidAccessToken(): string
