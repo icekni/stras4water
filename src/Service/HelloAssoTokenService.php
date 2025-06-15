@@ -20,10 +20,9 @@ class HelloAssoTokenService
         private readonly HttpClientInterface $httpClient,
         ParameterBagInterface $params
     ) {
-        $this->clientId = $params->get('env(HELLO_ASSO_CLIENT_ID)');
-        $this->tokenUrl = $params->get('env(HELLOASSO_API_URL)') . '/oauth2/token';
-        $this->clientSecret = $params->get('env(HELLO_ASSO_CLIENT_SECRET)');
-
+        $this->clientId = $params->get('HELLOASSO_CLIENT_ID');
+        $this->tokenUrl = $params->get('HELLOASSO_API_URL') . '/oauth2/token';
+        $this->clientSecret = $params->get('HELLOASSO_CLIENT_SECRET');
     }
 
     public function getValidAccessToken(): string
