@@ -50,7 +50,7 @@ final class WebHookController extends AbstractController
 
                     $entityManager->flush();
 
-                    $url = $token;
+                    $url = $this->generateUrl('fillFiscalData', ['token' => $token ]);
                     $emailService->sendRequestFiscalData($donation, $url);
                 }
                 elseif ($donation && !$donation->isWantsRecuFiscal()) {
