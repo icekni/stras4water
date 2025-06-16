@@ -28,30 +28,6 @@ final class FrontController extends AbstractController
     #[Route('/', name: 'home')]
     public function index(RecuFiscalService $recuFiscalService): Response
     {
-        // $user = new User();
-        // $user->setNom("Josso");
-        // $user->setPrenom("Cédric");
-        // $user->setAdresse("48B route de Bischwiller");
-        // $dateDon = new DateTimeImmutable();
-
-        // $pdfContent = $recuFiscalService->generate("RF2025-00001", 
-        //                                             "Josso",
-        //                                             "Cédric",
-        //                                             "48 B",
-        //                                             "Route de Bischwiller",
-        //                                             "67300",
-        //                                             "Schiltigheim",
-        //                                             "FRANCE",
-        //                                             "50.05", 
-        //                                             new DateTimeImmutable(), 
-        //                                             TypeDon::NUMERAIRE, 
-        //                                             MoyenPaiement::CARTE);
-
-        // return new Response($pdfContent, 200, [
-        //     'Content-Type' => 'application/pdf',
-        //     'Content-Disposition' => 'inline; filename="recu_fiscal.pdf"', // ou "attachment;" pour forcer le téléchargement
-        // ]);
-
         return $this->render('front/home.html.twig', [
             'controller_name' => 'FrontController',
         ]);
@@ -195,51 +171,4 @@ final class FrontController extends AbstractController
 
         return $this->redirectToRoute('donation');
     }
-
-    // #[Route('/donationValidate', name: 'donationValidate', methods: ['GET'])]
-    // public function donationValidate(Request $request, RecuFiscalService $recuFiscalService, DonationRepository $donationRepository, EntityManagerInterface $entityManager): Response
-    // {
-    //     $donation = $donationRepository->findOneBy(['checkoutId' => $request->query->get('checkoutIntentId')]);
-
-    //     if ($request->query->get('code') != 'succeeded') {
-    //         $donation->setStatus(DonationStatus::CANCELLED);
-    //         $this->addFlash(
-    //             'danger',
-    //             'Une erreur s\'est produite!'
-    //         );
-    //     }
-    //     else 
-    //     {
-    //         $anneeEnCours = new DateTimeImmutable();
-    //         $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-    //         $donation = $recuFiscalService->generate($donation, $numeroOrdre);
-
-    //         $donation->setStatus(DonationStatus::PAID);
-    //         $entityManager->persist($donation);
-    //         $entityManager->flush();
-            
-    //         $this->addFlash(
-    //             'success',
-    //             'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
-    //         );
-    //     }
-        
-    //     // return new Response($pdfContent, 200, [
-    //     //     'Content-Type' => 'application/pdf',
-    //     //     'Content-Disposition' => 'inline; filename="recu_fiscal.pdf"', // ou "attachment;" pour forcer le téléchargement
-    //     // ]);
-
-    //     return $this->redirectToRoute('donation');
-    // }
-
-    // #[Route('/donationCancel', name: 'donationCancel')]
-    // public function donationCancel(): Response
-    // {
-    //     $this->addFlash(
-    //         'danger',
-    //         'Une erreur s\'est produite.'
-    //     );
-
-    //     return $this->redirectToRoute('donation');
-    // }
 }
