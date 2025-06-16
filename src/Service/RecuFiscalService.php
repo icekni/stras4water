@@ -14,14 +14,25 @@ use Symfony\Component\Mime\Email;
 class RecuFiscalService
 {
     private string $projectDir;
-    private MailerInterface $mailer;
+    private EmailService $emailService;
 
-    public function __construct(KernelInterface $kernel, MailerInterface $mailer){
+    public function __construct(KernelInterface $kernel, EmailService $emailService){
         $this->projectDir = $kernel->getProjectDir();
-        $this->mailer = $mailer;
+        $this->emailService = $emailService;
     }
         // generate("RF2025-00001", $user, "50.05", $dateDon, new DateTimeImmutable(), TypeDon::NUMERAIRE, MoyenPaiement::CASH);
-    public function generate(Donation $donation, string $numeroOrdre): Donation
+    public function generate(string $numeroOrdre, 
+        Donation $donation,
+        TypeDon $typeDon, 
+        MoyenPaiement $moyenPaiement, 
+        string $nom, 
+        string $prenom, 
+        string $numeroRue, 
+        string $rue, 
+        string $codePostal, 
+        string $ville, 
+        string $pays
+    ): Donation
     {
         $pdf = new Fpdi();
         $pagecount = $pdf->setSourceFile('recuFiscaux/modele-vierge.pdf');
@@ -82,7 +93,7 @@ class RecuFiscalService
         $pdf->Cell(5, 10, 'x', 0, 0, 'C');
 
         // Forme et nature du don
-        switch ($donation->getTypeDon()) 
+        switch ($typeDon) 
         {
             case TypeDon::RENONCEMENT_FRAIS:
                 $pdf->SetXY(169.2, 165); 
@@ -99,7 +110,7 @@ class RecuFiscalService
                 break;
         }
         // Mode de versement du don
-        switch ($donation->getMoyenPaiement()) 
+        switch ($moyenPaiement) 
         {
             case MoyenPaiement::CASH:
                 $pdf->SetXY(11, 202); 
@@ -124,35 +135,35 @@ class RecuFiscalService
 
         // Données du donateur
         $pdf->SetXY(23, 83.8); 
-        $pdf->Cell(70, 6.3, $donation->getNom(), 0, 0, 'L');
+        $pdf->Cell(70, 6.3, $nom, 0, 0, 'L');
         $pdf->SetXY(124, 83.8); 
-        $pdf->Cell(69, 6.3, $donation->getPrenom(), 0, 0, 'L');
+        $pdf->Cell(69, 6.3, $prenom, 0, 0, 'L');
         $pdf->SetXY(17, 94.5); 
-        $pdf->Cell(20, 6.3, $donation->getAdresseNumero(), 0, 0, 'L');
+        $pdf->Cell(20, 6.3, $numeroRue, 0, 0, 'L');
         $pdf->SetXY(47, 94.5); 
-        $pdf->Cell(145, 6.3, $donation->getAdresseRue(), 0, 0, 'L');
+        $pdf->Cell(145, 6.3, $rue, 0, 0, 'L');
         $pdf->SetXY(34, 99.5); 
-        $pdf->Cell(20, 6.3, $donation->getAdresseCodePostal(), 0, 0, 'L');
+        $pdf->Cell(20, 6.3, $codePostal, 0, 0, 'L');
         $pdf->SetXY(81, 99.5); 
-        $pdf->Cell(112, 6.3, $donation->getAdresseVille(), 0, 0, 'L');
+        $pdf->Cell(112, 6.3, $ville, 0, 0, 'L');
         $pdf->SetXY(23, 104.8); 
-        $pdf->Cell(80, 6.3, 'France', 0, 0, 'L');
+        $pdf->Cell(80, 6.3, $pays, 0, 0, 'L');
 
         // Date du don
         $pdf->SetXY(64, 130.5); 
-        $pdf->Cell(8, 6.3, $donation->getDate()->format('d'), 0, 0, 'C');
+        $pdf->Cell(8, 6.3, $donation->getCreatedAt()->format('d'), 0, 0, 'C');
         $pdf->SetXY(74, 130.5); 
-        $pdf->Cell(8, 6.3, $donation->getDate()->format('m'), 0, 0, 'C');
+        $pdf->Cell(8, 6.3, $donation->getCreatedAt()->format('m'), 0, 0, 'C');
         $pdf->SetXY(84, 130.5); 
-        $pdf->Cell(10, 6.3, $donation->getDate()->format('Y'), 0, 0, 'C');
+        $pdf->Cell(10, 6.3, $donation->getCreatedAt()->format('Y'), 0, 0, 'C');
 
         // Cadre signature
         $pdf->SetXY(108.5, 221.5); 
-        $pdf->Cell(6, 6.3, $donation->getDate()->format('d'), 0, 0, 'C');
+        $pdf->Cell(6, 6.3, $donation->getCreatedAt()->format('d'), 0, 0, 'C');
         $pdf->SetXY(115.6, 221.5); 
-        $pdf->Cell(6, 6.3, $donation->getDate()->format('m'), 0, 0, 'C');
+        $pdf->Cell(6, 6.3, $donation->getCreatedAt()->format('m'), 0, 0, 'C');
         $pdf->SetXY(122.7, 221.5); 
-        $pdf->Cell(8, 6.3, $donation->getDate()->format('Y'), 0, 0, 'C');
+        $pdf->Cell(8, 6.3, $donation->getCreatedAt()->format('Y'), 0, 0, 'C');
         $pdf->SetFontSize('6'); 
         $pdf->SetXY(110, 234); 
         $pdf->Cell(70, 6.3, mb_convert_encoding("Document généré électroniquement", 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
@@ -165,20 +176,8 @@ class RecuFiscalService
 
         $donation->setUrlRecuFiscal($filePath);
 
-        $this->sendByEmail($donation);
+        $this->emailService->sendRecuFiscal($donation);
 
         return $donation;
-    }
-    
-    private function sendByEmail(Donation $donation): void
-    {
-        $email = (new Email())
-            ->from('contact@stras4water.org')
-            ->to($donation->getEmail())
-            ->subject('Votre recu fiscal')
-            ->text('Bonjour, vous trouverez en pièce jointe le reçu fiscal pour votre don de ' . $donation->getMontant() . '€ à Stras4Water.')
-            ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf');
-
-        $this->mailer->send($email);
     }
 }

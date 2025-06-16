@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Informations pour le reçu fiscal{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="mb-4">Informations pour le reçu fiscal</h1>
+
+    <p class="mb-4">
+        Ces informations ne seront utilisées que pour générer votre reçu fiscal.<br>
+        Elles ne seront <strong>pas stockées</strong> dans notre base de données.
+    </p>
+
+    {{ form_start(form) }}
+
+    <div id="fiscalFields" class="border rounded p-3 mb-3">
+			{{ form_row(form.nom) }}
+			{{ form_row(form.prenom) }}
+			<div id="adresseContainer">
+				{{ form_row(form.adresse_search) }}
+
+				<ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
+
+				<button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
+			</div>
+
+			<div id="detailedFields" class="d-none">
+				{{ form_row(form.numero_rue) }}
+				{{ form_row(form.rue) }}
+				{{ form_row(form.code_postal) }}
+				{{ form_row(form.ville) }}
+				{{ form_row(form.pays) }}
+			</div>
+		</div>
+
+		<button type="submit" class="btn btn-success">Obtenir mon recu fiscal</button>
+
+	{{ form_end(form) }}
+
+
+	 <script>
+        // Elements
+        const adresseInput = document.getElementById('fiscal_data_adresse_search');
+        const suggestionsList = document.getElementById('adresseSuggestions');
+        const numeroInput = document.getElementById('fiscal_data_numero_rue');
+        const rueInput = document.getElementById('fiscal_data_rue');
+        const codePostalInput = document.getElementById('fiscal_data_code_postal');
+        const villeInput = document.getElementById('fiscal_data_ville');
+        const paysInput = document.getElementById('fiscal_data_pays');
+
+    
+        let lastAutofillValue = '';
+    
+        // Vider champs cachés
+        function clearHiddenFields() {
+            numeroInput.value = '';
+            rueInput.value = '';
+            codePostalInput.value = '';
+            villeInput.value = '';
+            paysInput.value = '';
+            lastAutofillValue = '';
+        }
+    
+        // Remplir champs cachés depuis suggestion
+        function fillAddressFields(feature) {
+            const props = feature.properties;
+
+            let numero = props.housenumber || '';
+            let rue = props.street || '';
+
+            if (!numero) {
+                const match = rue.match(/^(\d+\s*[\w-]*)\s+(.*)$/);
+                if (match) {
+                    numero = match[1];
+                    rue = match[2];
+                }
+            }
+
+            numeroInput.value = numero;
+            rueInput.value = rue;
+            codePostalInput.value = props.postcode || '';
+            villeInput.value = props.city || props.citycode || '';
+            paysInput.value = 'France';
+            lastAutofillValue = adresseInput.value;
+
+            // Affichage/masquage des champs
+            document.getElementById('adresseContainer').classList.add('d-none');
+            document.getElementById('detailedFields').classList.remove('d-none');
+        }	
+    
+        // Affiche les suggestions sous le textarea
+        function showSuggestions(features) {
+            suggestionsList.innerHTML = '';
+            if (features.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'Aucune suggestion';
+                li.classList.add('list-group-item', 'disabled');
+                suggestionsList.appendChild(li);
+                return;
+            }
+            features.forEach(feature => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item', 'list-group-item-action');
+                li.textContent = feature.properties.label;
+                li.addEventListener('click', () => {
+                adresseInput.value = feature.properties.label;
+                fillAddressFields(feature);
+                suggestionsList.innerHTML = '';
+                });
+                suggestionsList.appendChild(li);
+            });
+        }
+    
+        // Requête API adresse.data.gouv.fr
+        async function fetchAddress(query) {
+            if (query.length < 3) {
+                suggestionsList.innerHTML = '';
+                clearHiddenFields();
+                return;
+            }
+            try {
+                const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+                if (!response.ok) {
+                throw new Error('Erreur API');
+                }
+                const data = await response.json();
+                showSuggestions(data.features);
+            } catch (error) {
+                console.error(error);
+                suggestionsList.innerHTML = '';
+                clearHiddenFields();
+            }
+        }
+    
+        // Écoute input adresse
+        adresseInput.addEventListener('input', () => {
+            const val = adresseInput.value;
+            if (val !== lastAutofillValue) {
+                clearHiddenFields();
+            }
+            fetchAddress(val);
+        });
+    
+        // Clic en dehors pour cacher les suggestions
+        document.addEventListener('click', (event) => {
+        if (!adresseInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+            suggestionsList.innerHTML = '';
+        }
+        });
+
+        document.getElementById('manualAddressBtn').addEventListener('click', () => {
+            // Masque le champ adresse et suggestions
+            document.getElementById('adresseContainer').classList.add('d-none');
+            suggestionsList.innerHTML = '';
+            
+            // Vide les champs cachés
+            clearHiddenFields();
+
+            // Affiche les champs détaillés
+            document.getElementById('detailedFields').classList.remove('d-none');
+        });
+
+        const form = document.querySelector('form[name="donation"]');
+        const modal = document.getElementById('helloAssoModal');
+        const payButton = document.querySelector('.HaPayButton');
+
+        payButton.addEventListener('click', () => {
+        if (form.checkValidity()) {
+            const myModal = new bootstrap.Modal(document.getElementById('helloAssoModal'));
+            myModal.show();
+        } else {
+            event.preventDefault();
+            form.reportValidity();
+        }
+        });
+    </script>
+{% endblock %}

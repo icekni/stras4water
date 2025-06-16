@@ -23,8 +23,8 @@ class DonationRepository extends ServiceEntityRepository
 
         return (int) $this->createQueryBuilder('d')
             ->select('COUNT(d.id)')
-            ->where('d.date >= :start')
-            ->andWhere('d.date < :end')
+            ->where('d.createdAt >= :start')
+            ->andWhere('d.createdAt < :end')
             ->setParameter('start', $start)
             ->setParameter('end', $end)
             ->getQuery()

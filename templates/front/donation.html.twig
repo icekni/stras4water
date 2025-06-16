@@ -122,8 +122,32 @@
 {% block body %}
 	<div class="container mt-5">
 		<h1 class="mb-4">Faire un don</h1>
-
 		{{ form_start(form) }}
+			{{ form_row(form.montant) }}
+			{{ form_row(form.wantsRecuFiscal) }}
+
+			<div id="emailField" style="display: none;">
+				{{ form_row(form.email) }}
+			</div>
+
+			<button class="btn btn-primary">Donner</button>
+		{{ form_end(form) }}
+
+		<script>
+			const checkbox = document.querySelector('#{{ form.wantsRecuFiscal.vars.id }}');
+			const emailField = document.querySelector('#emailField');
+
+			checkbox.addEventListener('change', function () {
+				emailField.style.display = this.checked ? 'block' : 'none';
+			});
+
+			// Affichage initial si coché
+			if (checkbox.checked) {
+				emailField.style.display = 'block';
+			}
+		</script>
+
+		{# {{ form_start(form) }}
 		{{ form_row(form.montant) }}
 
 		<div id="fiscalFields" class="border rounded p-3 mb-3">
@@ -150,7 +174,7 @@
 
 		<button type="submit" class="btn btn-success disabled">Faire un don (bientot)</button>
 
-		{# <div class="HaPay">
+		<div class="HaPay">
 			<button type="button" class="HaPayButton">
 				<img src="img/logo-ha.svg" alt="" class="HaPayButtonLogo"/>
 				<div class="HaPayButtonLabel">
@@ -209,7 +233,7 @@
 				</div>
 			</div>
 		</div>
-	</div> #}
+	</div>
 	{{ form_end(form) }}
 
 
@@ -348,5 +372,5 @@
 						form.reportValidity();
 					}
 					});
-				</script>
+				</script> #}
 {% endblock %}

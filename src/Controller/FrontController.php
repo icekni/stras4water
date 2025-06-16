@@ -14,6 +14,8 @@ use App\Service\RecuFiscalService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Stripe\BillingPortal\Session;
+use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -124,76 +126,53 @@ final class FrontController extends AbstractController
     }
 
     #[Route('/donation', name: 'donation')]
-    public function donation(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient, HelloAssoTokenService $helloAssoTokenService, CountryCodeService $countryCodeService): Response
+    public function donation(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient): Response
     {
         $donation = new Donation();
+
+        // Préremplir l'utilisateur s'il est connecté
+        if ($this->getUser()) {
+            $donation->setUser($this->getUser());
+        }
 
         $form = $this->createForm(DonationType::class, $donation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $donation->setDate(new DateTimeImmutable());
-            $donation->setStatus(DonationStatus::CREATED);
-            $donation->setTypeDon(TypeDon::NUMERAIRE);
-            $donation->setMoyenPaiement(MoyenPaiement::CARTE);
-            
-            $backUrl = $this->generateUrl('donation', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            $backUrl = preg_replace('/^http:/', 'https:', $backUrl);
-            
-            $returnUrl = $this->generateUrl('donationValidate', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            $returnUrl = preg_replace('/^http:/', 'https:', $returnUrl);
-            
-            $errorUrl = $this->generateUrl('donationCancel', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            $errorUrl = preg_replace('/^http:/', 'https:', $errorUrl);
-            
-            $payload = [
-                "totalAmount" => intval($donation->getMontant() * 100),
-                "initialAmount" => intval($donation->getMontant() * 100),
-                "currency" => "EUR",
-                "itemName" => "Don par carte - ID: " . $donation->getId(),
-                "backUrl" => $backUrl,
-                "returnUrl" => $returnUrl,
-                "ErrorUrl" => $errorUrl,
-                "containsDonation" => true,
-                "metadata" => [
-                    "donation_id" => $donation->getId(),
-                ],
-                "manualContribution" => [
-                    "amount" => 0,
-                ],
-                "payer" => [
-                    "firstName" => $donation->getPrenom(),
-                    "lastName" => $donation->getNom(),
-                    "dateOfBirth" => $donation->getDateDeNaissance()->format('Y-m-d'),
-                    "email" => $donation->getEmail(),
-                    "address" => $donation->getAdresseNumero() . " " . $donation->getAdresseRue(),
-                    "city" => $donation->getAdresseVille(),
-                    "zipcode" => $donation->getAdresseCodePostal(),
-                    "country" => $countryCodeService->getIsoCodes($donation->getAdressePays()),
-                    // "acceptContributions" => false
-                ],
-                "customContribution" => [
-                    "amount" => 0
-                ],
-            ];
-                
-            $response = $httpClient->request('POST', 'https://api.helloasso-sandbox.com/v5/organizations/stras4water/checkout-intents', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $helloAssoTokenService->getValidAccessToken(),
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ],
-                'json' => $payload,
-            ]);
-            
-            $data = $response->toArray();            
-            
-            $donation->setCheckoutId($data['id']);
-
             $entityManager->persist($donation);
             $entityManager->flush();
+            
+            $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
 
-            return $this->redirect($data['redirectUrl']);
+            $product = $stripe->products->create([
+                'name' => 'Don Stras4Water ' . $donation->getMontant() . '€',
+            ]);
+            $price = $stripe->prices->create([
+                'unit_amount' => $donation->getMontant() * 100,
+                'currency' => 'eur',
+                'product' => $product->id,
+            ]);
+
+            $session = $stripe->checkout->sessions->create([
+                'success_url' => $this->generateUrl('donation_success', [], 0),
+                // 'return_url' => $this->generateUrl('donation', [], 0),
+                'cancel_url' => $this->generateUrl('donation_cancel', [], 0),
+                'line_items' => [
+                    [
+                    'price' => $price->id,
+                    'quantity' => 1,
+                    ],
+                ],
+                'mode' => 'payment',
+                'customer' => $_ENV['STRIPE_ANONYMOUS_CUSTOMER_ID'],
+                'payment_intent_data' => [
+                    'metadata' => [
+                        'don_id' => $donation->getId(),
+                    ]
+                ],
+            ]);
+
+            return $this->redirect($session->url, 303);
         }
 
         return $this->render('front/donation.html.twig', [
@@ -201,50 +180,66 @@ final class FrontController extends AbstractController
         ]);
     }
 
-    #[Route('/donationValidate', name: 'donationValidate', methods: ['GET'])]
-    public function donationValidate(Request $request, RecuFiscalService $recuFiscalService, DonationRepository $donationRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/donation_success', name: 'donation_success')]
+    public function donation_success(): Response
     {
-        $donation = $donationRepository->findOneBy(['checkoutId' => $request->query->get('checkoutIntentId')]);
+        $this->addFlash('success', 'Votre don a bien été enregistré. Si vous avez demandé un recu fiscal, vous recevrez bientot un email permettant de le générer.');
 
-        if ($request->query->get('code') != 'succeeded') {
-            $donation->setStatus(DonationStatus::CANCELLED);
-            $this->addFlash(
-                'danger',
-                'Une erreur s\'est produite!'
-            );
-        }
-        else 
-        {
-            $anneeEnCours = new DateTimeImmutable();
-            $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-            $donation = $recuFiscalService->generate($donation, $numeroOrdre);
+        return $this->redirectToRoute('donation');
+    }
 
-            $donation->setStatus(DonationStatus::PENDING);
-            $entityManager->persist($donation);
-            $entityManager->flush();
+    #[Route('/donation_cancel', name: 'donation_cancel')]
+    public function donation_cancel(): Response
+    {
+        $this->addFlash('danger', 'Une erreur s\'est produite. Vous ne serez pas débité.');
+
+        return $this->redirectToRoute('donation');
+    }
+
+    // #[Route('/donationValidate', name: 'donationValidate', methods: ['GET'])]
+    // public function donationValidate(Request $request, RecuFiscalService $recuFiscalService, DonationRepository $donationRepository, EntityManagerInterface $entityManager): Response
+    // {
+    //     $donation = $donationRepository->findOneBy(['checkoutId' => $request->query->get('checkoutIntentId')]);
+
+    //     if ($request->query->get('code') != 'succeeded') {
+    //         $donation->setStatus(DonationStatus::CANCELLED);
+    //         $this->addFlash(
+    //             'danger',
+    //             'Une erreur s\'est produite!'
+    //         );
+    //     }
+    //     else 
+    //     {
+    //         $anneeEnCours = new DateTimeImmutable();
+    //         $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
+    //         $donation = $recuFiscalService->generate($donation, $numeroOrdre);
+
+    //         $donation->setStatus(DonationStatus::PAID);
+    //         $entityManager->persist($donation);
+    //         $entityManager->flush();
             
-            $this->addFlash(
-                'success',
-                'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
-            );
-        }
+    //         $this->addFlash(
+    //             'success',
+    //             'Votre don à bien été enregistré. Si le paiement est validé par l\'organisme, vous recevrez par mail votre recu fiscal.'
+    //         );
+    //     }
         
-        // return new Response($pdfContent, 200, [
-        //     'Content-Type' => 'application/pdf',
-        //     'Content-Disposition' => 'inline; filename="recu_fiscal.pdf"', // ou "attachment;" pour forcer le téléchargement
-        // ]);
+    //     // return new Response($pdfContent, 200, [
+    //     //     'Content-Type' => 'application/pdf',
+    //     //     'Content-Disposition' => 'inline; filename="recu_fiscal.pdf"', // ou "attachment;" pour forcer le téléchargement
+    //     // ]);
 
-        return $this->redirectToRoute('donation');
-    }
+    //     return $this->redirectToRoute('donation');
+    // }
 
-    #[Route('/donationCancel', name: 'donationCancel')]
-    public function donationCancel(): Response
-    {
-        $this->addFlash(
-            'danger',
-            'Une erreur s\'est produite.'
-        );
+    // #[Route('/donationCancel', name: 'donationCancel')]
+    // public function donationCancel(): Response
+    // {
+    //     $this->addFlash(
+    //         'danger',
+    //         'Une erreur s\'est produite.'
+    //     );
 
-        return $this->redirectToRoute('donation');
-    }
+    //     return $this->redirectToRoute('donation');
+    // }
 }

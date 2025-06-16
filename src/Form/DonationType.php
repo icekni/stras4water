@@ -5,74 +5,43 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\Extension\Core\Type\{CheckboxType, DateType, IntegerType, TextType, EmailType, TextareaType, HiddenType};
+use Symfony\Component\Form\Extension\Core\Type\{CheckboxType, DateType, IntegerType, TextType, EmailType, TextareaType, HiddenType, MoneyType};
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Donation;
 
 class DonationType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('montant', IntegerType::class, [
-                'label' => 'Montant du don (en €)',
-                'required' => true,
+            ->add('montant', MoneyType::class, [
+                'label' => 'Montant du don',
+                'currency' => 'EUR',
             ])
-            ->add('nom', TextType::class, ['required' => true])
-            ->add('prenom', TextType::class, ['required' => true])
-            ->add('date_de_naissance', DateType::class, ['required' => true])
-            ->add('email', EmailType::class, [
-                'required' => true,
-                'help' => 'Le recu fiscal vous sera envoyé par mail à cette adresse.',
-            ])
-            ->add('adresse', TextareaType::class, [
-                'mapped' => false,
+            ->add('wantsRecuFiscal', CheckboxType::class, [
+                'label'    => 'Je souhaite un reçu fiscal',
                 'required' => false,
-                'label' => 'Recherche de l\'adresse',
-                ])
-            ->add('adresse_numero', TextType::class, ['required' => true])
-            ->add('adresse_rue', TextType::class, ['required' => true])
-            ->add('adresse_code_postal', TextType::class, ['required' => true])
-            ->add('adresse_ville', TextType::class, ['required' => true])
-            ->add('adresse_pays', TextType::class, ['required' => true]);
+                'mapped' => true,
+            ]);
 
-        // ✅ Ajout de l'EventListener ici
+        // Ajout dynamique de l'email si wantsReceipt est coché
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
             $form = $event->getForm();
 
-            $form->add('nom', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('prenom', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('date_de_naissance', DateType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('email', EmailType::class, [
-                'constraints' => [new Assert\NotBlank(), new Assert\Email()],
-            ]);
-            $form->add('adresse_numero', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('adresse_rue', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('adresse_code_postal', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('adresse_ville', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
-            $form->add('adresse_pays', TextType::class, [
-                'constraints' => [new Assert\NotBlank()],
-            ]);
+            if (!empty($data['wantsRecuFiscal'])) {
+                $form->add('email', EmailType::class, ['required' => true]);
+            }
+        });
+
+        // Ajouter l'email (non requis par défaut) pour affichage conditionnel
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $form = $event->getForm();
+            $form->add('email', EmailType::class, ['required' => false]);
         });
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Donation::class,
