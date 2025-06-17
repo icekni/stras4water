@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Donation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpParser\Node\Expr\Cast\Array_;
 
 /**
  * @extends ServiceEntityRepository<Donation>
@@ -31,18 +32,15 @@ class DonationRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function getAmountLastDonations(int $days): float
+    public function getLastDonations(int $days): array
     {
-        $date = new \DateTimeImmutable("-{$days} days");
-
-        $qb = $this->createQueryBuilder('d')
-            ->select('SUM(d.montant)')
+        return $this->createQueryBuilder('d')
             ->where('d.createdAt >= :date')
             ->andWhere('d.status = :status')
-            ->setParameter('date', $date)
-            ->setParameter('status', \App\Enum\DonationStatus::COMPLETED);
-
-        return (float) $qb->getQuery()->getSingleScalarResult();
+            ->setParameter('date', new \DateTimeImmutable("-{$days} days"))
+            ->setParameter('status', \App\Enum\DonationStatus::COMPLETED)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

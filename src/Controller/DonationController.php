@@ -34,6 +34,7 @@ final class DonationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $donation->setMoyenPaiement(MoyenPaiement::CARTE);
             $entityManager->persist($donation);
             $entityManager->flush();
             
@@ -50,7 +51,6 @@ final class DonationController extends AbstractController
 
             $session = $stripe->checkout->sessions->create([
                 'success_url' => $this->generateUrl('donation_success', [], 0),
-                // 'return_url' => $this->generateUrl('donation', [], 0),
                 'cancel_url' => $this->generateUrl('donation_cancel', [], 0),
                 'line_items' => [
                     [

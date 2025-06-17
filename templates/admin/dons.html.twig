@@ -51,6 +51,11 @@
                             <a href="{{ path('admin_get_recu_fiscal', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 Voir le reçu
                             </a>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendModal"
+                                data-id="{{ don.id }}"
+                                data-email="{{ don.email ?? don.user.email }}">
+                                Renvoyer
+                            </button>
                         {% elseif don.wantsRecuFiscal %}
                             <span class="text-warning">À générer</span>
                         {% else %}
@@ -108,4 +113,42 @@
     </nav>
     {% endif %}
 </div>
+
+<div class="modal fade" id="resendModal" tabindex="-1" aria-labelledby="resendModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="resendForm" method="post">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resendModalLabel">Renvoyer le reçu fiscal</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="emailInput" class="form-label">Adresse e-mail</label>
+            <input type="email" class="form-control" id="emailInput" name="email" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Envoyer</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+    const resendModal = document.getElementById('resendModal');
+    resendModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const donationId = button.getAttribute('data-id');
+        const email = button.getAttribute('data-email');
+
+        const form = document.getElementById('resendForm');
+        const emailInput = document.getElementById('emailInput');
+
+        emailInput.value = email;
+        form.action = '{{ path('admin_dons_resend', {'id': 'DONATION_ID'}) }}'.replace('DONATION_ID', donationId);
+    });
+</script>
 {% endblock %}

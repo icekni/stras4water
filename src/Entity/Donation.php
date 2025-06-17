@@ -45,6 +45,9 @@ class Donation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $token = null;
 
+    #[ORM\Column(enumType: MoyenPaiement::class)]
+    private ?MoyenPaiement $moyenPaiement = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -122,7 +125,12 @@ class Donation
 
     public function getEmail(): ?string
     {
-        return $this->email;
+        if ($this->user) {
+            return $this->user->getEmail();
+        }
+        else {
+            return $this->getEmail();
+        }
     }
 
     public function setEmail(?string $email): static
@@ -152,6 +160,24 @@ class Donation
     public function setToken(?string $token): static
     {
         $this->token = $token;
+
+        return $this;
+    }
+
+    public function getMontantNet(): ?float
+    {
+        return $this->getMontant() - ($this->getMontant() * 0.015) + 0.25;
+;
+    }
+
+    public function getMoyenPaiement(): ?MoyenPaiement
+    {
+        return $this->moyenPaiement;
+    }
+
+    public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
+    {
+        $this->moyenPaiement = $moyenPaiement;
 
         return $this;
     }

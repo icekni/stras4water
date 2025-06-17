@@ -43,7 +43,6 @@ final class WebHookController extends AbstractController
             
             if ($donId) {
                 $donation = $donationRepository->find($donId);
-                $net = $donation->getMontant() - ($donation->getMontant() * 0.015) + 0.25;
 
                 if ($donation && $donation->isWantsRecuFiscal()) {
                     $token = bin2hex(random_bytes(32));
@@ -55,10 +54,6 @@ final class WebHookController extends AbstractController
                 }
                 elseif ($donation && !$donation->isWantsRecuFiscal()) {
                     $donation->setStatus(DonationStatus::COMPLETED);
-                }
-
-                if ($net) {
-                    $donation->setMontant($net);
                 }
 
                 $entityManager->flush();

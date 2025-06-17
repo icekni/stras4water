@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Donation;
 use App\Enum\DonationStatus;
 use App\Repository\DonationRepository;
+use App\Service\EmailService;
 use App\Service\RecuFiscalService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class AdminController extends AbstractController
 {
@@ -20,7 +22,10 @@ final class AdminController extends AbstractController
     public function index(DonationRepository $donationRepository): Response
     {
         $interval = 30;
-        $montantTotal = $donationRepository->getAmountLastDonations($interval);
+        $montantTotal = array_reduce($donationRepository->getLastDonations($interval), function($total, $don)
+        {
+            return $total + round($don->getMontantNet(), 2);
+        });
 
         return $this->render('admin/index.html.twig', [
             'montantTotal' => $montantTotal,
@@ -76,6 +81,32 @@ final class AdminController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Don annulé et remboursé avec succès.');
+        return $this->redirectToRoute('admin_dons');
+    }
+
+    #[Route('/admin/dons/resend/{id}', name: 'admin_dons_resend')]
+    public function admin_dons_resend(
+        Request $request,
+        Donation $donation,
+        EntityManagerInterface $entityManager,
+        EmailService $emailService,
+    ): Response
+    {
+        $email = $request->request->get('email');
+        if ($donation->getEmail() !== $email) {
+            $donation->setEmail($email);
+        }
+        
+        $token = bin2hex(random_bytes(32));
+        $donation->setToken($token);
+
+        $url = $this->generateUrl('fillFiscalData', ['token' => $token ], UrlGeneratorInterface::ABSOLUTE_URL);
+        $emailService->sendRequestFiscalData($donation, $url);
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'L\'email permettant la génération du recu fiscal a été à nouveau envoyé.');
+
         return $this->redirectToRoute('admin_dons');
     }
 
