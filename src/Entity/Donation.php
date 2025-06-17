@@ -48,17 +48,28 @@ class Donation
     #[ORM\Column(enumType: MoyenPaiement::class)]
     private ?MoyenPaiement $moyenPaiement = null;
 
+    #[ORM\Column(enumType: TypeDon::class)]
+    private ?TypeDon $typeDon = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $numeroOrdreRF = null;
 
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+        $this->wantsRecuFiscal = false;
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setCreatedAt(DateTimeImmutable $date): static
+    {
+        $this->createdAt = $date;
+
+        return $this;
     }
 
     public function getMontant(): ?float
@@ -181,6 +192,18 @@ class Donation
     public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
     {
         $this->moyenPaiement = $moyenPaiement;
+
+        return $this;
+    }
+
+    public function getTypeDon(): ?TypeDon
+    {
+        return $this->typeDon;
+    }
+
+    public function setTypeDon(TypeDon $typeDon): static
+    {
+        $this->typeDon = $typeDon;
 
         return $this;
     }

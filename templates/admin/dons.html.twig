@@ -9,11 +9,12 @@
     <table class="table table-bordered mt-4">
         <thead>
             <tr>
-                <th>#</th>
                 <th>Montant</th>
                 <th>Date</th>
                 <th>Email</th>
                 <th>Statut</th>
+                <th>Type de don</th>
+                <th>Moyen de paiement</th>
                 <th>Reçu fiscal</th>
                 <th>Actions</th>
             </tr>
@@ -21,7 +22,6 @@
         <tbody>
             {% for don in dons %}
                 <tr>
-                    <td>{{ loop.index + ((page - 1) * 20) }}</td>
                     <td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
                     <td>{{ don.createdAt|date('d/m/Y H:i') }}</td>
                     <td>
@@ -46,6 +46,8 @@
                             <span class="badge bg-secondary">{{ don.status.value }}</span>
                         {% endif %}
                     </td>
+                    <td>{{ don.typeDon.value }}</td>
+                    <td>{{ don.moyenPaiement.value }}</td> 
                     <td>
                         {% if don.urlRecuFiscal %}
                             <a href="{{ path('admin_get_recu_fiscal', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
@@ -63,7 +65,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED') %}
+                        {% if don.moyenPaiement == constant('App\\Enum\\MoyenPaiement::CARTE') and (don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED')) %}
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" id="dropdownMenu{{ don.id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     Rembourser le don

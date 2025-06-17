@@ -61,6 +61,8 @@ final class WebHookController extends AbstractController
             }
         }
 
+        $emailService->sendMail('Stras4Water - Don', 'don@stras4water.org', 'Reception d\'un nouveau don', 'Bonjour,\nVous avez recu un nouveau don de ' . $donation->getMontantNet() . '€.');
+
         return new Response('OK', 200);
     }
 }

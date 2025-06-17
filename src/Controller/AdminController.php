@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Donation;
 use App\Enum\DonationStatus;
+use App\Form\DonManuelType;
 use App\Repository\DonationRepository;
 use App\Service\EmailService;
 use App\Service\RecuFiscalService;
@@ -47,6 +48,39 @@ final class AdminController extends AbstractController
             'dons' => $dons,
             'page' => $page,
             'pages' => ceil($total / $limit),
+        ]);
+    }
+
+    #[Route('/admin/dons/create', name: 'admin_dons_create')]
+    public function admin_dons_create(Request $request, EmailService $emailService, EntityManagerInterface $entityManager): Response
+    {
+        $donation = new Donation();
+
+        $form = $this->createForm(DonManuelType::class, $donation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($donation);
+            
+            if ($donation && $donation->isWantsRecuFiscal()) {
+                $token = bin2hex(random_bytes(32));
+                $donation->setToken($token);
+                $donation->setStatus(DonationStatus::PAID);
+                
+                $url = $this->generateUrl('fillFiscalData', ['token' => $token ], UrlGeneratorInterface::ABSOLUTE_URL);
+                $emailService->sendRequestFiscalData($donation, $url);
+            }
+            elseif ($donation && !$donation->isWantsRecuFiscal()) {
+                $donation->setStatus(DonationStatus::COMPLETED);
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le don de ' . $donation->getMontant() .'€ a bien été enregistré');
+        }
+
+        return $this->render('admin/don_manuel.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 

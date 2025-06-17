@@ -35,6 +35,7 @@ final class DonationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $donation->setMoyenPaiement(MoyenPaiement::CARTE);
+            $donation->setTypeDon(TypeDon::NUMERAIRE);
             $entityManager->persist($donation);
             $entityManager->flush();
             
@@ -122,8 +123,6 @@ final class DonationController extends AbstractController
             $anneeEnCours = new DateTimeImmutable();
             $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y'))));
             $donation = $recuFiscalService->generate($donation,
-                                                    TypeDon::NUMERAIRE,
-                                                    MoyenPaiement::CARTE,
                                                     $form->get('nom')->getData(),
                                                     $form->get('prenom')->getData(),
                                                     $form->get('numero_rue')->getData(),

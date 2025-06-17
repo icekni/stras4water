@@ -20,8 +20,6 @@ class RecuFiscalService
         // generate("RF2025-00001", $user, "50.05", $dateDon, new DateTimeImmutable(), TypeDon::NUMERAIRE, MoyenPaiement::CASH);
     public function generate(
         Donation $donation,
-        TypeDon $typeDon, 
-        MoyenPaiement $moyenPaiement, 
         string $nom, 
         string $prenom, 
         string $numeroRue, 
@@ -90,7 +88,7 @@ class RecuFiscalService
         $pdf->Cell(5, 10, 'x', 0, 0, 'C');
 
         // Forme et nature du don
-        switch ($typeDon) 
+        switch ($donation->getTypeDon()) 
         {
             case TypeDon::RENONCEMENT_FRAIS:
                 $pdf->SetXY(169.2, 165); 
@@ -107,7 +105,7 @@ class RecuFiscalService
                 break;
         }
         // Mode de versement du don
-        switch ($moyenPaiement) 
+        switch ($donation->getMoyenPaiement()) 
         {
             case MoyenPaiement::CASH:
                 $pdf->SetXY(11, 202); 

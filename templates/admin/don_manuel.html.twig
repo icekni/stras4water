@@ -1,0 +1,51 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Ajouter un don manuel{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Ajouter un don manuel</h1>
+
+        {{ form_start(form) }}
+
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_row(form.createdAt) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.montant) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.moyenPaiement) }}
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                {{ form_row(form.typeDon) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.wantsRecuFiscal) }}
+            </div>
+            <div class="col-md-4 email-wrapper" style="display: none;">
+                {{ form_row(form.email) }}
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkbox = document.querySelector('#{{ form.wantsRecuFiscal.vars.id }}');
+            const emailWrapper = document.querySelector('.email-wrapper');
+
+            function toggleEmailField() {
+                emailWrapper.style.display = checkbox.checked ? 'block' : 'none';
+            }
+
+            checkbox.addEventListener('change', toggleEmailField);
+            toggleEmailField(); // init
+        });
+    </script>
+{% endblock %}
