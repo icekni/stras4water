@@ -18,7 +18,7 @@ class RecuFiscalService
         $this->emailService = $emailService;
     }
         // generate("RF2025-00001", $user, "50.05", $dateDon, new DateTimeImmutable(), TypeDon::NUMERAIRE, MoyenPaiement::CASH);
-    public function generate(string $numeroOrdre, 
+    public function generate(
         Donation $donation,
         TypeDon $typeDon, 
         MoyenPaiement $moyenPaiement, 
@@ -44,42 +44,42 @@ class RecuFiscalService
 
         // Numéro d'ordre du recu
         $pdf->SetXY(148, 39.5); 
-        $pdf->Cell(52, 6.3, mb_convert_encoding($numeroOrdre, 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
+        $pdf->Cell(52, 6.3, mb_convert_encoding($donation->getNumeroOrdreRF(), 'Windows-1252', 'UTF-8'), 0, 0, 'C');
 
         // Dénomination Asso
         $pdf->SetXY(12, 56.5); 
-        $pdf->Cell(185, 10, mb_convert_encoding($_ENV['DENOMINATIONASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(185, 10, mb_convert_encoding($_ENV['DENOMINATIONASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // SIREN Asso
         $pdf->SetXY(68, 60); 
-        $pdf->Cell(130, 10, mb_convert_encoding($_ENV['SIRENASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(130, 10, mb_convert_encoding($_ENV['SIRENASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // N° rue Asso
         $pdf->SetXY(17, 70.5); 
-        $pdf->Cell(20, 10, mb_convert_encoding($_ENV['NUMRUEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(20, 10, mb_convert_encoding($_ENV['NUMRUEASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Rue Asso
         $pdf->SetXY(47, 70.5); 
-        $pdf->Cell(150, 10, mb_convert_encoding($_ENV['RUEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(150, 10, mb_convert_encoding($_ENV['RUEASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Code postal Asso
         $pdf->SetXY(34, 75.5); 
-        $pdf->Cell(27, 10, mb_convert_encoding($_ENV['CPASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(27, 10, mb_convert_encoding($_ENV['CPASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Ville Asso
         $pdf->SetXY(81, 75.5); 
-        $pdf->Cell(116, 10, mb_convert_encoding($_ENV['VILLEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(116, 10, mb_convert_encoding($_ENV['VILLEASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Pays Asso
         $pdf->SetXY(23, 79.8); 
-        $pdf->Cell(42, 10, mb_convert_encoding($_ENV['PAYSASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(42, 10, mb_convert_encoding($_ENV['PAYSASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Objet Asso
         $objet = explode('|', wordwrap($_ENV['OBJETASSO'], 110, '|'));
         $pdf->SetXY(24, 84); 
-        $pdf->Cell(173, 10, mb_convert_encoding($objet[0], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(173, 10, mb_convert_encoding($objet[0], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(12, 87.7); 
-        $pdf->Cell(185, 10, mb_convert_encoding($objet[1], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(185, 10, mb_convert_encoding($objet[1], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         // Type Asso
         $pdf->SetXY(10.9, 134.8); 
         $pdf->Cell(5, 10, 'x', 0, 0, 'C');
         $pdf->SetXY(21.4, 170.6); 
         $pdf->Cell(5, 10, 'x', 0, 0, 'C');
         $pdf->SetXY(53, 170.3); 
-        $pdf->Cell(100, 10, mb_convert_encoding($_ENV['TYPEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(100, 10, mb_convert_encoding($_ENV['TYPEASSO'], 'Windows-1252', 'UTF-8'), 0, 0, 'L');
 
         $tpl = $pdf->importPage(2);
         $pdf->AddPage();
@@ -132,19 +132,19 @@ class RecuFiscalService
 
         // Données du donateur
         $pdf->SetXY(23, 83.8); 
-        $pdf->Cell(70, 6.3, mb_convert_encoding($nom, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(70, 6.3, mb_convert_encoding($nom, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(124, 83.8); 
-        $pdf->Cell(69, 6.3, mb_convert_encoding($prenom, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(69, 6.3, mb_convert_encoding($prenom, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(17, 94.5); 
-        $pdf->Cell(20, 6.3, mb_convert_encoding($numeroRue, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(20, 6.3, mb_convert_encoding($numeroRue, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(47, 94.5); 
-        $pdf->Cell(145, 6.3, mb_convert_encoding($rue, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(145, 6.3, mb_convert_encoding($rue, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(34, 99.5); 
-        $pdf->Cell(20, 6.3, mb_convert_encoding($codePostal, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(20, 6.3, mb_convert_encoding($codePostal, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(81, 99.5); 
-        $pdf->Cell(112, 6.3, mb_convert_encoding($ville, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(112, 6.3, mb_convert_encoding($ville, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(23, 104.8); 
-        $pdf->Cell(80, 6.3, mb_convert_encoding($pays, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(80, 6.3, mb_convert_encoding($pays, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
 
         // Date du don
         $pdf->SetXY(64, 130.5); 
@@ -163,12 +163,12 @@ class RecuFiscalService
         $pdf->Cell(8, 6.3, $donation->getCreatedAt()->format('Y'), 0, 0, 'C');
         $pdf->SetFontSize('6'); 
         $pdf->SetXY(110, 234); 
-        $pdf->Cell(70, 6.3, mb_convert_encoding("Document généré électroniquement", 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
+        $pdf->Cell(70, 6.3, mb_convert_encoding("Document généré électroniquement", 'Windows-1252', 'UTF-8'), 0, 0, 'C');
         $pdf->SetXY(110, 236); 
-        $pdf->Cell(70, 6.3, mb_convert_encoding("sans signature manuscrite originale", 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
+        $pdf->Cell(70, 6.3, mb_convert_encoding("sans signature manuscrite originale", 'Windows-1252', 'UTF-8'), 0, 0, 'C');
         $pdf->Image($_ENV['URLSIGNATURE'], 150, 215, 20);
 
-        $filePath = $this->projectDir . '/public/recuFiscaux/' . $numeroOrdre . '.pdf';
+        $filePath = $this->projectDir . '/public/recuFiscaux/' . $donation->getNumeroOrdreRF() . '.pdf';
         $pdf->Output($filePath, 'F');
 
         $donation->setUrlRecuFiscal($filePath);

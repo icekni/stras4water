@@ -66,7 +66,7 @@ final class DonationController extends AbstractController
                     ]
                 ],
             ]);
-            
+
             $entityManager->flush();
 
             return $this->redirect($session->url, 303);
@@ -120,9 +120,8 @@ final class DonationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $anneeEnCours = new DateTimeImmutable();
-            $numeroOrdre = 'RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y')));
-            $donation = $recuFiscalService->generate($numeroOrdre, 
-                                                    $donation,
+            $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y'))));
+            $donation = $recuFiscalService->generate($donation,
                                                     TypeDon::NUMERAIRE,
                                                     MoyenPaiement::CARTE,
                                                     $form->get('nom')->getData(),
