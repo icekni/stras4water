@@ -30,7 +30,7 @@ class RecuFiscalService
     ): Donation
     {
         $pdf = new Fpdi();
-        $pagecount = $pdf->setSourceFile('recuFiscaux/modele-vierge.pdf');
+        $pagecount = $pdf->setSourceFile('recusFiscaux/modele-vierge.pdf');
 
         $tpl = $pdf->importPage(1);
         $pdf->AddPage();
@@ -166,7 +166,7 @@ class RecuFiscalService
         $pdf->Cell(70, 6.3, mb_convert_encoding("sans signature manuscrite originale", 'Windows-1252', 'UTF-8'), 0, 0, 'C');
         $pdf->Image($_ENV['URLSIGNATURE'], 150, 215, 20);
 
-        $filePath = $this->projectDir . '/public/recuFiscaux/' . $donation->getNumeroOrdreRF() . '.pdf';
+        $filePath = $this->projectDir . '/public/recusFiscaux/' . $donation->getNumeroOrdreRF() . '.pdf';
         $pdf->Output($filePath, 'F');
 
         $donation->setUrlRecuFiscal($filePath);

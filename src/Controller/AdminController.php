@@ -149,7 +149,7 @@ final class AdminController extends AbstractController
     #[Route('/admin/get_recu_fiscal/{id}', name: 'admin_get_recu_fiscal')]
     public function admin_get_recu_fiscal(Donation $donation): Response
     {
-            $pdfPath = $donation->getUrlRecuFiscal(); // ex: /var/www/html/Stras4water/public/recuFiscaux/...
+            $pdfPath = $donation->getUrlRecuFiscal();
 
         if (!file_exists($pdfPath)) {
             throw $this->createNotFoundException('Fichier PDF introuvable.');

@@ -7,6 +7,7 @@ use App\Enum\DonationStatus;
 use App\Enum\MoyenPaiement;
 use App\Enum\TypeDon;
 use App\Form\DonationType;
+use App\Form\UserType;
 use App\Repository\DonationRepository;
 use App\Service\CountryCodeService;
 use App\Service\HelloAssoTokenService;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class FrontController extends AbstractController
@@ -116,4 +118,34 @@ final class FrontController extends AbstractController
 
         return $this->redirectToRoute('donation');
     }
+
+    #[Route('/mon-compte', name: 'app_account')]
+    public function app_account(Request $request, EntityManagerInterface $em, TokenStorageInterface $tokenStorage): Response
+    {
+        /** @var User $user */
+        $user = $tokenStorage->getToken()->getUser();
+
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Vos informations ont été mises à jour.');
+            return $this->redirectToRoute('app_account');
+        }
+
+        $donations = $em->getRepository(Donation::class)->findBy(['user' => $user]);
+
+        // statut adhérent à calculer selon ta logique (adhésion en cours dans la saison...)
+        $isAdherent = $user->isAdherent(); 
+        $saisonEnCours = '2024/2025'; // dynamique si besoin
+
+        return $this->render('front/compte.html.twig', [
+            'userForm' => $form,
+            'donations' => $donations,
+            'isAdherent' => $isAdherent,
+            'saisonEnCours' => $saisonEnCours
+        ]);
+    }
+
 }

@@ -171,17 +171,17 @@
 
                 {# Mobile : boutons compte sous burger #}
                 <div class="d-lg-none mb-3 text-center">
-                    {# {% if app.user %}
+                    {% if app.user %}
                         <a href="{{ path('app_account') }}" class="btn btn-outline-primary rounded-pill me-2 mb-2">Mon compte</a>
 
                         <form method="post" action="{{ path('app_logout') }}" class="d-inline">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
                             <button type="submit" class="btn btn-outline-danger rounded-pill mb-2">Se déconnecter</button>
                         </form>
-                    {% else %} #}
-                        {# <a href="#" class="btn btn-outline-primary rounded-pill me-2 mb-2">Se connecter</a>
-                        <a href="#" class="btn btn-outline-secondary rounded-pill mb-2">S'inscrire</a> #}
-                    {# {% endif %} #}
+                    {% else %} 
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-primary rounded-pill me-2 mb-2">Se connecter</a>
+                        <a href="{{ path('app_register') }}" class="btn btn-outline-secondary rounded-pill mb-2">S'inscrire</a>
+                    {% endif %}
                 </div>
 
                 <div class="d-lg-none mb-3 text-center">
@@ -234,7 +234,7 @@
                     {# <a href="cart.html">
                         <i class="bi bi-cart3"></i> (0.00 €)
                     </a> #}
-                    {# <div class="dropdown">
+                    <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle me-2"></i> <!-- Icône Bootstrap -->
                             <!-- Optionnel : texte ou rien du tout -->
@@ -242,25 +242,25 @@
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             {% if app.user %}
-                            <li><a class="dropdown-item" href="#">Mon compte</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_account') }}">Mon compte</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Se déconnecter</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_logout') }}">Se déconnecter</a></li>
                             {% else %}
-                            <li><a class="dropdown-item" href="#">Se connecter</a></li>
-                            <li><a class="dropdown-item" href="#">S'inscrire</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_login') }}">Se connecter</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_register') }}">S'inscrire</a></li>
                             {% endif %}
                         </ul>
-                    </div> #}
+                    </div>
 
                 </div>
 
                 {# Mobile panier en bas du menu #}
-                {# <div class="d-lg-none mt-3 text-center">
+                <div class="d-lg-none mt-3 text-center">
                     <hr>
                     <a href="/panier" class="text-decoration-none">
                         <i class="bi bi-cart3 me-1"></i> Panier : 25€
                     </a>
-                </div> #}
+                </div>
 
             </div>
         </div>

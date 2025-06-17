@@ -13,6 +13,7 @@ use App\Service\RecuFiscalService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -103,6 +104,17 @@ final class DonationController extends AbstractController
     #[Route('/fillFiscalData/{token}', name: 'fillFiscalData')]
     public function fillFiscalData(string $token, Request $request, DonationRepository $donationRepository, EntityManagerInterface $em, RecuFiscalService $recuFiscalService): Response
     {
+        $user = $this->getUser();
+        $formData = [];
+        if ($user && $user instanceof \App\Entity\User) {
+            $form = $this->createForm(FiscalDataType::class, [
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+            ]);
+        } else {
+            $form = $this->createForm(FiscalDataType::class);
+        }
+
         $donation = $donationRepository->findOneBy(['token' => $token]);
         if (!$donation) {
             throw $this->createNotFoundException('Token invalide.');
@@ -115,7 +127,6 @@ final class DonationController extends AbstractController
             ]);
         }
 
-        $form = $this->createForm(FiscalDataType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -144,6 +155,26 @@ final class DonationController extends AbstractController
 
         return $this->render('front/fiscal_data.html.twig', [
             'form' => $form->createView(),
+            'isLoggedIn' => $this->getUser() !== null,
+        ]);
+    }
+
+    #[Route('/recuFiscal/{id}', name: 'displayRF')]
+    public function servePdf(Donation $donation): Response
+    {
+        if (!$donation || !$donation->getUrlRecuFiscal()) {
+            throw $this->createNotFoundException('Reçu fiscal introuvable.');
+        }
+
+        $filePath = $donation->getUrlRecuFiscal();
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('Fichier reçu fiscal non trouvé.');
+        }
+
+        return new BinaryFileResponse($filePath, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
         ]);
     }
 }

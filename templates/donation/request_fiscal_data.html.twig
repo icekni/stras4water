@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Confirmation d'email</title>
+  <title>Action requise : informations pour votre reçu fiscal</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,7 +29,7 @@
       font-size: 16px;
       line-height: 1.5;
     }
-    .btn-confirm {
+    .btn-action {
       display: inline-block;
       margin: 25px 0;
       padding: 12px 25px;
@@ -55,20 +55,20 @@
     <div style="text-align:center; margin-bottom: 20px;">
       <img src="https://dev.stras4water.org/img/logo.png" alt="Stras4Water" style="max-width: 200px; height: auto;" />
     </div>
-    <h1>Confirmez votre adresse email</h1>
+    <h1>Complétez vos informations pour recevoir votre reçu fiscal</h1>
     <p>Bonjour,</p>
-    <p>Merci de vous être inscrit(e) chez nous ! Pour finaliser votre inscription, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :</p>
+    <p>Merci beaucoup pour votre don de {{ donation.montant }}€ à Stras4Water, votre soutien est précieux !</p>
+    <p>Pour pouvoir éditer et vous envoyer votre reçu fiscal, nous avons besoin que vous renseigniez quelques informations personnelles. Ces données ne sont pas stockées sur notre site, elles sont utilisées uniquement pour générer votre reçu.</p>
     <p style="text-align:center;">
-      <a href="{{ signedUrl|raw }}" class="btn-confirm" target="_blank" rel="noopener">Confirmer mon email</a>
+      <a href="{{ url }}" class="btn-action" target="_blank" rel="noopener">Compléter mes informations</a>
     </p>
+    <p>Une fois vos informations complétées, vous pourrez accéder directement à votre reçu fiscal en ligne et il vous sera également envoyé par email.</p>
+    <p><strong>Ce lien reste valable même après génération du reçu fiscal :</strong> il vous permettra de télécharger à nouveau votre reçu, qui sera conservé pendant une durée de 6 ans.</p>
     <p>Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :</p>
-    <p><a href="{{ signedUrl|raw }}" target="_blank" rel="noopener">{{ signedUrl|raw }}</a></p>
-
-    <p><em>Ce lien expirera dans {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</em></p>
-
-    <p>À bientôt,<br>L’équipe Stras4Water</p>
+    <p><a href="{{ url }}" target="_blank" rel="noopener">{{ url }}</a></p>
+    <p>Merci encore pour votre générosité !<br>L’équipe Stras4Water</p>
     <div class="footer">
-      <p>Vous avez reçu ce mail car vous vous êtes inscrit(e) sur notre site. Si ce n’est pas vous, ignorez ce message.</p>
+      <p>Vous avez reçu ce message car vous avez fait un don sur notre site. Si vous n’êtes pas à l’origine de cette action, veuillez ignorer ce message.</p>
     </div>
   </div>
 </body>

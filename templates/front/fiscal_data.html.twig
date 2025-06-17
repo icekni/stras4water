@@ -11,34 +11,41 @@
         Elles ne seront <strong>pas stockées</strong> dans notre base de données.
     </p>
 
+    {# Message si utilisateur non connecté #}
+    {% if not app.user %}
+        <div class="alert alert-info">
+            Vous n’êtes pas connecté·e, votre don sera anonyme et ne sera pas lié à un compte.<br>
+            <a href="{{ path('app_login') }}">Connectez-vous</a> si vous souhaitez associer votre don à votre compte.
+        </div>
+    {% endif %}
+
     {{ form_start(form) }}
 
     <div id="fiscalFields" class="border rounded p-3 mb-3">
-			{{ form_row(form.nom) }}
-			{{ form_row(form.prenom) }}
-			<div id="adresseContainer">
-				{{ form_row(form.adresse_search) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.prenom) }}
+        <div id="adresseContainer">
+            {{ form_row(form.adresse_search) }}
 
-				<ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
+            <ul id="adresseSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
 
-				<button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
-			</div>
+            <button type="button" id="manualAddressBtn" class="btn btn-link p-0 mt-1">🖊️ Saisir manuellement l'adresse</button>
+        </div>
 
-			<div id="detailedFields" class="d-none">
-				{{ form_row(form.numero_rue) }}
-				{{ form_row(form.rue) }}
-				{{ form_row(form.code_postal) }}
-				{{ form_row(form.ville) }}
-				{{ form_row(form.pays) }}
-			</div>
-		</div>
+        <div id="detailedFields" class="d-none">
+            {{ form_row(form.numero_rue) }}
+            {{ form_row(form.rue) }}
+            {{ form_row(form.code_postal) }}
+            {{ form_row(form.ville) }}
+            {{ form_row(form.pays) }}
+        </div>
+    </div>
 
-		<button type="submit" class="btn btn-success">Obtenir mon recu fiscal</button>
+    <button type="submit" class="btn btn-success">Obtenir mon recu fiscal</button>
 
-	{{ form_end(form) }}
+    {{ form_end(form) }}
 
-
-	 <script>
+    <script>
         // Elements
         const adresseInput = document.getElementById('fiscal_data_adresse_search');
         const suggestionsList = document.getElementById('adresseSuggestions');
@@ -48,9 +55,8 @@
         const villeInput = document.getElementById('fiscal_data_ville');
         const paysInput = document.getElementById('fiscal_data_pays');
 
-    
         let lastAutofillValue = '';
-    
+
         // Vider champs cachés
         function clearHiddenFields() {
             numeroInput.value = '';
@@ -60,7 +66,7 @@
             paysInput.value = '';
             lastAutofillValue = '';
         }
-    
+
         // Remplir champs cachés depuis suggestion
         function fillAddressFields(feature) {
             const props = feature.properties;
@@ -87,7 +93,7 @@
             document.getElementById('adresseContainer').classList.add('d-none');
             document.getElementById('detailedFields').classList.remove('d-none');
         }	
-    
+
         // Affiche les suggestions sous le textarea
         function showSuggestions(features) {
             suggestionsList.innerHTML = '';
@@ -110,7 +116,7 @@
                 suggestionsList.appendChild(li);
             });
         }
-    
+
         // Requête API adresse.data.gouv.fr
         async function fetchAddress(query) {
             if (query.length < 3) {
@@ -131,7 +137,7 @@
                 clearHiddenFields();
             }
         }
-    
+
         // Écoute input adresse
         adresseInput.addEventListener('input', () => {
             const val = adresseInput.value;
@@ -140,7 +146,7 @@
             }
             fetchAddress(val);
         });
-    
+
         // Clic en dehors pour cacher les suggestions
         document.addEventListener('click', (event) => {
         if (!adresseInput.contains(event.target) && !suggestionsList.contains(event.target)) {
@@ -174,4 +180,5 @@
         }
         });
     </script>
+</div>
 {% endblock %}

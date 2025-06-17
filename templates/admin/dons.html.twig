@@ -22,7 +22,7 @@
         <tbody>
             {% for don in dons %}
                 <tr>
-                    <td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
+                    <td>{{ don.montantNet|number_format(2, ',', ' ') }} €</td>
                     <td>{{ don.createdAt|date('d/m/Y H:i') }}</td>
                     <td>
                         {% if don.email %}
@@ -60,6 +60,12 @@
                             </button>
                         {% elseif don.wantsRecuFiscal %}
                             <span class="text-warning">À générer</span>
+
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendModal"
+                                data-id="{{ don.id }}"
+                                data-email="{{ don.email ?? don.user.email }}">
+                                Renvoyer
+                            </button>
                         {% else %}
                             <span class="text-muted">Non demandé</span>
                         {% endif %}

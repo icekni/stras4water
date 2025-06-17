@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Donation;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -16,24 +17,30 @@ class EmailService {
 
     function sendRecuFiscal(Donation $donation): void
     {
-        $email = (new Email())
+        $email = (new TemplatedEmail())
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
-            ->subject('Votre recu fiscal')
-            ->text('Bonjour, vous trouverez en pièce jointe le reçu fiscal pour votre don de ' . $donation->getMontant() . '€ à Stras4Water.')
-            ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf');
+            ->subject('Votre reçu fiscal Stras4Water est disponible')
+            ->htmlTemplate('donation/recu_fiscal_email.html.twig')
+            ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf')
+            ->context([
+                'don' => $donation->getMontant(),
+            ]);
 
         $this->mailer->send($email);
     }
 
     function sendRequestFiscalData(Donation $donation, string $url): void
     {
-        $email = (new Email())
+        $email = (new TemplatedEmail())
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
-            ->subject('Informations nécéssaires - Votre recu fiscal Stras4water')
-            ->text('Bonjour, \nSuite à votre don de ' . $donation->getMontant() . ', vos pouvez générer votre recu fiscal en remplissant les informations sur ce lien : ' . $url);
-
+            ->subject('Complétez vos informations pour recevoir votre reçu fiscal')
+            ->htmlTemplate('donation/request_fiscal_data.html.twig')
+                    ->context([
+                        'donation' => $donation,
+                        'url' => $url,
+                    ]);
         $this->mailer->send($email);
     }
 
