@@ -181,22 +181,29 @@ class RecuFiscalService
     public function invalidate(Donation $donation): Donation 
     {
         $pdf = new Fpdi();
-        // $pagecount = $pdf->setSourceFile($donation->getUrlRecuFiscal());
-        $pagecount = $pdf->setSourceFile('recuFiscaux/modele-vierge.pdf');
+        $pagecount = $pdf->setSourceFile($donation->getUrlRecuFiscal());
 
-        $text = "Stras4Water certifie que le don initialement enregistré le 15 mars 2025, d’un montant de 50€, a été remboursé.\nCe reçu annule et remplace le reçu n° RF2025-000018.\nAucun avantage fiscal ne peut être obtenu au titre de ce don.";
+        $text = explode("\n", wordwrap("Stras4Water certifie que le don initialement enregistré le " . $donation->getCreatedAt()->format('d/m/y') . ", d’un montant de " . $donation->getMontant() . "€, a été remboursé.\nCe reçu annule et remplace le reçu n° " . $donation->getNumeroOrdreRF() . ".\nAucun avantage fiscal ne peut être obtenu au titre de ce don.", 75));
 
         for ($i = 1; $i <= $pagecount; $i++) {
-            $pdf->importPage($i);
+            $tpl = $pdf->importPage($i);
             $pdf->AddPage();
+            $pdf->useTemplate($tpl);
+            $pdf->SetFont('Helvetica');
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->SetFillColor(255, 255, 255);
 
-            $pdf->SetXY(15, 123.8); 
-            $pdf->Cell(25, 200, mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+            $y = 123.8;
+            foreach ($text as $ligne) {
+                $pdf->SetXY(10, $y); 
+                $pdf->Cell(200, 10, mb_convert_encoding($ligne, 'Windows-1252', 'UTF-8'), 0, 0, 'C', true);
+                $y += 10;
+            }
         }
 
         $pdf->Output($donation->getUrlRecuFiscal(), 'F');
 
-        $this->emailService->sendRecuFiscal($donation);
+        // $this->emailService->sendRecuFiscal($donation);
 
         return $donation;
     }

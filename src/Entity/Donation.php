@@ -28,7 +28,7 @@ class Donation
     private ?DonationStatus $status = DonationStatus::CREATED;
 
     #[ORM\Column(nullable: true)]
-    private ?int $checkoutId = null;
+    private ?string $checkoutId = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $urlRecuFiscal = null;
@@ -47,6 +47,9 @@ class Donation
 
     #[ORM\Column(enumType: MoyenPaiement::class)]
     private ?MoyenPaiement $moyenPaiement = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numeroOrdreRF = null;
 
     public function __construct()
     {
@@ -87,12 +90,12 @@ class Donation
         return $this;
     }
 
-    public function getCheckoutId(): ?int
+    public function getCheckoutId(): ?string
     {
         return $this->checkoutId;
     }
 
-    public function setCheckoutId(int $checkoutId): static
+    public function setCheckoutId(string $checkoutId): static
     {
         $this->checkoutId = $checkoutId;
 
@@ -178,6 +181,18 @@ class Donation
     public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
     {
         $this->moyenPaiement = $moyenPaiement;
+
+        return $this;
+    }
+
+    public function getNumeroOrdreRF(): ?string
+    {
+        return $this->numeroOrdreRF;
+    }
+
+    public function setNumeroOrdreRF(?string $numeroOrdreRF): static
+    {
+        $this->numeroOrdreRF = $numeroOrdreRF;
 
         return $this;
     }

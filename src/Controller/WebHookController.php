@@ -43,6 +43,7 @@ final class WebHookController extends AbstractController
             
             if ($donId) {
                 $donation = $donationRepository->find($donId);
+                $donation->setCheckoutId($session->payment_intent);
 
                 if ($donation && $donation->isWantsRecuFiscal()) {
                     $token = bin2hex(random_bytes(32));

@@ -66,8 +66,7 @@ final class DonationController extends AbstractController
                     ]
                 ],
             ]);
-
-            $donation->setCheckoutId($session->payment_intent);
+            
             $entityManager->flush();
 
             return $this->redirect($session->url, 303);

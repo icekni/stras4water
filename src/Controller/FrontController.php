@@ -101,61 +101,6 @@ final class FrontController extends AbstractController
         return $this->render('front/confidentialite.html.twig', []);
     }
 
-    #[Route('/donation', name: 'donation')]
-    public function donation(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient): Response
-    {
-        $donation = new Donation();
-
-        // Préremplir l'utilisateur s'il est connecté
-        if ($this->getUser()) {
-            $donation->setUser($this->getUser());
-        }
-
-        $form = $this->createForm(DonationType::class, $donation);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($donation);
-            $entityManager->flush();
-            
-            $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
-
-            $product = $stripe->products->create([
-                'name' => 'Don Stras4Water ' . $donation->getMontant() . '€',
-            ]);
-            $price = $stripe->prices->create([
-                'unit_amount' => $donation->getMontant() * 100,
-                'currency' => 'eur',
-                'product' => $product->id,
-            ]);
-
-            $session = $stripe->checkout->sessions->create([
-                'success_url' => $this->generateUrl('donation_success', [], 0),
-                // 'return_url' => $this->generateUrl('donation', [], 0),
-                'cancel_url' => $this->generateUrl('donation_cancel', [], 0),
-                'line_items' => [
-                    [
-                    'price' => $price->id,
-                    'quantity' => 1,
-                    ],
-                ],
-                'mode' => 'payment',
-                'customer' => $_ENV['STRIPE_ANONYMOUS_CUSTOMER_ID'],
-                'payment_intent_data' => [
-                    'metadata' => [
-                        'don_id' => $donation->getId(),
-                    ]
-                ],
-            ]);
-
-            return $this->redirect($session->url, 303);
-        }
-
-        return $this->render('front/donation.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
     #[Route('/donation_success', name: 'donation_success')]
     public function donation_success(): Response
     {
