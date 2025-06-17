@@ -51,8 +51,8 @@ final class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/dons/create', name: 'admin_dons_create')]
-    public function admin_dons_create(Request $request, EmailService $emailService, EntityManagerInterface $entityManager): Response
+    #[Route('/admin/don/create', name: 'admin_don_create')]
+    public function admin_don_create(Request $request, EmailService $emailService, EntityManagerInterface $entityManager): Response
     {
         $donation = new Donation();
 
@@ -77,6 +77,8 @@ final class AdminController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Le don de ' . $donation->getMontant() .'€ a bien été enregistré');
+
+            return $this->redirectToRoute('admin_don_create');
         }
 
         return $this->render('admin/don_manuel.html.twig', [
