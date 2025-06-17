@@ -26,7 +26,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final class FrontController extends AbstractController
 {
     #[Route('/', name: 'home')]
-    public function index(RecuFiscalService $recuFiscalService): Response
+    public function index(): Response
     {
         return $this->render('front/home.html.twig', [
             'controller_name' => 'FrontController',

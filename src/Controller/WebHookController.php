@@ -38,26 +38,30 @@ final class WebHookController extends AbstractController
                 $donId = $paymentIntent->metadata->don_id ?? null;
             } else {
                 $donId = null;
+                $net = null;
             }
-
+            
             if ($donId) {
                 $donation = $donationRepository->find($donId);
+                $net = $donation->getMontant() - ($donation->getMontant() * 0.015) + 0.25;
 
                 if ($donation && $donation->isWantsRecuFiscal()) {
                     $token = bin2hex(random_bytes(32));
                     $donation->setToken($token);
                     $donation->setStatus(DonationStatus::PAID);
 
-                    $entityManager->flush();
-
                     $url = $this->generateUrl('fillFiscalData', ['token' => $token ], UrlGeneratorInterface::ABSOLUTE_URL);
                     $emailService->sendRequestFiscalData($donation, $url);
                 }
                 elseif ($donation && !$donation->isWantsRecuFiscal()) {
                     $donation->setStatus(DonationStatus::COMPLETED);
-
-                    $entityManager->flush();
                 }
+
+                if ($net) {
+                    $donation->setMontant($net);
+                }
+
+                $entityManager->flush();
             }
         }
 

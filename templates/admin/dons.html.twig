@@ -1,0 +1,111 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Liste des dons{% endblock %}
+
+{% block body %}
+<div class="container-fluid pt-4 px-4">
+    <h1>Liste des dons</h1>
+
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Email</th>
+                <th>Statut</th>
+                <th>Reçu fiscal</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for don in dons %}
+                <tr>
+                    <td>{{ loop.index + ((page - 1) * 20) }}</td>
+                    <td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
+                    <td>{{ don.createdAt|date('d/m/Y H:i') }}</td>
+                    <td>
+                        {% if don.email %}
+                            {{ don.email }}
+                        {% elseif don.user %}
+                            {{ don.user.email }}
+                        {% else %}
+                            <em>Don anonyme</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if don.status == constant('App\\Enum\\DonationStatus::PAID') %}
+                            <span class="badge bg-success">Payé</span>
+                        {% elseif don.status == constant('App\\Enum\\DonationStatus::COMPLETED') %}
+                            <span class="badge bg-info text-dark">Complété</span>
+                        {% elseif don.status == constant('App\\Enum\\DonationStatus::REFUNDED') %}
+                            <span class="badge bg-danger">Remboursé</span>
+                        {% elseif don.status == constant('App\\Enum\\DonationStatus::CREATED') %}
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ don.status.value }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if don.urlRecuFiscal %}
+                            <a href="{{ path('admin_get_recu_fiscal', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Voir le reçu
+                            </a>
+                        {% elseif don.wantsRecuFiscal %}
+                            <span class="text-warning">À générer</span>
+                        {% else %}
+                            <span class="text-muted">Non demandé</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED') %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" id="dropdownMenu{{ don.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Rembourser le don
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu{{ don.id }}">
+                                    <li>
+                                        <form method="post" action="{{ path('admin_dons_refund', {id: don.id}) }}" onsubmit="return confirm('Confirmer le remboursement de ce don ?');">
+                                            <button type="submit" class="dropdown-item text-danger">Confirmer le remboursement</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% elseif don.status == constant('App\\Enum\\DonationStatus::REFUNDED') %}
+                            <span class="text-muted">Déjà remboursé</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">Aucun don trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination">
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_dons', {'page': page - 1}) }}">&laquo; Précédent</a>
+                </li>
+            {% endif %}
+
+            {% for p in 1..pages %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ path('admin_dons', {'page': p}) }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page < pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_dons', {'page': page + 1}) }}">Suivant &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

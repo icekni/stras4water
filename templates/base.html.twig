@@ -313,6 +313,7 @@
 					<li><a href="{{ path('ml') }}" class="text-decoration-none text-dark">Mentions légales</a></li>
 					<li><a href="{{ path('donation') }}" class="text-decoration-none text-dark">Faire un don</a></li>
 					<li><a href="{{ path('confidentialite') }}" class="text-decoration-none text-dark">Politique de confidentialité</a></li>
+					<li><a href="{{ path('admin') }}" class="text-decoration-none text-dark">Espace admin</a></li>
 					</ul>
 				</div>
 				</div>
@@ -325,8 +326,8 @@
 					SIRET : 929 570 497 00024 &nbsp;–&nbsp; Adresse : 1a place des Orphelins, 67000 Strasbourg
 					</p>
 					<p class="small mb-0">
-					<a href="{{ asset('docs/statuts.pdf') }}" target="_blank" class="text-decoration-underline">Statuts</a> &nbsp;|&nbsp;
-					<a href="{{ asset('docs/reglement-interieur.pdf') }}" target="_blank" class="text-decoration-underline">Règlement intérieur</a>
+					<a href="{{ asset('files/statuts.pdf') }}" target="_blank" class="text-decoration-underline">Statuts</a> &nbsp;|&nbsp;
+					<a href="{{ asset('files/reglement-interieur.pdf') }}" target="_blank" class="text-decoration-underline">Règlement intérieur</a>
 					</p>
 				</div>
 
@@ -383,7 +384,7 @@
         });
 
         // Fermer sous-menus si clic en dehors
-        document.addEventListener('click', function () {
+        document.addEventListener('click', function () reglement{
             var openSubmenus = document.querySelectorAll('.dropdown-menu .dropend.show');
             openSubmenus.forEach(function (submenu) {
                 submenu.classList.remove('show');

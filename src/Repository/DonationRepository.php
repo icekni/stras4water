@@ -31,6 +31,20 @@ class DonationRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function getAmountLastDonations(int $days): float
+    {
+        $date = new \DateTimeImmutable("-{$days} days");
+
+        $qb = $this->createQueryBuilder('d')
+            ->select('SUM(d.montant)')
+            ->where('d.createdAt >= :date')
+            ->andWhere('d.status = :status')
+            ->setParameter('date', $date)
+            ->setParameter('status', \App\Enum\DonationStatus::COMPLETED);
+
+        return (float) $qb->getQuery()->getSingleScalarResult();
+    }
+
     //    /**
     //     * @return Donation[] Returns an array of Donation objects
     //     */

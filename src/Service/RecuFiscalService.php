@@ -5,11 +5,8 @@ namespace App\Service;
 use App\Entity\Donation;
 use App\Enum\MoyenPaiement;
 use App\Enum\TypeDon;
-use DateTimeImmutable;
 use setasign\Fpdi\Fpdi;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 
 class RecuFiscalService
 {
@@ -47,31 +44,31 @@ class RecuFiscalService
 
         // Numéro d'ordre du recu
         $pdf->SetXY(148, 39.5); 
-        $pdf->Cell(52, 6.3, $numeroOrdre, 0, 0, 'C');
+        $pdf->Cell(52, 6.3, mb_convert_encoding($numeroOrdre, 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
 
         // Dénomination Asso
         $pdf->SetXY(12, 56.5); 
-        $pdf->Cell(185, 10, 'Stras4Water', 0, 0, 'L');
+        $pdf->Cell(185, 10, mb_convert_encoding($_ENV['DENOMINATIONASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // SIREN Asso
         $pdf->SetXY(68, 60); 
-        $pdf->Cell(130, 10, '929 570 497', 0, 0, 'L');
+        $pdf->Cell(130, 10, mb_convert_encoding($_ENV['SIRENASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // N° rue Asso
         $pdf->SetXY(17, 70.5); 
-        $pdf->Cell(20, 10, '1a', 0, 0, 'L');
+        $pdf->Cell(20, 10, mb_convert_encoding($_ENV['NUMRUEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // Rue Asso
         $pdf->SetXY(47, 70.5); 
-        $pdf->Cell(150, 10, 'Place des Orphelins', 0, 0, 'L');
+        $pdf->Cell(150, 10, mb_convert_encoding($_ENV['RUEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // Code postal Asso
         $pdf->SetXY(34, 75.5); 
-        $pdf->Cell(27, 10, '67000', 0, 0, 'L');
+        $pdf->Cell(27, 10, mb_convert_encoding($_ENV['CPASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // Ville Asso
         $pdf->SetXY(81, 75.5); 
-        $pdf->Cell(116, 10, 'Strasbourg', 0, 0, 'L');
+        $pdf->Cell(116, 10, mb_convert_encoding($_ENV['VILLEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // Pays Asso
         $pdf->SetXY(23, 79.8); 
-        $pdf->Cell(42, 10, 'France', 0, 0, 'L');
+        $pdf->Cell(42, 10, mb_convert_encoding($_ENV['PAYSASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         // Objet Asso
-        $objet = explode('|', wordwrap('Soutien à des projets humanitaires liés à l\'eau, l\'hygiène et l\'assainissement et actions locales de sensibilisation par des activités culturelles et solidaires.', 110, '|'));
+        $objet = explode('|', wordwrap($_ENV['OBJETASSO'], 110, '|'));
         $pdf->SetXY(24, 84); 
         $pdf->Cell(173, 10, mb_convert_encoding($objet[0], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(12, 87.7); 
@@ -82,7 +79,7 @@ class RecuFiscalService
         $pdf->SetXY(21.4, 170.6); 
         $pdf->Cell(5, 10, 'x', 0, 0, 'C');
         $pdf->SetXY(53, 170.3); 
-        $pdf->Cell(100, 10, 'Association de droit local (Bas-Rhin, Haut-Rhin et Moselle)', 0, 0, 'L');
+        $pdf->Cell(100, 10, mb_convert_encoding($_ENV['TYPEASSO'], 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
 
         $tpl = $pdf->importPage(2);
         $pdf->AddPage();
@@ -135,19 +132,19 @@ class RecuFiscalService
 
         // Données du donateur
         $pdf->SetXY(23, 83.8); 
-        $pdf->Cell(70, 6.3, $nom, 0, 0, 'L');
+        $pdf->Cell(70, 6.3, mb_convert_encoding($nom, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(124, 83.8); 
-        $pdf->Cell(69, 6.3, $prenom, 0, 0, 'L');
+        $pdf->Cell(69, 6.3, mb_convert_encoding($prenom, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(17, 94.5); 
-        $pdf->Cell(20, 6.3, $numeroRue, 0, 0, 'L');
+        $pdf->Cell(20, 6.3, mb_convert_encoding($numeroRue, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(47, 94.5); 
-        $pdf->Cell(145, 6.3, $rue, 0, 0, 'L');
+        $pdf->Cell(145, 6.3, mb_convert_encoding($rue, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(34, 99.5); 
-        $pdf->Cell(20, 6.3, $codePostal, 0, 0, 'L');
+        $pdf->Cell(20, 6.3, mb_convert_encoding($codePostal, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(81, 99.5); 
-        $pdf->Cell(112, 6.3, $ville, 0, 0, 'L');
+        $pdf->Cell(112, 6.3, mb_convert_encoding($ville, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(23, 104.8); 
-        $pdf->Cell(80, 6.3, $pays, 0, 0, 'L');
+        $pdf->Cell(80, 6.3, mb_convert_encoding($pays, 'ISO-8859-1', 'UTF-8'), 0, 0, 'L');
 
         // Date du don
         $pdf->SetXY(64, 130.5); 
@@ -169,12 +166,35 @@ class RecuFiscalService
         $pdf->Cell(70, 6.3, mb_convert_encoding("Document généré électroniquement", 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
         $pdf->SetXY(110, 236); 
         $pdf->Cell(70, 6.3, mb_convert_encoding("sans signature manuscrite originale", 'ISO-8859-1', 'UTF-8'), 0, 0, 'C');
-        $pdf->Image('recuFiscaux/sign.png', 150, 215, 20);
+        $pdf->Image($_ENV['URLSIGNATURE'], 150, 215, 20);
 
         $filePath = $this->projectDir . '/public/recuFiscaux/' . $numeroOrdre . '.pdf';
         $pdf->Output($filePath, 'F');
 
         $donation->setUrlRecuFiscal($filePath);
+
+        $this->emailService->sendRecuFiscal($donation);
+
+        return $donation;
+    }
+
+    public function invalidate(Donation $donation): Donation 
+    {
+        $pdf = new Fpdi();
+        // $pagecount = $pdf->setSourceFile($donation->getUrlRecuFiscal());
+        $pagecount = $pdf->setSourceFile('recuFiscaux/modele-vierge.pdf');
+
+        $text = "Stras4Water certifie que le don initialement enregistré le 15 mars 2025, d’un montant de 50€, a été remboursé.\nCe reçu annule et remplace le reçu n° RF2025-000018.\nAucun avantage fiscal ne peut être obtenu au titre de ce don.";
+
+        for ($i = 1; $i <= $pagecount; $i++) {
+            $pdf->importPage($i);
+            $pdf->AddPage();
+
+            $pdf->SetXY(15, 123.8); 
+            $pdf->Cell(25, 200, mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8'), 1, 0, 'C');
+        }
+
+        $pdf->Output($donation->getUrlRecuFiscal(), 'F');
 
         $this->emailService->sendRecuFiscal($donation);
 

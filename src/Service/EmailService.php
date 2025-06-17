@@ -36,4 +36,15 @@ class EmailService {
 
         $this->mailer->send($email);
     }
+
+    function sendMail(string $nom, string $from, string $subject, string $text): void
+    {
+        $email = (new Email())
+            ->from(new Address($from, $nom))
+            ->to($_ENV['EMAIL_CONTACT'])
+            ->subject($subject)
+            ->text($text);
+
+        $this->mailer->send($email);
+    }
 }

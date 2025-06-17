@@ -67,6 +67,9 @@ final class DonationController extends AbstractController
                 ],
             ]);
 
+            $donation->setCheckoutId($session->payment_intent);
+            $entityManager->flush();
+
             return $this->redirect($session->url, 303);
         }
 
@@ -94,8 +97,6 @@ final class DonationController extends AbstractController
     #[Route('/get_recu_fiscal', name: 'get_recu_fiscal')]
     public function get_recu_fiscal(): Response
     {
-
-
         return $this->redirectToRoute('donation');
     }
 
@@ -148,5 +149,4 @@ final class DonationController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 }

@@ -72,7 +72,7 @@
                         Dons
                     </a>
                     <div class="collapse ps-3" id="submenu-dons">
-                        <a href="#" class="nav-link">Tous les dons</a>
+                        <a href="{{ path('admin_dons') }}" class="nav-link">Tous les dons</a>
                     </div>
                     <div class="collapse ps-3" id="submenu-dons">
                         <a href="#" class="nav-link">Reçus fiscaux</a>
@@ -89,6 +89,16 @@
 
         <!-- Main Content -->
         <div class="content-area">
+        	<div class="container-fluid">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            </div>
             {% block body %}{% endblock %}
         </div>
     </div>
