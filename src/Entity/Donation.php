@@ -169,7 +169,7 @@ class Donation
 
     public function getMontantNet(): ?float
     {
-        return $this->getMontant() - ($this->getMontant() * 0.015) + 0.25;
+        return $this->getMontant() - (($this->getMontant() * 0.015) + 0.25);
 ;
     }
 
