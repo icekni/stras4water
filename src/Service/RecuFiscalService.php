@@ -203,7 +203,7 @@ class RecuFiscalService
 
         $pdf->Output($donation->getUrlRecuFiscal(), 'F');
 
-        // $this->emailService->sendRecuFiscal($donation);
+        $this->emailService->sendRecuFiscal($donation);
 
         return $donation;
     }
