@@ -129,7 +129,7 @@ class Donation
             return $this->user->getEmail();
         }
         else {
-            return $this->getEmail();
+            return $this->email;
         }
     }
 
