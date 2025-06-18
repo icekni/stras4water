@@ -180,7 +180,9 @@ class Donation
 
     public function getMontantNet(): ?float
     {
-        return $this->getMontant() - (($this->getMontant() * 0.015) + 0.25);
+        return $this->moyenPaiement == MoyenPaiement::CARTE 
+            ? $this->getMontant() - (($this->getMontant() * 0.015) + 0.25)
+            : $this->getMontant();
 ;
     }
 
