@@ -22,53 +22,54 @@ class Donation
     private ?float $montant = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $date = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $nom = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $prenom = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresseNumero = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresseRue = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresseCodePostal = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresseVille = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $email = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 10)]
     private ?DonationStatus $status = DonationStatus::CREATED;
 
     #[ORM\Column(nullable: true)]
-    private ?int $checkoutId = null;
+    private ?string $checkoutId = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $urlRecuFiscal = null;
 
-    #[ORM\Column(length: 20)]
-    private ?TypeDon $TypeDon = null;
-
-    #[ORM\Column(length: 20)]
-    private ?MoyenPaiement $moyenPaiement = null;
+    #[ORM\ManyToOne(inversedBy: 'donations')]
+    private ?User $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adressePays = null;
+    private ?string $email = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $dateDeNaissance = null;
+    #[ORM\Column]
+    private ?bool $wantsRecuFiscal = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $token = null;
+
+    #[ORM\Column(enumType: MoyenPaiement::class)]
+    private ?MoyenPaiement $moyenPaiement = null;
+
+    #[ORM\Column(enumType: TypeDon::class)]
+    private ?TypeDon $typeDon = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numeroOrdreRF = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+        $this->wantsRecuFiscal = false;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setCreatedAt(DateTimeImmutable $date): static
+    {
+        $this->createdAt = $date;
+
+        return $this;
     }
 
     public function getMontant(): ?float
@@ -83,103 +84,12 @@ class Donation
         return $this;
     }
 
-    public function getDate(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->date;
+        return $this->createdAt;
     }
 
-    public function setDate(\DateTimeImmutable $date): static
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
-
-    public function setNom(?string $nom): static
-    {
-        $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom(?string $prenom): static
-    {
-        $this->prenom = $prenom;
-
-        return $this;
-    }
-
-    public function getAdresseNumero(): ?string
-    {
-        return $this->adresseNumero;
-    }
-
-    public function setAdresseNumero(?string $adresseNumero): static
-    {
-        $this->adresseNumero = $adresseNumero;
-
-        return $this;
-    }
-
-    public function getAdresseRue(): ?string
-    {
-        return $this->adresseRue;
-    }
-
-    public function setAdresseRue(?string $adresseRue): static
-    {
-        $this->adresseRue = $adresseRue;
-
-        return $this;
-    }
-
-    public function getAdresseCodePostal(): ?string
-    {
-        return $this->adresseCodePostal;
-    }
-
-    public function setAdresseCodePostal(?string $adresseCodePostal): static
-    {
-        $this->adresseCodePostal = $adresseCodePostal;
-
-        return $this;
-    }
-
-    public function getAdresseVille(): ?string
-    {
-        return $this->adresseVille;
-    }
-
-    public function setAdresseVille(?string $adresseVille): static
-    {
-        $this->adresseVille = $adresseVille;
-
-        return $this;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(?string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
+    public function getStatus(): ?DonationStatus
     {
         return $this->status;
     }
@@ -191,12 +101,12 @@ class Donation
         return $this;
     }
 
-    public function getCheckoutId(): ?int
+    public function getCheckoutId(): ?string
     {
         return $this->checkoutId;
     }
 
-    public function setCheckoutId(int $checkoutId): static
+    public function setCheckoutId(string $checkoutId): static
     {
         $this->checkoutId = $checkoutId;
 
@@ -215,16 +125,65 @@ class Donation
         return $this;
     }
 
-    public function getTypeDon(): ?TypeDon
+    public function getUser(): ?User
     {
-        return $this->TypeDon;
+        return $this->user;
     }
 
-    public function setTypeDon(TypeDon $TypeDon): static
+    public function setUser(?User $user): static
     {
-        $this->TypeDon = $TypeDon;
+        $this->user = $user;
 
         return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        if ($this->user) {
+            return $this->user->getEmail();
+        }
+        else {
+            return $this->email;
+        }
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function isWantsRecuFiscal(): ?bool
+    {
+        return $this->wantsRecuFiscal;
+    }
+
+    public function setWantsRecuFiscal(bool $wantRecuFiscal): static
+    {
+        $this->wantsRecuFiscal = $wantRecuFiscal;
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): static
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    public function getMontantNet(): ?float
+    {
+        return $this->moyenPaiement == MoyenPaiement::CARTE 
+            ? $this->getMontant() - (($this->getMontant() * 0.015) + 0.25)
+            : $this->getMontant();
+;
     }
 
     public function getMoyenPaiement(): ?MoyenPaiement
@@ -239,26 +198,26 @@ class Donation
         return $this;
     }
 
-    public function getAdressePays(): ?string
+    public function getTypeDon(): ?TypeDon
     {
-        return $this->adressePays;
+        return $this->typeDon;
     }
 
-    public function setAdressePays(?string $adressePays): static
+    public function setTypeDon(TypeDon $typeDon): static
     {
-        $this->adressePays = $adressePays;
+        $this->typeDon = $typeDon;
 
         return $this;
     }
 
-    public function getDateDeNaissance(): ?DateTimeImmutable
+    public function getNumeroOrdreRF(): ?string
     {
-        return $this->dateDeNaissance;
+        return $this->numeroOrdreRF;
     }
 
-    public function setDateDeNaissance(\DateTimeImmutable $dateDeNaissance): static
+    public function setNumeroOrdreRF(?string $numeroOrdreRF): static
     {
-        $this->dateDeNaissance = $dateDeNaissance;
+        $this->numeroOrdreRF = $numeroOrdreRF;
 
         return $this;
     }

@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+<div class="container mt-5" style="max-width: 800px;">
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes informations personnelles</h2>
+
+            {{ form_start(userForm) }}
+                {{ form_row(userForm.email) }}
+                {{ form_row(userForm.prenom) }}
+                {{ form_row(userForm.nom) }}
+                <div class="d-grid mt-3">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill">Mettre à jour</button>
+                </div>
+            {{ form_end(userForm) }}
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes dons</h2>
+
+            {% if donations is empty %}
+                <p class="text-muted text-center">Aucun don enregistré pour le moment.</p>
+            {% else %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Montant</th>
+                            <th>Date</th>
+                            <th>Reçu fiscal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for don in donations %}
+                            <tr>
+                                <td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
+                                <td>{{ don.createdAt|date('d/m/Y') }}</td>
+                                <td>
+                                    {% if don.numeroOrdreRF %}
+                                        <a href="{{ path('displayRF', {id: don.id}) }}" target="_blank">Télécharger</a>
+                                    {% else %}
+                                        <em>Non demandé</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Future blocks à activer plus tard #}
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes abonnements</h2>
+            <p class="text-muted text-center">Fonctionnalité à venir.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mon statut</h2>
+            <p class="text-center">
+                {% if isAdherent %}
+                    ✅ Vous êtes adhérent de l'association pour la saison {{ saisonEnCours }}
+                {% else %}
+                    ❌ Vous n'êtes pas encore adhérent de l'association.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

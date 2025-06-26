@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Donation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpParser\Node\Expr\Cast\Array_;
 
 /**
  * @extends ServiceEntityRepository<Donation>
@@ -23,12 +24,23 @@ class DonationRepository extends ServiceEntityRepository
 
         return (int) $this->createQueryBuilder('d')
             ->select('COUNT(d.id)')
-            ->where('d.date >= :start')
-            ->andWhere('d.date < :end')
+            ->where('d.createdAt >= :start')
+            ->andWhere('d.createdAt < :end')
             ->setParameter('start', $start)
             ->setParameter('end', $end)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function getLastDonations(int $days): array
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.createdAt >= :date')
+            ->andWhere('d.status = :status')
+            ->setParameter('date', new \DateTimeImmutable("-{$days} days"))
+            ->setParameter('status', \App\Enum\DonationStatus::COMPLETED)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

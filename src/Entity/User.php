@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -18,7 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180, nullable: true)]
     private ?string $email = null;
 
     /**
@@ -35,6 +37,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?bool $isVerified = null;
+
+    /**
+     * @var Collection<int, Donation>
+     */
+    #[ORM\OneToMany(targetEntity: Donation::class, mappedBy: 'user')]
+    private Collection $donations;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $prenom = null;
+
+    #[ORM\Column]
+    private ?bool $isAdherent = null;
+
+    public function __construct()
+    {
+        $this->donations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -117,6 +139,72 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Donation>
+     */
+    public function getDonations(): Collection
+    {
+        return $this->donations;
+    }
+
+    public function addDonation(Donation $donation): static
+    {
+        if (!$this->donations->contains($donation)) {
+            $this->donations->add($donation);
+            $donation->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDonation(Donation $donation): static
+    {
+        if ($this->donations->removeElement($donation)) {
+            // set the owning side to null (unless already changed)
+            if ($donation->getUser() === $this) {
+                $donation->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(?string $prenom): static
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function isAdherent(): ?bool
+    {
+        return $this->isAdherent;
+    }
+
+    public function setIsAdherent(bool $isAdherent): static
+    {
+        $this->isAdherent = $isAdherent;
 
         return $this;
     }
