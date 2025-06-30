@@ -77,10 +77,10 @@
                         Utilisateurs
                     </a>
                     <div class="collapse ps-3" id="submenu-users">
-                        <a href="#" class="nav-link">Participants</a>
+                        <a href="#" class="nav-link disabled">Participants (bientot)</a>
                     </div>
                     <div class="collapse ps-3" id="submenu-users">
-                        <a href="#" class="nav-link">Comptes utilisateur</a>
+                        <a href="#" class="nav-link disabled">Comptes utilisateur (bientot)</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -91,14 +91,19 @@
                         <a href="{{ path('admin_dons') }}" class="nav-link">Tous les dons</a>
                     </div>
                     <div class="collapse ps-3" id="submenu-dons">
-                        <a href="#" class="nav-link">Reçus fiscaux</a>
-                    </div>
-                    <div class="collapse ps-3" id="submenu-dons">
                         <a href="{{ path('admin_don_create') }}" class="nav-link">Saisir un don</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Gestion des liens</a>
+                    <a class="nav-link" data-bs-toggle="collapse" href="#submenu-liens" role="button" aria-expanded="false" aria-controls="submenu-liens">
+                        Gestion des liens
+                    </a>
+                    <div class="collapse ps-3" id="submenu-liens">
+                        <a href="{{ path('admin_lien_index') }}" class="nav-link">Tous les liens</a>
+                    </div>
+                    <div class="collapse ps-3" id="submenu-liens">
+                        <a href="{{ path('admin_lien_new') }}" class="nav-link">Créer un lien</a>
+                    </div>
                 </li>
             </ul>
         </div>

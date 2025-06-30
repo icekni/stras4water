@@ -53,9 +53,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isAdherent = null;
 
+    /**
+     * @var Collection<int, AbonnementSouscrit>
+     */
+    #[ORM\OneToMany(targetEntity: AbonnementSouscrit::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $abonnementSouscrits;
+
+    /**
+     * @var Collection<int, CarteSouscrite>
+     */
+    #[ORM\OneToMany(targetEntity: CarteSouscrite::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $carteSouscrites;
+
+    /**
+     * @var Collection<int, SeanceEssai>
+     */
+    #[ORM\OneToMany(targetEntity: SeanceEssai::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $seanceEssais;
+
     public function __construct()
     {
         $this->donations = new ArrayCollection();
+        $this->abonnementSouscrits = new ArrayCollection();
+        $this->carteSouscrites = new ArrayCollection();
+        $this->seanceEssais = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -205,6 +226,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsAdherent(bool $isAdherent): static
     {
         $this->isAdherent = $isAdherent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AbonnementSouscrit>
+     */
+    public function getAbonnementSouscrits(): Collection
+    {
+        return $this->abonnementSouscrits;
+    }
+
+    public function addAbonnementSouscrit(AbonnementSouscrit $abonnementSouscrit): static
+    {
+        if (!$this->abonnementSouscrits->contains($abonnementSouscrit)) {
+            $this->abonnementSouscrits->add($abonnementSouscrit);
+            $abonnementSouscrit->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAbonnementSouscrit(AbonnementSouscrit $abonnementSouscrit): static
+    {
+        if ($this->abonnementSouscrits->removeElement($abonnementSouscrit)) {
+            // set the owning side to null (unless already changed)
+            if ($abonnementSouscrit->getUser() === $this) {
+                $abonnementSouscrit->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CarteSouscrite>
+     */
+    public function getCarteSouscrites(): Collection
+    {
+        return $this->carteSouscrites;
+    }
+
+    public function addCarteSouscrite(CarteSouscrite $carteSouscrite): static
+    {
+        if (!$this->carteSouscrites->contains($carteSouscrite)) {
+            $this->carteSouscrites->add($carteSouscrite);
+            $carteSouscrite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCarteSouscrite(CarteSouscrite $carteSouscrite): static
+    {
+        if ($this->carteSouscrites->removeElement($carteSouscrite)) {
+            // set the owning side to null (unless already changed)
+            if ($carteSouscrite->getUser() === $this) {
+                $carteSouscrite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SeanceEssai>
+     */
+    public function getSeanceEssais(): Collection
+    {
+        return $this->seanceEssais;
+    }
+
+    public function addSeanceEssai(SeanceEssai $seanceEssai): static
+    {
+        if (!$this->seanceEssais->contains($seanceEssai)) {
+            $this->seanceEssais->add($seanceEssai);
+            $seanceEssai->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeanceEssai(SeanceEssai $seanceEssai): static
+    {
+        if ($this->seanceEssais->removeElement($seanceEssai)) {
+            // set the owning side to null (unless already changed)
+            if ($seanceEssai->getUser() === $this) {
+                $seanceEssai->setUser(null);
+            }
+        }
 
         return $this;
     }
