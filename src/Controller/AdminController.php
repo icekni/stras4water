@@ -3,14 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Donation;
+use App\Entity\Lien;
 use App\Enum\DonationStatus;
 use App\Form\DonManuelType;
+use App\Form\LienType;
 use App\Repository\DonationRepository;
+use App\Repository\LienRepository;
+use App\Repository\SeanceEssaiRepository;
+use App\Repository\UserRepository;
 use App\Service\EmailService;
+use App\Service\QrCodeGenerator;
 use App\Service\RecuFiscalService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -158,5 +166,136 @@ final class AdminController extends AbstractController
         return new BinaryFileResponse($pdfPath, 200, [
             'Content-Type' => 'application/pdf',
         ], false, ResponseHeaderBag::DISPOSITION_INLINE);
+    }
+
+    #[Route('/admin/utilisateurs/search', name: 'admin_user_search')]
+    public function search(Request $request, UserRepository $userRepo, SeanceEssaiRepository $essaiRepo): JsonResponse
+    {
+        $query = $request->query->get('q', '');
+        $disciplineId = $request->query->get('discipline');
+        $results = [];
+
+        if (!$query || !$disciplineId) {
+            return $this->json([]);
+        }
+
+        if (mb_strlen($query) >= 2) {
+            $users = $userRepo->findBySimilarName($query);
+            $essais = $essaiRepo->findBySimilarName($query);
+
+            foreach ($users as $user) {
+                $results[] = [
+                    'nom' => $user->getNom(),
+                    'prenom' => $user->getPrenom(),
+                    'email' => $user->getEmail(),
+                    'type' => 'Compte',
+                ];
+            }
+
+            foreach ($essais as $essai) {
+                $results[] = [
+                    'nom' => $essai->getNom(),
+                    'prenom' => $essai->getPrenom(),
+                    'email' => null,
+                    'type' => 'Essai',
+                ];
+            }
+        }
+
+        return $this->json($results);
+    }
+    
+    #[Route('/admin/liens', name: 'admin_lien_index')]
+    public function liens_index(LienRepository $repo): Response
+    {
+        return $this->render('admin/lien/index.html.twig', [
+            'liens' => $repo->findAll(),
+        ]);
+    }
+
+    #[Route('/admin/lien/new', name: 'admin_lien_new')]
+    public function lien_new(Request $request, EntityManagerInterface $em, QrCodeGenerator $qrCodeGenerator): Response
+    {
+        $lien = new Lien();
+
+        $form = $this->createForm(LienType::class, $lien);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $qrPath = $qrCodeGenerator->generate($lien);
+            $lien->setQrCodePath($qrPath);
+            $em->persist($lien);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_lien_index');
+        }
+
+        return $this->render('admin/lien/form.html.twig', [
+            'form' => $form->createView(),
+            'editMode' => $lien->getId() !== null,
+        ]);
+    }
+
+    #[Route('/admin/lien/{id}/edit', name: 'admin_lien_edit')]
+    public function lien_edit(Lien $lien, Request $request, EntityManagerInterface $em, QrCodeGenerator $qrCodeGenerator): Response
+    {
+        $form = $this->createForm(LienType::class, $lien);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {     
+            $qrPath = $qrCodeGenerator->generate($lien);
+            $lien->setQrCodePath($qrPath);
+            $em->persist($lien);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_lien_index');
+        }
+
+        return $this->render('admin/lien/form.html.twig', [
+            'form' => $form->createView(),
+            'editMode' => $lien->getId() !== null,
+        ]);
+    }
+
+    #[Route('/admin/lien/{id}/delete', name: 'admin_lien_delete', methods: ['POST'])]
+    public function lien_delete(Request $request, Lien $lien, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete_lien_' . $lien->getId(), $request->request->get('_token'))) {
+            $em->remove($lien);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('admin_lien_index');
+    }
+
+    #[Route('/admin/lien/{id}', name: 'admin_lien_show')]
+    public function stats(Lien $lien): Response
+    {
+        $clics = $lien->getClics();
+        $dateFrom = (new \DateTimeImmutable('-60 days'))->setTime(0, 0);
+        $dateTo = new \DateTimeImmutable('today'); 
+
+        $clicsParJour = [];
+        $interval = new \DateInterval('P1D');
+        $period = new \DatePeriod($dateFrom, $interval, $dateTo->modify('+1 day'));
+
+        foreach ($period as $date) {
+            $jour = $date->format('Y-m-d');
+            $clicsParJour[$jour] = 0;
+        }
+
+        foreach ($clics as $clicDate) {
+            if ($clicDate >= $dateFrom) {
+                $jour = $clicDate->format('Y-m-d');
+                $clicsParJour[$jour] = ($clicsParJour[$jour] ?? 0) + 1;
+            }
+        }
+
+        ksort($clicsParJour);
+
+        return $this->render('admin/lien/stats.html.twig', [
+            'lien' => $lien,
+            'clics' => $clicsParJour,
+        ]);
     }
 }

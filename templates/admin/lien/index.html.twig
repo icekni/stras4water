@@ -1,0 +1,40 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Liens{% endblock %}
+
+{% block body %}
+    <h1>Liens</h1>
+    <a href="{{ path('admin_lien_new') }}" class="btn btn-primary mb-3">Créer un nouveau lien</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th>URL cible</th>
+                <th>Date de création</th>
+                <th>Clics</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for lien in liens %}
+            <tr>
+                <td><code>{{ lien.token }}</code></td>
+                <td><a href="{{ lien.urlCible }}" target="_blank">{{ lien.urlCible }}</a></td>
+                <td>{{ lien.createdAt|date('Y-m-d H:i') }}</td>
+                <td>{{ lien.clics|length }}</td>
+                <td>
+                    <a href="{{ path('admin_lien_show', {id: lien.id}) }}" class="btn btn-sm btn-info">Stats</a>
+                    <a href="{{ path('admin_lien_edit', {id: lien.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{{ path('admin_lien_delete', {id: lien.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce lien ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_lien_' ~ lien.id) }}">
+                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5">Aucun lien pour le moment.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

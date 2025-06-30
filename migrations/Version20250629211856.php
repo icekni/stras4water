@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250626151756 extends AbstractMigration
+final class Version20250629211856 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -40,6 +40,9 @@ final class Version20250626151756 extends AbstractMigration
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE donation (id INT AUTO_INCREMENT NOT NULL, user_id INT DEFAULT NULL, montant DOUBLE PRECISION NOT NULL, created_at DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', status VARCHAR(10) NOT NULL, checkout_id VARCHAR(255) DEFAULT NULL, url_recu_fiscal VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, wants_recu_fiscal TINYINT(1) NOT NULL, token VARCHAR(255) DEFAULT NULL, moyen_paiement VARCHAR(255) NOT NULL, type_don VARCHAR(255) NOT NULL, numero_ordre_rf VARCHAR(255) DEFAULT NULL, INDEX IDX_31E581A0A76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE TABLE lien (id INT AUTO_INCREMENT NOT NULL, token VARCHAR(32) NOT NULL, url_cible VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', clics JSON NOT NULL COMMENT '(DC2Type:json)', qr_code_path VARCHAR(255) NOT NULL, logo_path VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE periode_essai (id INT AUTO_INCREMENT NOT NULL, debut DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', fin DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
@@ -141,6 +144,9 @@ final class Version20250626151756 extends AbstractMigration
         SQL);
         $this->addSql(<<<'SQL'
             DROP TABLE donation
+        SQL);
+        $this->addSql(<<<'SQL'
+            DROP TABLE lien
         SQL);
         $this->addSql(<<<'SQL'
             DROP TABLE periode_essai
