@@ -9,9 +9,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Token</th>
-                <th>URL cible</th>
-                <th>Date de création</th>
+                <th>Nom</th>
+                <th>QR Code</th>
                 <th>Clics</th>
                 <th>Actions</th>
             </tr>
@@ -19,9 +18,12 @@
         <tbody>
         {% for lien in liens %}
             <tr>
-                <td><code>{{ lien.token }}</code></td>
-                <td><a href="{{ lien.urlCible }}" target="_blank">{{ lien.urlCible }}</a></td>
-                <td>{{ lien.createdAt|date('Y-m-d H:i') }}</td>
+                <td>{{ lien.description }}</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#qrModal{{ lien.id }}">
+                        Voir le QR Code
+                    </button>
+                </td>
                 <td>{{ lien.clics|length }}</td>
                 <td>
                     <a href="{{ path('admin_lien_show', {id: lien.id}) }}" class="btn btn-sm btn-info">Stats</a>
@@ -37,4 +39,25 @@
         {% endfor %}
         </tbody>
     </table>
+
+    {% for lien in liens %}
+        <div class="modal fade" id="qrModal{{ lien.id }}" tabindex="-1" aria-labelledby="qrModalLabel{{ lien.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="qrModalLabel{{ lien.id }}">QR Code du lien</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="{{ asset(lien.qrCodePath|replace({'public/': ''})) }}" alt="QR Code" class="img-fluid mb-3">
+                        <br>
+                        <a href="{{ asset(lien.qrCodePath|replace({'public/': ''})) }}"  download="{{ lien.description|slug }}.png" class="btn btn-primary">
+                            Télécharger le QR Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
 {% endblock %}

@@ -32,6 +32,9 @@ class Lien
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logoPath = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -113,6 +116,18 @@ class Lien
     public function setLogoPath(?string $logoPath): static
     {
         $this->logoPath = $logoPath;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }
