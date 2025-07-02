@@ -36,9 +36,11 @@ class DonationRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('d')
             ->where('d.createdAt >= :date')
-            ->andWhere('d.status = :status')
+            ->andWhere('d.status != :statusCreated')
+            ->orWhere('d.status != :statusRefunded')
             ->setParameter('date', new \DateTimeImmutable("-{$days} days"))
-            ->setParameter('status', \App\Enum\DonationStatus::COMPLETED)
+            ->setParameter('statusCreated', \App\Enum\DonationStatus::CREATED)
+            ->setParameter('statusRefunded', \App\Enum\DonationStatus::REFUNDED)
             ->getQuery()
             ->getResult();
     }
