@@ -58,7 +58,7 @@
                                 data-email="{{ don.email ?? don.user.email }}">
                                 Renvoyer
                             </button>
-                        {% elseif don.wantsRecuFiscal %}
+                        {% elseif don.wantsRecuFiscal and (don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED')) %}
                             <span class="text-warning">À générer</span>
 
                             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendModal"
