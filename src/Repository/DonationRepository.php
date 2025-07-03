@@ -35,12 +35,12 @@ class DonationRepository extends ServiceEntityRepository
     public function getLastDonations(int $days): array
     {
         return $this->createQueryBuilder('d')
-            ->where('d.createdAt >= :date')
-            ->andWhere('d.status != :statusCreated')
-            ->orWhere('d.status != :statusRefunded')
+            ->where('d.createdAt >= :date')->andWhere('d.status IN (:statuses)')
             ->setParameter('date', new \DateTimeImmutable("-{$days} days"))
-            ->setParameter('statusCreated', \App\Enum\DonationStatus::CREATED)
-            ->setParameter('statusRefunded', \App\Enum\DonationStatus::REFUNDED)
+            ->setParameter('statuses', [
+                \App\Enum\DonationStatus::PAID,
+                \App\Enum\DonationStatus::COMPLETED,
+            ])
             ->getQuery()
             ->getResult();
     }
