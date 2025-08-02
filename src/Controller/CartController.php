@@ -160,6 +160,7 @@ class CartController extends AbstractController
         $cart = $cartService->getCart();
         $total = 0.0;
 
+        $abonnements = [];
         foreach ($cart['abonnements'] as $abonnementCart) {
             $abonnement = $abonnementRepository->find($abonnementCart['id']);
 
@@ -174,8 +175,9 @@ class CartController extends AbstractController
             $abonnementSouscrit->setIsTarifReduit($abonnementCart['tarif'] === 'reduit');
 
             $em->persist($abonnementSouscrit);
+
+            $abonnements[] = $abonnementSouscrit;
         }
-        $abonnementIds = implode(',', array_column($cart['abonnements'], 'id'));
 
         foreach ($cart['cartes'] as $carteCart) {
             $carte = $carteRepository->find($carteCart['id']);
@@ -189,10 +191,20 @@ class CartController extends AbstractController
             $carteSouscrite->setCarte($carte);
             $carteSouscrite->setStatut(Statut::CREATED);
             $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
-            $em->persist($abonnementSouscrit);
+
+            $em->persist($carteSouscrite);
+
+            $cartes[] = $carteSouscrite;
         }
-        $carteIds = implode(',', array_column($cart['cartes'], 'id'));
         $em->flush();
+        $carteIds = implode(',', array_map(
+            fn($souscription) => $souscription->getId(),
+            $cartes
+        ));
+        $abonnementIds = implode(',', array_map(
+            fn($souscription) => $souscription->getId(),
+            $abonnements
+        ));
 
         if ($cart['adhesion']) {
             $total += 10; // TODO recuperer depuis la config
