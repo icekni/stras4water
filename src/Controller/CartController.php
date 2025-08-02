@@ -148,7 +148,8 @@ class CartController extends AbstractController
         CartService $cartService, 
         Security $security,
         AbonnementRepository $abonnementRepository,
-        CarteRepository $carteRepository): Response
+        CarteRepository $carteRepository,
+        EntityManagerInterface $em): Response
     {
         $user = $security->getUser();
         if (!$user) {
@@ -171,6 +172,8 @@ class CartController extends AbstractController
             $abonnementSouscrit->setAbonnement($abonnement);
             $abonnementSouscrit->setStatut(Statut::CREATED);
             $abonnementSouscrit->setIsTarifReduit($abonnementCart['tarif'] === 'reduit');
+
+            $em->persist($abonnementSouscrit);
         }
         $abonnementIds = implode(',', array_column($cart['abonnements'], 'id'));
 
@@ -186,6 +189,7 @@ class CartController extends AbstractController
             $carteSouscrite->setCarte($carte);
             $carteSouscrite->setStatut(Statut::CREATED);
             $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
+            $em->persist($abonnementSouscrit);
         }
         $carteIds = implode(',', array_column($cart['cartes'], 'id'));
 
