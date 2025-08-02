@@ -87,26 +87,26 @@ final class WebHookController extends AbstractController
 
                 foreach ($abonnementIds as $id) {
                     $abonnement = $abonnementRepository->find($id);
-                    if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatus() === Statut::CREATED) {
+                    if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatut() === Statut::CREATED) {
                         if ($abonnement->isTarifReduit()) {
-                            $abonnement->setStatus(Statut::PENDING);
+                            $abonnement->setStatut(Statut::PENDING);
                             $abonnement->setTarifReduitVerifie(false);
                         }
                         else {
-                            $abonnement->setStatus(Statut::ACTIVE);
+                            $abonnement->setStatut(Statut::ACTIVE);
                         }
                     }
                 }
 
                 foreach ($carteIds as $id) {
                     $carte = $carteRepository->find($id);
-                    if ($carte && $carte->getUser() === $user && $carte->getStatus() === Statut::CREATED) {
+                    if ($carte && $carte->getUser() === $user && $carte->getStatut() === Statut::CREATED) {
                         if ($carte->isTarifReduit()) {
-                            $carte->setStatus(Statut::PENDING);
+                            $carte->setStatut(Statut::PENDING);
                             $carte->setTarifReduitVerifie(false);
                         }
                         else {
-                            $carte->setStatus(Statut::ACTIVE);
+                            $carte->setStatut(Statut::ACTIVE);
                         }
                     }
                 }
