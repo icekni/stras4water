@@ -50,7 +50,6 @@ final class WebHookController extends AbstractController
                 $adhesion = ($paymentIntent->metadata->adhesion ?? '0') === '1';
                 $abonnementIds = isset($paymentIntent->metadata->abonnement_ids) ? explode(',', $paymentIntent->metadata->abonnement_ids) : [];
                 $carteIds = isset($paymentIntent->metadata->carte_ids) ? explode(',', $paymentIntent->metadata->carte_ids) : [];
-                dd($donId, $userId, $adhesion, $abonnementIds, $carteIds);
             } else {
                 $donId = null;
                 return new Response('No payment intent', 400);
@@ -88,6 +87,7 @@ final class WebHookController extends AbstractController
 
                 foreach ($abonnementIds as $id) {
                     $abonnement = $abonnementRepository->find($id);
+                    dd($abonnement);
                     if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatus() === Statut::CREATED) {
                         if ($abonnement->isTarifReduit()) {
                             $abonnement->setStatus(Statut::PENDING);
