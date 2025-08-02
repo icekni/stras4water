@@ -21,7 +21,7 @@ class EmailService {
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
             ->subject('Votre reçu fiscal Stras4Water est disponible')
-            ->htmlTemplate('donation/recu_fiscal_email.html.twig')
+            ->htmlTemplate('emails/recu_fiscal_email.html.twig')
             ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf')
             ->context([
                 'don' => $donation->getMontant(),
@@ -36,7 +36,7 @@ class EmailService {
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
             ->subject('Complétez vos informations pour recevoir votre reçu fiscal')
-            ->htmlTemplate('donation/request_fiscal_data.html.twig')
+            ->htmlTemplate('emails/request_fiscal_data.html.twig')
                     ->context([
                         'donation' => $donation,
                         'url' => $url,
@@ -47,9 +47,9 @@ class EmailService {
     function sendMail(string $nom, string $from, string $subject, string $text): void
     {
         $email = (new Email())
-            ->from(new Address($from, $nom))
+            ->from($_ENV['EMAIL_CONTACT'])
             ->to($_ENV['EMAIL_CONTACT'])
-            ->subject($subject)
+            ->subject("Nouveau message de : " . $from . " - " . $nom . " : " . $subject)
             ->text($text);
 
         $this->mailer->send($email);

@@ -1,0 +1,23 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}
+    {{ abonnement is defined ? 'Modifier l\'abonnement' : 'Créer un nouvel abonnement' }}
+{% endblock %}
+
+{% block body %}
+<h1>{{ abonnement is defined ? 'Modifier l\'abonnement' : 'Créer un nouvel abonnement' }}</h1>
+
+{{ form_start(form) }}
+    {{ form_start(form) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.tarif) }}
+    {{ form_row(form.tarifReduit) }}
+    {{ form_row(form.discipline) }}
+    {{ form_row(form.saison) }}
+        <button class="btn btn-success mt-3">Enregistrer</button>
+    {{ form_end(form) }}
+
+{{ form_end(form) }}
+
+<a href="{{ path('admin_abonnement_index') }}">Retour à la liste</a>
+{% endblock %}

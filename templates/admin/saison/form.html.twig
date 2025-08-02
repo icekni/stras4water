@@ -1,0 +1,20 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}
+    {{ saison.id ? 'Modifier la saison' : 'Nouvelle saison' }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">{{ saison.id ? 'Modifier la saison' : 'Ajouter une saison' }}</h1>
+
+        {{ form_start(form) }}
+            {{ form_row(form.nom) }}
+            {{ form_row(form.dateDebut) }}
+            {{ form_row(form.dateFin) }}
+
+            <button class="btn btn-primary">{{ saison.id ? 'Mettre à jour' : 'Créer' }}</button>
+            <a href="{{ path('admin_saison_index') }}" class="btn btn-secondary ms-2">Retour à la liste</a>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

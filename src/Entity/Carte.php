@@ -18,20 +18,8 @@ class Carte
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    /**
-     * @var Collection<int, Discipline>
-     */
-    #[ORM\ManyToMany(targetEntity: Discipline::class)]
-    private Collection $discipline;
-
     #[ORM\Column]
     private ?int $nombreSeances = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $validFrom = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $validUntil = null;
 
     #[ORM\Column]
     private ?float $tarif = null;
@@ -45,16 +33,29 @@ class Carte
     #[ORM\Column]
     private ?bool $isActif = null;
 
+    public function FunctionName()
+    {
+        $this->isActif = true;
+    }
+
     /**
      * @var Collection<int, CarteSouscrite>
      */
     #[ORM\OneToMany(targetEntity: CarteSouscrite::class, mappedBy: 'carte', orphanRemoval: true)]
     private Collection $carteSouscrites;
 
+    /**
+     * @var Collection<int, Discipline>
+     */
+    #[ORM\ManyToMany(targetEntity: Discipline::class)]
+    private Collection $disciplines;
+
     public function __construct()
     {
-        $this->discipline = new ArrayCollection();
         $this->carteSouscrites = new ArrayCollection();
+        $this->hasTarifReduit = false;
+        $this->isActif = false;
+        $this->disciplines = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -74,30 +75,6 @@ class Carte
         return $this;
     }
 
-    /**
-     * @return Collection<int, Discipline>
-     */
-    public function getDiscipline(): Collection
-    {
-        return $this->discipline;
-    }
-
-    public function addDiscipline(Discipline $discipline): static
-    {
-        if (!$this->discipline->contains($discipline)) {
-            $this->discipline->add($discipline);
-        }
-
-        return $this;
-    }
-
-    public function removeDiscipline(Discipline $discipline): static
-    {
-        $this->discipline->removeElement($discipline);
-
-        return $this;
-    }
-
     public function getNombreSeances(): ?int
     {
         return $this->nombreSeances;
@@ -106,30 +83,6 @@ class Carte
     public function setNombreSeances(int $nombreSeances): static
     {
         $this->nombreSeances = $nombreSeances;
-
-        return $this;
-    }
-
-    public function getValidFrom(): ?\DateTimeImmutable
-    {
-        return $this->validFrom;
-    }
-
-    public function setValidFrom(\DateTimeImmutable $validFrom): static
-    {
-        $this->validFrom = $validFrom;
-
-        return $this;
-    }
-
-    public function getValidUntil(): ?\DateTimeImmutable
-    {
-        return $this->validUntil;
-    }
-
-    public function setValidUntil(?\DateTimeImmutable $validUntil): static
-    {
-        $this->validUntil = $validUntil;
 
         return $this;
     }
@@ -210,5 +163,13 @@ class Carte
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Discipline>
+     */
+    public function getDisciplines(): Collection
+    {
+        return $this->disciplines;
     }
 }

@@ -3,7 +3,11 @@
 namespace App\Controller;
 
 use App\Enum\DonationStatus;
+use App\Enum\Statut;
+use App\Repository\AbonnementSouscritRepository;
+use App\Repository\CarteSouscriteRepository;
 use App\Repository\DonationRepository;
+use App\Repository\UserRepository;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -16,7 +20,14 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final class WebHookController extends AbstractController
 {
     #[Route('/webhook/stripe', name: 'stripe_webhook')]
-    public function handleStripeWebhook(Request $request, EntityManagerInterface $entityManager, DonationRepository $donationRepository, EmailService $emailService): Response
+    public function handleStripeWebhook(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        DonationRepository $donationRepository, 
+        UserRepository $userRepository,
+        AbonnementSouscritRepository $abonnementRepository,
+        CarteSouscriteRepository $carteRepository,
+        EmailService $emailService): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->headers->get('stripe-signature');
@@ -25,7 +36,7 @@ final class WebHookController extends AbstractController
         try {
             $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
         } catch (\Exception $e) {
-            return new Response('Webhook Error', 400);
+            return new Response('Webhook Error: ' . $e->getMessage(), 400);
         }
 
         if ($event->type === 'checkout.session.completed') {
@@ -36,9 +47,13 @@ final class WebHookController extends AbstractController
                 $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
 
                 $donId = $paymentIntent->metadata->don_id ?? null;
+                $userId = $paymentIntent->metadata->user_id ?? null;
+                $adhesion = ($paymentIntent->metadata->adhesion ?? '0') === '1';
+                $abonnementIds = isset($paymentIntent->metadata->abonnement_ids) ? explode(',', $paymentIntent->metadata->abonnement_ids) : [];
+                $carteIds = isset($paymentIntent->metadata->carte_ids) ? explode(',', $paymentIntent->metadata->carte_ids) : [];
             } else {
                 $donId = null;
-                $net = null;
+                return new Response('No payment intent', 400);
             }
             
             if ($donId) {
@@ -57,11 +72,53 @@ final class WebHookController extends AbstractController
                     $donation->setStatus(DonationStatus::COMPLETED);
                 }
 
-                $entityManager->flush();
+                $emailService->sendMail(
+                    'Stras4Water - Don',
+                    'don@stras4water.org',
+                    'Réception d\'un nouveau don',
+                    "Bonjour,\nVous avez reçu un nouveau don de {$donation->getMontantNet()} € via Stripe."
+                );
             }
-        }
+            else {
+                $user = $userId ? $userRepository->find($userId) : null;
 
-        $emailService->sendMail('Stras4Water - Don', 'don@stras4water.org', 'Reception d\'un nouveau don', 'Bonjour,\nVous avez recu un nouveau don de ' . $donation->getMontantNet() . '€ via stripe.');
+                if (!$user) {
+                    return new Response('User not found', 400);
+                }
+
+                foreach ($abonnementIds as $id) {
+                    $abonnement = $abonnementRepository->find($id);
+                    if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatus() === Statut::CREATED) {
+                        if ($abonnement->isTarifReduit()) {
+                            $abonnement->setStatus(Statut::PENDING);
+                            $abonnement->setTarifReduitVerifie(false);
+                        }
+                        else {
+                            $abonnement->setStatus(Statut::ACTIVE);
+                        }
+                    }
+                }
+
+                foreach ($carteIds as $id) {
+                    $carte = $carteRepository->find($id);
+                    if ($carte && $carte->getUser() === $user && $carte->getStatus() === Statut::CREATED) {
+                        if ($carte->isTarifReduit()) {
+                            $carte->setStatus(Statut::PENDING);
+                            $carte->setTarifReduitVerifie(false);
+                        }
+                        else {
+                            $carte->setStatus(Statut::ACTIVE);
+                        }
+                    }
+                }
+
+                if ($adhesion) {
+                    $user->setAdherent(true);
+                }
+            }
+
+            $entityManager->flush();
+        }
 
         return new Response('OK', 200);
     }

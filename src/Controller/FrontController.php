@@ -11,6 +11,7 @@ use App\Form\DonationType;
 use App\Form\UserType;
 use App\Repository\DonationRepository;
 use App\Service\CountryCodeService;
+use App\Service\EmailService;
 use App\Service\HelloAssoTokenService;
 use App\Service\QrCodeGenerator;
 use App\Service\RecuFiscalService;
@@ -32,7 +33,7 @@ final class FrontController extends AbstractController
     #[Route('/', name: 'home')]
     public function index(): Response
     {
-        return $this->render('front/home.html.twig', [
+        return $this->render('front/static/home.html.twig', [
             'controller_name' => 'FrontController',
         ]);
     }
@@ -45,46 +46,48 @@ final class FrontController extends AbstractController
         ]);
     }
 
-    #[Route('/bachata', name: 'bachata')]
-    public function bachata(): Response
-    {
-        return $this->render('front/bachata.html.twig', []);
-    }
-
-    #[Route('/salsa', name: 'salsa')]
-    public function salsa(): Response
-    {
-        return $this->render('front/salsa.html.twig', []);
-    }
-
-    #[Route('/kizomba', name: 'kizomba')]
-    public function kizomba(): Response
-    {
-        return $this->render('front/kizomba.html.twig', []);
-    }
-
     #[Route('/anglais', name: 'anglais')]
     public function anglais(): Response
     {
-        return $this->render('front/anglais.html.twig', []);
+        return $this->render('front/langue/anglais.html.twig', []);
     }
 
     #[Route('/espagnol', name: 'espagnol')]
     public function espagnol(): Response
     {
-        return $this->render('front/espagnol.html.twig', []);
+        return $this->render('front/langue/espagnol.html.twig', []);
     }
 
     #[Route('/about', name: 'about')]
     public function about(): Response
     {
-        return $this->render('front/about.html.twig', []);
+        return $this->render('front/static/about.html.twig', []);
     }
 
-    #[Route('/contact', name: 'contact')]
-    public function contact(): Response
+    #[Route('/contact', name: 'contact', methods: ['GET', 'POST'])]
+    public function contact(Request $request, EmailService $emailService): Response
     {
-        return $this->render('front/contact.html.twig', []);
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('contact_form', $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+            }
+
+            $nom = $request->request->get('name');
+            $from = $request->request->get('email');
+            $subject = $request->request->get('subject');
+            $text = $request->request->get('message');
+
+            try {
+                $emailService->sendMail($nom, $from, $subject, $text);
+                $this->addFlash('success', 'Votre message a été envoyé avec succès.');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Une erreur est survenue lors de l’envoi du message.');
+            }
+
+            return $this->redirectToRoute('contact');
+        }
+
+        return $this->render('front/static/contact.html.twig', []);
     }
 
     #[Route('/events', name: 'events')]
@@ -96,13 +99,13 @@ final class FrontController extends AbstractController
     #[Route('/ml', name: 'ml')]
     public function ml(): Response
     {
-        return $this->render('front/ml.html.twig', []);
+        return $this->render('front/static/ml.html.twig', []);
     }
 
     #[Route('/confidentialite', name: 'confidentialite')]
     public function confidentialite(): Response
     {
-        return $this->render('front/confidentialite.html.twig', []);
+        return $this->render('front/static/confidentialite.html.twig', []);
     }
 
     #[Route('/donation_success', name: 'donation_success')]

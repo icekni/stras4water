@@ -1,0 +1,99 @@
+{% extends 'base/base.html.twig' %}
+
+{% block title %}Mon panier{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">🛒 Mon panier</h1>
+
+    {% if abonnements is empty and cartes is empty and not adhesion %}
+        <div class="alert alert-info">
+            Votre panier est vide.
+        </div>
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Détails du panier
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Article</th>
+                            <th>Discipline</th>
+                            <th>Tarif choisi</th>
+                            <th>Prix</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ab in abonnements %}
+                            <tr>
+                                <td>{{ ab.entity.nom }}</td>
+                                <td>{{ ab.discipline ?: '—' }}</td>
+                                <td>
+                                    {% if ab.tarifChoice == 'reduit' %}
+                                        Réduit
+                                    {% else %}
+                                        Normal
+                                    {% endif %}
+                                </td>
+                                <td>{{ ab.price|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <a href="{{ path('cart_remove_item', {type: 'abonnement', id: ab.entity.id}) }}"
+                                    class="btn btn-sm btn-outline-danger">
+                                        Supprimer
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        {% for c in cartes %}
+                            <tr>
+                                <td>{{ c.entity.nom }}</td>
+                                <td>{{ c.discipline ?: '—' }}</td>
+                                <td>
+                                    {% if c.tarifChoice == 'reduit' %}
+                                        Réduit
+                                    {% else %}
+                                        Normal
+                                    {% endif %}
+                                </td>
+                                <td>{{ c.price|number_format(2, ',', ' ') }} €</td>
+                                <td>
+                                    <a href="{{ path('cart_remove_item', {type: 'carte', id: c.entity.id}) }}"
+                                    class="btn btn-sm btn-outline-danger">
+                                        Supprimer
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        {% if adhesion %}
+                            <tr class="table-warning">
+                                <td>Adhésion annuelle obligatoire</td>
+                                <td>—</td>
+                                <td>Obligatoire</td>
+                                {# TODO recuperer depuis la config #}
+                                <td>{{ 10|number_format(2, ',', ' ') }} €</td> 
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-secondary fw-bold">
+                            <td colspan="4" class="text-end">Total</td>
+                            <td>{{ total|number_format(2, ',', ' ') }} €</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <a href="{{ path('cart_checkout') }}" class="btn btn-success btn-lg">
+                ✅ Passer à la caisse
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -32,7 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $password = null;
 
     #[ORM\Column]
@@ -77,6 +77,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->abonnementSouscrits = new ArrayCollection();
         $this->carteSouscrites = new ArrayCollection();
         $this->seanceEssais = new ArrayCollection();
+        $this->isAdherent = false;
+        $this->isVerified = false;
     }
 
     public function getId(): ?int

@@ -1,0 +1,32 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Statistiques du lien{% endblock %}
+
+{% block body %}
+    <h1>Statistiques</h1>
+    <p><strong>Lien :</strong> <code>{{ app.request.schemeAndHttpHost ~ '/lien/' ~ lien.token }}</code></p>
+    <p><strong>URL cible :</strong> <a href="{{ lien.urlCible }}" target="_blank">{{ lien.urlCible }}</a></p>
+    <img src="{{ asset(lien.qrCodePath) }}" alt="QR Code du lien">
+    <p><strong>Total clics :</strong> {{ lien.clics|length }}</p>
+
+    <canvas id="clickChart" height="100"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const data = {
+            labels: {{ clics|keys|json_encode|raw }},
+            datasets: [{
+                labels: {{ clics|keys|json_encode|raw }},
+                data: {{ clics|map(v => v)|json_encode|raw }},
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }]
+        };
+
+        new Chart(document.getElementById('clickChart'), {
+            type: 'bar',
+            data: data,
+        });
+    </script>
+
+    <a href="{{ path('admin_links_index') }}" class="btn btn-secondary mt-3">Retour</a>
+{% endblock %}

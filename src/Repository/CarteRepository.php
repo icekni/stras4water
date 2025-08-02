@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Carte;
+use App\Entity\Discipline;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +17,27 @@ class CarteRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Carte::class);
     }
+
+    public function getCartesDisponiblesPourUser(User $user): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.isActif = true')
+            ->andWhere(':now BETWEEN c.validFrom AND c.validUntil')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByDiscipline(Discipline $discipline): array
+    {
+        return $this->createQueryBuilder('c')
+            ->join('c.disciplines', 'd')
+            ->where('d = :discipline')
+            ->setParameter('discipline', $discipline)
+            ->getQuery()
+            ->getResult();
+    }
+
 
     //    /**
     //     * @return Carte[] Returns an array of Carte objects
