@@ -179,6 +179,7 @@ class CartController extends AbstractController
             $abonnements[] = $abonnementSouscrit;
         }
 
+        $cartes = [];
         foreach ($cart['cartes'] as $carteCart) {
             $carte = $carteRepository->find($carteCart['id']);
 
