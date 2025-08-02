@@ -87,7 +87,6 @@ final class WebHookController extends AbstractController
 
                 foreach ($abonnementIds as $id) {
                     $abonnement = $abonnementRepository->find($id);
-                    dd($id, $abonnement);
                     if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatus() === Statut::CREATED) {
                         if ($abonnement->isTarifReduit()) {
                             $abonnement->setStatus(Statut::PENDING);
