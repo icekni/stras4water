@@ -145,7 +145,6 @@ class CartService
     {
         $user = $this->security->getUser();
         $needsAdhesion = !($user instanceof User && $user->isAdherent());
-
         if ($needsAdhesion) {
             if (!$cart['adhesion']) {
                 $cart['adhesion'] = true;

@@ -47,7 +47,7 @@ final class WebHookController extends AbstractController
                 
                 $donId = $paymentIntent->metadata->don_id ?? null;
                 $userId = $paymentIntent->metadata->user_id ?? null;
-                $adhesion = ($paymentIntent->metadata->adhesion ?? '0') === '1';
+                $adhesion = $paymentIntent->metadata->adhesion;
                 $abonnementIds = isset($paymentIntent->metadata->abonnement_ids) ? explode(',', $paymentIntent->metadata->abonnement_ids) : [];
                 $carteIds = isset($paymentIntent->metadata->carte_ids) ? explode(',', $paymentIntent->metadata->carte_ids) : [];
                 dd($userId, $adhesion, $abonnementIds, $carteIds);
