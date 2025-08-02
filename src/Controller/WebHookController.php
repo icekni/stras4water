@@ -112,7 +112,7 @@ final class WebHookController extends AbstractController
                 }
 
                 if ($adhesion) {
-                    $user->setAdherent(true);
+                    $user->setIsAdherent(true);
                 }
             }
 
