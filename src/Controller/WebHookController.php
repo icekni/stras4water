@@ -41,11 +41,11 @@ final class WebHookController extends AbstractController
 
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
-
+            dd($session->payment_intent);
             if (isset($session->payment_intent)) {
                 $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
                 $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
-
+                
                 $donId = $paymentIntent->metadata->don_id ?? null;
                 $userId = $paymentIntent->metadata->user_id ?? null;
                 $adhesion = ($paymentIntent->metadata->adhesion ?? '0') === '1';
