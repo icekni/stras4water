@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Abonnement;
+use App\Entity\AbonnementSouscrit;
 use App\Entity\Carte;
+use App\Entity\CarteSouscrite;
+use App\Enum\Statut;
 use App\Repository\AbonnementRepository;
 use App\Repository\AbonnementSouscritRepository;
 use App\Repository\CarteRepository;
@@ -162,6 +165,12 @@ class CartController extends AbstractController
             $total += $abonnementCart['tarif'] === 'reduit'
                 ? $abonnement->getTarifReduit()
                 : $abonnement->getTarif();
+
+            $abonnementSouscrit = new AbonnementSouscrit();
+            $abonnementSouscrit->setUser($user);
+            $abonnementSouscrit->setAbonnement($abonnement);
+            $abonnementSouscrit->setStatut(Statut::CREATED);
+            $abonnementSouscrit->setIsTarifReduit($abonnementCart['tarif'] === 'reduit');
         }
         $abonnementIds = implode(',', array_column($cart['abonnements'], 'id'));
 
@@ -171,6 +180,12 @@ class CartController extends AbstractController
             $total += $carteCart['tarif'] === 'reduit'
                 ? $carte->getTarifReduit()
                 : $carte->getTarif();
+
+            $carteSouscrite = new CarteSouscrite();
+            $carteSouscrite->setUser($user);
+            $carteSouscrite->setCarte($carte);
+            $carteSouscrite->setStatut(Statut::CREATED);
+            $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
         }
         $carteIds = implode(',', array_column($cart['cartes'], 'id'));
 
