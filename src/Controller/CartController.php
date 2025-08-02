@@ -192,6 +192,7 @@ class CartController extends AbstractController
             $em->persist($abonnementSouscrit);
         }
         $carteIds = implode(',', array_column($cart['cartes'], 'id'));
+        $em->flush();
 
         if ($cart['adhesion']) {
             $total += 10; // TODO recuperer depuis la config
