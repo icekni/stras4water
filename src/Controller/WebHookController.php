@@ -41,7 +41,6 @@ final class WebHookController extends AbstractController
 
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
-            dd($session->payment_intent);
             if (isset($session->payment_intent)) {
                 $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
                 $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
@@ -51,6 +50,7 @@ final class WebHookController extends AbstractController
                 $adhesion = ($paymentIntent->metadata->adhesion ?? '0') === '1';
                 $abonnementIds = isset($paymentIntent->metadata->abonnement_ids) ? explode(',', $paymentIntent->metadata->abonnement_ids) : [];
                 $carteIds = isset($paymentIntent->metadata->carte_ids) ? explode(',', $paymentIntent->metadata->carte_ids) : [];
+                dd($donId, $userId, $adhesion, $abonnementIds, $carteIds);
             } else {
                 $donId = null;
                 return new Response('No payment intent', 400);
