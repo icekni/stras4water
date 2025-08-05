@@ -72,7 +72,7 @@ class EmailService {
         if ($withAdhesionCard && $pdfCard) {
             $email->attach($pdfCard, 'carte-adhesion.pdf', 'application/pdf');
         }
-        dd($detailsCommande);
+        
         $this->mailer->send($email);
     }
 }
