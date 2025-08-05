@@ -59,7 +59,120 @@
     </p>
   </div>
 
-  <!-- Reste du code inchangé -->
-  ...
+  <!-- Type d'abonnement -->
+  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+
+  <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+      {% for abonnement in abonnements %}
+        <div class="col">
+          <input type="radio" class="btn-check abonnement-radio"
+                name="item"
+                id="abonnement-{{ abonnement.id }}"
+                value="abonnement-{{ abonnement.id }}"
+                data-has-reduit="{{ abonnement.hasTarifReduit ? '1' : '0' }}"
+                required>
+          <label class="btn btn-outline-primary w-100 text-start" for="abonnement-{{ abonnement.id }}">
+            <strong>{{ abonnement.nom }}</strong><br>
+            Du {{ abonnement.saison.dateDebut|date("d-m-Y") }} au {{ abonnement.saison.dateFin|date("d-m-Y") }}<br>
+            Tarif normal : {{ abonnement.tarif }} €{% if abonnement.hasTarifReduit %}, réduit : {{ abonnement.tarifReduit }} €{% endif %}
+          </label>
+        </div>
+      {% endfor %}
+
+      {% for carte in cartes %}
+        <div class="col">
+          <input type="radio" class="btn-check carte-radio"
+                name="item"
+                id="carte-{{ carte.id }}"
+                value="carte-{{ carte.id }}"
+                data-has-reduit="{{ carte.hasTarifReduit ? '1' : '0' }}"
+                required>
+          <label class="btn btn-outline-primary w-100 text-start" for="carte-{{ carte.id }}">
+            <strong>{{ carte.nom }}</strong><br>
+            Tarif normal : {{ carte.tarif }} €{% if carte.hasTarifReduit %}, réduit : {{ carte.tarifReduit }} €{% endif %}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Tarif réduit -->
+    <div id="tarif-container" class="d-none">
+      <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
+      <div class="d-flex gap-3 mb-4">
+        <div>
+          <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
+          <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
+        </div>
+        <div>
+          <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
+          <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Justificatif info -->
+    <div class="alert alert-warning d-none" id="justificatif-wrapper">
+      ⚠️ Vous avez choisi le tarif réduit : <strong>un justificatif vous sera demandé lors de votre première séance</strong>. Merci de le prévoir.
+    </div>
+
+    <!-- Alerte adhésion -->
+    <div class="alert alert-info mt-4">
+      ⚠️ <strong>L'adhésion annuelle est obligatoire</strong> pour toute souscription.
+      Elle est automatiquement ajoutée au panier si vous n'êtes pas encore adhérent(e).
+      <br><br>
+      <strong>Si vous n'êtes pas connecté(e)</strong> : vous serez invité à vous connecter ou créer un compte.
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
+  </form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const radiosAbonnement = document.querySelectorAll('.abonnement-radio, .carte-radio');
+    const tarifContainer = document.getElementById('tarif-container');
+    const justificatifWrapper = document.getElementById('justificatif-wrapper');
+    const radiosTarif = document.querySelectorAll('input[name="tarif"]');
+
+    radiosAbonnement.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const hasReduit = radio.dataset.hasReduit === '1';
+
+        if (hasReduit) {
+          tarifContainer.classList.remove('d-none');
+
+          radiosTarif.forEach(r => r.required = true);
+
+          const tarifNormalRadio = document.getElementById('tarif_normal');
+          if (tarifNormalRadio) {
+            tarifNormalRadio.checked = true;
+          }
+
+          justificatifWrapper.classList.add('d-none');
+        } else {
+          tarifContainer.classList.add('d-none');
+          justificatifWrapper.classList.add('d-none');
+          radiosTarif.forEach(t => {
+            t.checked = false;
+            t.required = false;
+          });
+        }
+      });
+    });
+
+    radiosTarif.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'reduit') {
+          justificatifWrapper.classList.remove('d-none');
+        } else {
+          justificatifWrapper.classList.add('d-none');
+        }
+      });
+    });
+  });
+</script>
+  {% endif %}
+
 </section>
 {% endblock %}

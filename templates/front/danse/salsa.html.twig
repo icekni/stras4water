@@ -44,6 +44,7 @@
   </div>
 
   <!-- Type d'abonnement -->
+  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
   <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
 
   <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
@@ -110,7 +111,6 @@
 
     <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
   </form>
-</section>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -150,4 +150,7 @@
     });
   });
 </script>
+{% endif %}
+</section>
+
 {% endblock %}
