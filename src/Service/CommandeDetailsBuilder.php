@@ -9,8 +9,8 @@ use App\Entity\User;
 class CommandeDetailsBuilder
 {
     public function __construct(
-        private AbonnementSouscritRepository $abonnementRepository,
-        private CarteSouscriteRepository $carteRepository,
+        private AbonnementSouscritRepository $abonnementSouscritRepository,
+        private CarteSouscriteRepository $carteSouscriteRepository,
     ) {}
 
     /**
@@ -38,25 +38,21 @@ class CommandeDetailsBuilder
         }
 
         foreach ($abonnementIds as $id) {
-            $abonnement = $this->abonnementRepository->find($id);
-            if ($abonnement && $abonnement->getUser() === $user) {
-                $cours = $abonnement->getCours()?->getNom() ?? 'Cours inconnu';
+            $abonnementSouscrit = $this->abonnementSouscritRepository->find($id);
+            if ($abonnementSouscrit && $abonnementSouscrit->getUser() === $user) {
                 $details[] = [
                     'type' => 'Abonnement',
-                    'libelle' => $cours,
-                    'duree' => 'Saison 2025/2026',
+                    'libelle' => $abonnementSouscrit->getNom(),
                 ];
             }
         }
 
         foreach ($carteIds as $id) {
-            $carte = $this->carteRepository->find($id);
-            if ($carte && $carte->getUser() === $user) {
-                $cours = $carte->getCours()?->getNom() ?? 'Cours inconnu';
+            $carteSouscrite = $this->carteSouscriteRepository->find($id);
+            if ($carteSouscrite && $carteSouscrite->getUser() === $user) {
                 $details[] = [
                     'type' => 'Carte',
-                    'libelle' => $cours,
-                    'duree' => 'Valable 12 mois',
+                    'libelle' => $carteSouscrite->getNom(),
                 ];
             }
         }
