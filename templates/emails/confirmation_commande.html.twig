@@ -19,32 +19,44 @@
     <div style="text-align:center; margin-bottom: 20px;">
       <img src="https://www.stras4water.org/img/logo.png" alt="Stras4Water" style="max-width: 200px; height: auto;" />
     </div>
+
     <h1>Confirmation de votre commande</h1>
     <p>Bonjour {{ user.prenom }},</p>
 
-    {% if adhesion %}
-      <p>Merci pour votre adhésion à Stras4Water. Votre carte de membre est jointe à ce message au format PDF.</p>
+    {% set adhesions = details|filter(d => d.type == 'Adhésion') %}
+    {% set abonnements = details|filter(d => d.type == 'Abonnement') %}
+    {% set cartes = details|filter(d => d.type == 'Carte') %}
+
+    {% if adhesions|length > 0 %}
+      <h2>Adhésion</h2>
+      <ul>
+        {% for adhesion in adhesions %}
+          <li>{{ adhesion.libelle }}</li>
+        {% endfor %}
+      </ul>
+      <p>Votre carte de membre est jointe à ce message au format PDF.</p>
     {% endif %}
 
-    {% if abonnements is not empty %}
+    {% if abonnements|length > 0 %}
       <h2>Abonnements souscrits</h2>
       <ul>
         {% for ab in abonnements %}
-          <li>{{ ab.abonnement.nom }} – {{ ab.abonnement.discipline.nom }}</li>
+          <li>{{ ab.libelle }}</li>
         {% endfor %}
       </ul>
     {% endif %}
 
-    {% if cartes is not empty %}
+    {% if cartes|length > 0 %}
       <h2>Cartes de cours</h2>
       <ul>
         {% for carte in cartes %}
-          <li>{{ carte.carte.nom }} – {{ carte.seancesRestantes }} séances restantes</li>
+          <li>{{ carte.libelle }}</li>
         {% endfor %}
       </ul>
     {% endif %}
 
-    <p>Nous vous remercions de votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire.</p>
+    <p>Nous vous remercions pour votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire à <a href="mailto:contact@stras4water.org">contact@stras4water.org</a>.</p>
+
     <p>Bien cordialement,<br>L’équipe Stras4Water</p>
 
     <div class="footer">

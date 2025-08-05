@@ -20,7 +20,7 @@ class CommandeDetailsBuilder
      * @param User $user
      * @return array<int, array{type: string, libelle: string, duree: string}>
      */
-    public function build(bool $adhesion, array $abonnementIds, array $carteIds, User $user): array
+    public function build(bool $adhesion, array $abonnementIds, array $carteIds, User $user, string $annee): array
     {
         $details = [];
 
@@ -32,8 +32,7 @@ class CommandeDetailsBuilder
 
             $details[] = [
                 'type' => 'Adhésion',
-                'libelle' => 'Adhésion membre',
-                'duree' => 'Saison ' . $saison,
+                'libelle' => 'Adhésion ' . $annee,
             ];
         }
 
@@ -42,7 +41,7 @@ class CommandeDetailsBuilder
             if ($abonnementSouscrit && $abonnementSouscrit->getUser() === $user) {
                 $details[] = [
                     'type' => 'Abonnement',
-                    'libelle' => $abonnementSouscrit->getNom(),
+                    'libelle' => $abonnementSouscrit->getAbonnement()->getNom(),
                 ];
             }
         }
@@ -52,7 +51,7 @@ class CommandeDetailsBuilder
             if ($carteSouscrite && $carteSouscrite->getUser() === $user) {
                 $details[] = [
                     'type' => 'Carte',
-                    'libelle' => $carteSouscrite->getNom(),
+                    'libelle' => $carteSouscrite->getCarte()->getNom(),
                 ];
             }
         }
