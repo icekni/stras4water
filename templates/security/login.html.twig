@@ -42,13 +42,10 @@
 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                {# Décommente si tu actives le "se souvenir de moi" #}
-                {#
                 <div class="form-check mb-3">
                     <input type="checkbox" name="_remember_me" id="_remember_me" class="form-check-input">
                     <label class="form-check-label" for="_remember_me">Se souvenir de moi</label>
-                </div>
-                #}
+                </div>               
 
                 <div class="d-grid">
                     <button class="btn btn-primary btn-lg rounded-pill" type="submit">
@@ -56,6 +53,10 @@
                     </button>
                 </div>
             </form>
+            <p class="mt-3 text-center">
+                Pas encore de compte ?
+                <a href="{{ path('app_register') }}">Créer un compte</a>
+            </p>
         </div>
     </div>
 </div>

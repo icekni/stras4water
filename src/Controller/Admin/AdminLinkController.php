@@ -29,7 +29,7 @@ class AdminLinkController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $qrPath = $qrCodeGenerator->generate($link);
+            $qrPath = $qrCodeGenerator->generateLien($link);
             $link->setQrCodePath($qrPath);
             $em->persist($link);
             $em->flush();
@@ -50,7 +50,7 @@ class AdminLinkController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $qrPath = $qrCodeGenerator->generate($link);
+            $qrPath = $qrCodeGenerator->generateLien($link);
             $link->setQrCodePath($qrPath);
             $em->persist($link);
             $em->flush();

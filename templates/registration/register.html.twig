@@ -15,12 +15,15 @@
             {{ form_start(registrationForm) }}
 
                 <div class="mb-3">
+                    {{ form_label(registrationForm.nom, 'Nom') }}
+                    {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(registrationForm.nom) }}
+                    {{ form_label(registrationForm.prenom, 'Prénom') }}
+                    {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(registrationForm.prenom) }}
                     {{ form_label(registrationForm.email, 'Adresse e-mail') }}
                     {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
                     {{ form_errors(registrationForm.email) }}
-                </div>
-
-                <div class="mb-3">
                     {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
                     {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
                     {{ form_errors(registrationForm.plainPassword) }}

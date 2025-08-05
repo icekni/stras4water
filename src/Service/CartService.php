@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Dto\CartAddResult;
 use App\Entity\Discipline;
 use App\Entity\Saison;
+use App\Enum\CartResult;
 use App\Repository\AbonnementRepository;
 use App\Repository\CarteRepository;
 
@@ -103,13 +104,13 @@ class CartService
             }
         }
 
-        if ($user instanceof User && $this->isCarteConflitAvecAbonnementsUtilisateur($user, $carte)) {
-            return new CartAddResult(false, 'Vous avez déjà un abonnement actif pour une discipline couverte par cette carte.');
-        }
+        // if ($user instanceof User && $this->isCarteConflitAvecAbonnementsUtilisateur($user, $carte)) {
+        //     return new CartAddResult(false, 'Vous avez déjà un abonnement actif pour une discipline couverte par cette carte.');
+        // }
 
-        if ($this->hasDisciplineConflictWithCart($carte, $cart)) {
-            return new CartAddResult(false, 'Un abonnement ou une carte couvrant ces disciplines est déjà dans votre panier.');
-        }
+        // if ($this->hasDisciplineConflictWithCart($carte, $cart)) {
+        //     return new CartAddResult(false, 'Un abonnement ou une carte couvrant ces disciplines est déjà dans votre panier.');
+        // }
 
         foreach ($cart['cartes'] as $row) {
             if ($row['id'] === $carte->getId()) {
@@ -182,7 +183,7 @@ class CartService
     {
         foreach ($user->getAbonnementSouscrits() as $souscrit) {
             $ab = $souscrit->getAbonnement();
-            if ($ab && $ab->getDiscipline() === $discipline && $ab->getSaison() === $saison && $souscrit->isValid()) {
+            if ($ab && $ab->getDiscipline() === $discipline && $souscrit->isValid()) {
                 return true;
             }
         }
@@ -193,7 +194,7 @@ class CartService
     {
         foreach ($cart['abonnements'] as $row) {
             $ab = $this->abonnementRepository->find($row['id']);
-            if ($ab && $ab->getDiscipline() === $abonnement->getDiscipline() && $ab->getSaison() === $abonnement->getSaison()) {
+            if ($ab && $ab->getDiscipline() === $abonnement->getDiscipline()) {
                 return true;
             }
         }

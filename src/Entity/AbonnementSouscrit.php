@@ -96,7 +96,13 @@ class AbonnementSouscrit
             return new ValidationResult(false, 'L’abonnement a été désactivé.');
         }
 
-        if ($this->statut != Statut::ACTIVE) {
+        if ($this->isTarifReduit() && !$this->tarifReduitVerifie) {
+            return new ValidationResult(false, 'L\'abonnement est en attente de vérification du justificatif pour tarif réduit.');
+        }
+        else if ($this->statut == Statut::PENDING) {
+            return new ValidationResult(false, 'Le statut de l’abonnement est en attente.');
+        }
+        else if ($this->statut != Statut::ACTIVE) {
             return new ValidationResult(false, 'Le statut de l’abonnement n’est pas actif.');
         }
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirmation de votre commande Stras4Water</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; background-color: #f6f9fc; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { color: #2d87f0; font-size: 24px; }
+    h2 { font-size: 18px; color: #2d87f0; margin-top: 30px; }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 5px; }
+    p { font-size: 16px; line-height: 1.5; }
+    .footer { font-size: 12px; color: #777; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align:center; margin-bottom: 20px;">
+      <img src="https://www.stras4water.org/img/logo.png" alt="Stras4Water" style="max-width: 200px; height: auto;" />
+    </div>
+    <h1>Confirmation de votre commande</h1>
+    <p>Bonjour {{ user.prenom }},</p>
+
+    {% if adhesion %}
+      <p>Merci pour votre adhésion à Stras4Water. Votre carte de membre est jointe à ce message au format PDF.</p>
+    {% endif %}
+
+    {% if abonnements is not empty %}
+      <h2>Abonnements souscrits</h2>
+      <ul>
+        {% for ab in abonnements %}
+          <li>{{ ab.abonnement.nom }} – {{ ab.abonnement.discipline.nom }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if cartes is not empty %}
+      <h2>Cartes de cours</h2>
+      <ul>
+        {% for carte in cartes %}
+          <li>{{ carte.carte.nom }} – {{ carte.seancesRestantes }} séances restantes</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <p>Nous vous remercions de votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire.</p>
+    <p>Bien cordialement,<br>L’équipe Stras4Water</p>
+
+    <div class="footer">
+      <p>Vous recevez cet email car vous avez réalisé une commande sur notre site. Si vous n’êtes pas à l’origine de cette action, vous pouvez ignorer ce message.</p>
+    </div>
+  </div>
+</body>
+</html>

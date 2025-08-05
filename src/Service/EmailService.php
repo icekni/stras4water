@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Donation;
+use App\Entity\User;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -51,6 +52,26 @@ class EmailService {
             ->to($_ENV['EMAIL_CONTACT'])
             ->subject("Nouveau message de : " . $from . " - " . $nom . " : " . $subject)
             ->text($text);
+
+        $this->mailer->send($email);
+    }
+
+    public function sendConfirmationCommande(User $user, bool $withAdhesionCard, ?string $pdfCard = null, array $detailsCommande = []): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address('contact@stras4water.org', 'Stras4Water'))
+            ->to($user->getEmail())
+            ->subject('Confirmation de votre commande Stras4Water')
+            ->htmlTemplate('emails/confirmation_commande.html.twig')
+            ->context([
+                'user' => $user,
+                'withAdhesionCard' => $withAdhesionCard,
+                'commandes' => $detailsCommande,
+            ]);
+
+        if ($withAdhesionCard && $pdfCard) {
+            $email->attach($pdfCard, 'carte-adhesion.pdf', 'application/pdf');
+        }
 
         $this->mailer->send($email);
     }

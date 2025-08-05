@@ -192,6 +192,7 @@ class CartController extends AbstractController
             $carteSouscrite->setCarte($carte);
             $carteSouscrite->setStatut(Statut::CREATED);
             $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
+            $carteSouscrite->setSeancesRestantes($carte->getnombreSeances());
 
             $em->persist($carteSouscrite);
 
@@ -223,8 +224,8 @@ class CartController extends AbstractController
         ]);
 
         $session = $stripe->checkout->sessions->create([
-            'success_url' => $this->generateUrl('donation_success', [], 0),
-            'cancel_url' => $this->generateUrl('donation_cancel', [], 0),
+            'success_url' => $this->generateUrl('cart_success', [], 0),
+            'cancel_url' => $this->generateUrl('cart_cancel', [], 0),
             'line_items' => [
                 [
                 'price' => $price->id,
@@ -244,5 +245,23 @@ class CartController extends AbstractController
         ]);
 
         return $this->redirect($session->url, 303);
+    }
+
+    #[Route('/cart_success', name: 'cart_success')]
+    public function donation_success(CartService $cartService): Response
+    {
+        $cartService->clear();
+
+        $this->addFlash('success', 'Votre paiement a bien été recu, vous recevrez bientot la confirmation par email.');
+
+        return $this->redirectToRoute('donation');
+    }
+
+    #[Route('/cart_cancel', name: 'cart_cancel')]
+    public function donation_cancel(): Response
+    {
+        $this->addFlash('danger', 'Une erreur s\'est produite. Vous ne serez pas débité.');
+
+        return $this->redirectToRoute('donation');
     }
 }

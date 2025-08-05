@@ -141,10 +141,26 @@
 
         if (hasReduit) {
           tarifContainer.classList.remove('d-none');
+
+          // Activer le champ requis uniquement si visible
+          radiosTarif.forEach(r => r.required = true);
+
+          // Cocher par défaut "tarif normal"
+          const tarifNormalRadio = document.getElementById('tarif_normal');
+          if (tarifNormalRadio) {
+            tarifNormalRadio.checked = true;
+          }
+
+          // Masquer la notice si elle était restée visible
+          justificatifWrapper.classList.add('d-none');
         } else {
           tarifContainer.classList.add('d-none');
           justificatifWrapper.classList.add('d-none');
-          radiosTarif.forEach(t => t.checked = false);
+          radiosTarif.forEach(t => {
+            t.checked = false;
+            t.required = false; // Ne pas exiger les champs s'ils sont masqués
+          });
+
         }
       });
     });

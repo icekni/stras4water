@@ -8,6 +8,8 @@ use App\Repository\AbonnementSouscritRepository;
 use App\Repository\CarteSouscriteRepository;
 use App\Repository\DonationRepository;
 use App\Repository\UserRepository;
+use App\Service\CarteDeMembreGenerator;
+use App\Service\CommandeDetailsBuilder;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -27,7 +29,10 @@ final class WebHookController extends AbstractController
         UserRepository $userRepository,
         AbonnementSouscritRepository $abonnementRepository,
         CarteSouscriteRepository $carteRepository,
-        EmailService $emailService): Response
+        EmailService $emailService,
+        CarteDeMembreGenerator $carteDeMembreGenerator,
+        CommandeDetailsBuilder $commandeDetailsBuilder
+    ): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->headers->get('stripe-signature');
@@ -114,11 +119,32 @@ final class WebHookController extends AbstractController
                 if ($adhesion) {
                     $user->setIsAdherent(true);
                 }
+
+                $detailsCommande = $commandeDetailsBuilder->build($adhesion, $abonnementIds, $carteIds, $user);
+                $pdfCard = $adhesion ? $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion()) : null;
+
+                $emailService->sendConfirmationCommande($user, $adhesion, $pdfCard, $detailsCommande);
+
             }
 
             $entityManager->flush();
         }
 
         return new Response('OK', 200);
+    }
+
+    private function getSaisonAdhesion(): string
+    {
+        $now = new \DateTimeImmutable();
+        $year = (int) $now->format('Y');
+        $month = (int) $now->format('n'); // 1 à 12
+
+        if ($month >= 9) {
+            // De septembre à décembre → saison commence cette année
+            return $year . '/' . ($year + 1);
+        } else {
+            // De janvier à août → saison a commencé l'année précédente
+            return ($year - 1) . '/' . $year;
+        }
     }
 }

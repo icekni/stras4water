@@ -35,6 +35,8 @@ security:
             
     role_hierarchy:
         ROLE_ADMIN: [ROLE_ACCUEIL, ROLE_USER]
+        ROLE_ACCEUIL: [ROLE_USER]
+        ROLE_USER: [ROLE_REGISTRED]
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
