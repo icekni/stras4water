@@ -16,19 +16,43 @@ final class DanseController extends AbstractController
     {
         $discipline = $disciplineRepository->findOneBy(['nom' => 'Bachata']);
 
-        return $this->render('front/danse/bachata.html.twig', [
-            "abonnements" => $abonnementRepository->findBy([
+        $abonnements = [];
+        $cartes = [];
+
+        if ($discipline) {
+            $abonnements = $abonnementRepository->findBy([
                 "discipline" => $discipline,
                 "isActif" => true
-            ]),
-            "cartes" => $carteRepository->findByDiscipline($discipline),
+            ]);
+            $cartes = $carteRepository->findByDiscipline($discipline);
+        }
+
+        return $this->render('front/danse/bachata.html.twig', [
+            "abonnements" => $abonnements,
+            "cartes" => $cartes,
         ]);
     }
 
     #[Route('/salsa', name: 'salsa')]
-    public function salsa(): Response
+    public function salsa(AbonnementRepository $abonnementRepository, CarteRepository $carteRepository, DisciplineRepository $disciplineRepository): Response
     {
-        return $this->render('front/danse/salsa.html.twig', []);
+        $discipline = $disciplineRepository->findOneBy(['nom' => 'Salsa']);
+
+        $abonnements = [];
+        $cartes = [];
+
+        if ($discipline) {
+            $abonnements = $abonnementRepository->findBy([
+                "discipline" => $discipline,
+                "isActif" => true
+            ]);
+            $cartes = $carteRepository->findByDiscipline($discipline);
+        }
+
+        return $this->render('front/danse/salsa.html.twig', [
+            "abonnements" => $abonnements,
+            "cartes" => $cartes,
+        ]);
     }
 
     #[Route('/kizomba', name: 'kizomba')]

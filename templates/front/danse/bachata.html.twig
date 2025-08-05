@@ -7,6 +7,12 @@
 
 <h1 class="mb-4 text-center text-success">Cours de Bachata à Strasbourg</h1>
 
+  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <div class="text-center mb-4">
+    <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
+  {% endif %}
+
   <!-- Description -->
   <div class="mb-5">
     <p>
@@ -27,40 +33,29 @@
         Nos cours sont idéaux si vous souhaitez <strong>ajouter un jour de pratique</strong> en complément d’une école de danse classique, mais aussi si vous n’avez pas les moyens d’en fréquenter une : notre mission est de rendre la danse <strong>accessible financièrement à tous</strong>.
     </p>
 
-    <p>
-      <strong>Les horaires pour la saison 2025/2026 (à partir de septembre 2025) sont en cours d’élaboration.</strong><br>
-      Lors de la saison précédente, les cours avaient lieu chaque mercredi soir à 19h30.
-    </p>
-
-    <p>
-      Les cours sont encadrés par une équipe dynamique : <strong>Jeremy, Coralie, Margo, Anna, Diane, Amine</strong> et <strong>Paul</strong>.
-    </p>
-
-    <h2 class="mt-5">Tarifs</h2> 
-    <small>(adhésion à l'association obligatoire - 10€)</small>
-    <ul>
-      <li><strong>60€</strong> l’année</li>
-      <li><strong>40€</strong> le semestre</li>
-      <li><strong>30€</strong> la carte de 10 cours</li>
+    <ul class="list-unstyled">
+      <li>📅 <strong>Quand ?</strong> Tous les <strong>mercredis de 19h30 à 20h30</strong>, du <strong>10 septembre 2025</strong> à <strong>fin juin 2026</strong> (hors vacances scolaires).</li>
+      <li>📍 <strong>Où ?</strong> <em>53 Rue Saint-Urbain, 67100 Strasbourg</em>, dans une salle de danse lumineuse et spacieuse.</li>
+      <li>🕖 <strong>Accueil & inscriptions sur place dès 19h15 ou en ligne <a href="#inscription" >ici</a></strong>.</li>
+      <li>🎁 <strong>Première séance offerte</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité !</li>
     </ul>
-    <strong>Tarif réduit (50%)</strong> pour les personnes en situation précaire.
-    <br><em>Un justificatif sera demandé lors de votre première séance.</em>
 
     <p>
-      Grâce à ce système de tarification solidaire, <strong>nos cours sont financièrement très accessibles</strong>, car nous croyons que la danse devrait être ouverte à toutes et tous.
+      <strong>Les débutants sont bienvenus en cours d’année</strong>, mais il faut bien être conscient qu’ils auront du retard par rapport aux participants arrivés dès septembre. Il faudra donc s’armer de motivation pour rattraper ce qui a été vu au début de la saison.
     </p>
 
-    <div class="text-center my-4">
-      <img src="{{ asset('img/bachata.jpeg') }}" alt="Groupe de danseurs Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
-    </div>
+    <p>
+      En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> qui agit pour l’accès à l’eau propre dans les zones en difficulté. ❤️
+    </p>
 
     <p class="mt-4">
-      Pour toute question, n’hésitez pas à <a href="/contact">nous contacter</a> ou à venir nous rencontrer directement lors d’un cours ou événement Stras4Water.
+      Pour toute question ou information complémentaire, <a href="/contact">contactez-nous</a> ou suivez-nous sur nos réseaux sociaux.
     </p>
   </div>
 
   <!-- Type d'abonnement -->
-  <h3 class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
 
   <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
@@ -126,7 +121,6 @@
 
     <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
   </form>
-</section>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -176,4 +170,7 @@
     });
   });
 </script>
+{% endif %}
+
+</section>
 {% endblock %}

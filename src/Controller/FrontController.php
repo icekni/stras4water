@@ -63,18 +63,6 @@ final class FrontController extends AbstractController
         ]);
     }
 
-    #[Route('/anglais', name: 'anglais')]
-    public function anglais(): Response
-    {
-        return $this->render('front/langue/anglais.html.twig', []);
-    }
-
-    #[Route('/espagnol', name: 'espagnol')]
-    public function espagnol(): Response
-    {
-        return $this->render('front/langue/espagnol.html.twig', []);
-    }
-
     #[Route('/about', name: 'about')]
     public function about(): Response
     {

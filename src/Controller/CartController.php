@@ -254,7 +254,7 @@ class CartController extends AbstractController
 
         $this->addFlash('success', 'Votre paiement a bien été recu, vous recevrez bientot la confirmation par email.');
 
-        return $this->redirectToRoute('donation');
+        return $this->redirectToRoute('home');
     }
 
     #[Route('/cart_cancel', name: 'cart_cancel')]
@@ -262,6 +262,6 @@ class CartController extends AbstractController
     {
         $this->addFlash('danger', 'Une erreur s\'est produite. Vous ne serez pas débité.');
 
-        return $this->redirectToRoute('donation');
+        return $this->redirectToRoute('home');
     }
 }

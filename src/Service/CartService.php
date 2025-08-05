@@ -108,9 +108,9 @@ class CartService
         //     return new CartAddResult(false, 'Vous avez déjà un abonnement actif pour une discipline couverte par cette carte.');
         // }
 
-        // if ($this->hasDisciplineConflictWithCart($carte, $cart)) {
-        //     return new CartAddResult(false, 'Un abonnement ou une carte couvrant ces disciplines est déjà dans votre panier.');
-        // }
+        if ($this->isCarteConflitAvecCartesUtilisateur($user, $carte)) {
+            return new CartAddResult(false, 'Vous avez deja cette carte.');
+        }
 
         foreach ($cart['cartes'] as $row) {
             if ($row['id'] === $carte->getId()) {
@@ -238,6 +238,17 @@ class CartService
         foreach ($user->getAbonnementSouscrits() as $souscrit) {
             $ab = $souscrit->getAbonnement();
             if ($ab && $souscrit->isValid() && $carte->getDisciplines()->contains($ab->getDiscipline())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function isCarteConflitAvecCartesUtilisateur(User $user, Carte $carte): bool
+    {
+        foreach ($user->getCarteSouscrites() as $souscrit) {
+            $ab = $souscrit->getCarte();
+            if ($ab && $souscrit->isValid() && $ab == $carte) {
                 return true;
             }
         }
