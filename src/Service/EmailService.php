@@ -66,7 +66,7 @@ class EmailService {
             ->context([
                 'user' => $user,
                 'withAdhesionCard' => $withAdhesionCard,
-                'commandes' => $detailsCommande,
+                'details' => $detailsCommande,
             ]);
 
         if ($withAdhesionCard && $pdfCard) {
