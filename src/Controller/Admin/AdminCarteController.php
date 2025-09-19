@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Carte;
+use App\Entity\CarteSouscrite;
 use App\Form\CarteType;
 use App\Repository\CarteRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,5 +57,46 @@ class AdminCarteController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_carte_index');
+    }
+
+    #[Route('/admin/carte/{id}/verifier', name: 'admin_carte_verifier')]
+    public function verifierAbonnement(
+        int $id,
+        EntityManagerInterface $em
+    ): Response {
+        $souscrit = $em->getRepository(CarteSouscrite::class)->find($id);
+        if (!$souscrit) {
+            throw $this->createNotFoundException("Carte souscrite #$id introuvable");
+        }
+
+        $souscrit->setTarifReduitVerifie(true);
+        $em->flush();
+
+        $this->addFlash('success', 'Justificatif vérifié avec succès.');
+
+        return $this->redirectToRoute('admin_user_check', ['id' => $souscrit->getUser()->getId()]);
+    }
+
+    #[Route('/admin/carte/{id}/retirer-seance', name: 'admin_carte_retirer_seance')]
+    public function retirerSeance(
+        int $id,
+        EntityManagerInterface $em
+    ): Response {
+        $carteSouscrite = $em->getRepository(CarteSouscrite::class)->find($id);
+
+        if (!$carteSouscrite) {
+            throw $this->createNotFoundException("Carte souscrite #$id introuvable");
+        }
+
+        // Vérifier qu'il reste des séances
+        if ($carteSouscrite->getSeancesRestantes() > 0) {
+            $carteSouscrite->setSeancesRestantes($carteSouscrite->getSeancesRestantes() - 1);
+            $em->flush();
+            $this->addFlash('success', 'Une séance a été retirée de la carte.');
+        } else {
+            $this->addFlash('warning', 'Cette carte n’a plus de séances restantes.');
+        }
+
+        return $this->redirectToRoute('admin_user_check', ['id' => $carteSouscrite->getUser()->getId()]);
     }
 }

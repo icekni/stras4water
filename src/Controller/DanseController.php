@@ -30,6 +30,7 @@ final class DanseController extends AbstractController
         return $this->render('front/danse/bachata.html.twig', [
             "abonnements" => $abonnements,
             "cartes" => $cartes,
+            "inscription_possible" => $_ENV['INSCRIPTION_POSSIBLE'] == "true"
         ]);
     }
 
@@ -52,6 +53,7 @@ final class DanseController extends AbstractController
         return $this->render('front/danse/salsa.html.twig', [
             "abonnements" => $abonnements,
             "cartes" => $cartes,
+            "inscription_possible" => $_ENV['INSCRIPTION_POSSIBLE'] == "true"
         ]);
     }
 

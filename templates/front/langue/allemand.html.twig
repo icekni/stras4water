@@ -22,6 +22,10 @@
   <div class="text-center mb-4">
     <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
   </div>
+  {% elseif inscription_possible == false %}
+  <div class="text-center mb-4">
+    <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
   {% endif %}
 
   <!-- Description -->

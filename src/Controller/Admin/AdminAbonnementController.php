@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Abonnement;
+use App\Entity\AbonnementSouscrit;
+use App\Enum\Statut;
 use App\Form\AbonnementType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -89,5 +91,23 @@ class AdminAbonnementController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_abonnement_index');
+    }
+
+    #[Route('/admin/abonnement/{id}/verifier', name: 'admin_abonnement_verifier')]
+    public function verifierAbonnement(
+        int $id,
+        EntityManagerInterface $em
+    ): Response {
+        $souscrit = $em->getRepository(AbonnementSouscrit::class)->find($id);
+        if (!$souscrit) {
+            throw $this->createNotFoundException("Abonnement souscrit #$id introuvable");
+        }
+
+        $souscrit->setTarifReduitVerifie(true);
+        $em->flush();
+
+        $this->addFlash('success', 'Justificatif vérifié avec succès.');
+
+        return $this->redirectToRoute('admin_user_check', ['id' => $souscrit->getUser()->getId()]);
     }
 }

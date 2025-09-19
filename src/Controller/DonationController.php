@@ -132,7 +132,7 @@ final class DonationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $anneeEnCours = new DateTimeImmutable();
-            $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donationRepository->countByYear($anneeEnCours->format('Y'))));
+            $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donation->getId()));
             $donation = $recuFiscalService->generate($donation,
                                                     $form->get('nom')->getData(),
                                                     $form->get('prenom')->getData(),

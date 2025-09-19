@@ -11,6 +11,10 @@
   <div class="text-center mb-4">
     <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
   </div>
+  {% elseif inscription_possible == false %}
+  <div class="text-center mb-4">
+    <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
   {% endif %}
 
   <!-- Description -->
@@ -36,7 +40,7 @@
     <ul class="list-unstyled">
       <li>📅 <strong>Quand ?</strong> Tous les <strong>mercredis de 19h30 à 20h30</strong>, du <strong>10 septembre 2025</strong> à <strong>fin juin 2026</strong> (hors vacances scolaires).</li>
       <li>📍 <strong>Où ?</strong> <em>53 Rue Saint-Urbain, 67100 Strasbourg</em>, dans une salle de danse lumineuse et spacieuse.</li>
-      <li>🕖 <strong>Accueil & inscriptions sur place dès 19h15 ou en ligne <a href="#inscription" >ici</a></strong>.</li>
+      <li>🕖 <strong>Accueil & inscriptions sur place dès 19h15 ou en ligne.</strong></li>
       <li>🎁 <strong>Première séance offerte</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité !</li>
     </ul>
 
