@@ -7,6 +7,11 @@
 <p>Placez le QR code devant la caméra de votre smartphone ou PC.</p>
 
 <div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
+    <!-- Bouton changement de caméra -->
+    <div style="flex-basis: 100%; margin-bottom: 1rem;">
+        <button id="switch-camera" class="btn btn-outline-secondary">Changer de caméra</button>
+    </div>
+
     <!-- Carré caméra / scanner -->
     <div id="qr-reader" style="width: 300px; height: 300px; border: 2px solid #333;"></div>
 
@@ -26,38 +31,41 @@
 <script>
 let html5QrCode;
 let scanning = false; // pour éviter plusieurs redirections simultanées
+let camerasList = [];
+let currentCameraIndex = 0;
 
-function startScanner() {
+function startScanner(cameraIndex = 0) {
     html5QrCode = new Html5Qrcode("qr-reader");
 
     Html5Qrcode.getCameras().then(cameras => {
         if(cameras && cameras.length) {
-            const cameraId = cameras[0].id;
+            camerasList = cameras;
+
+            // Recherche caméra arrière si index 0
+            if(cameraIndex === 0) {
+                let rearCamera = cameras.find(cam => cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear'));
+                currentCameraIndex = rearCamera ? cameras.indexOf(rearCamera) : 0;
+            } else {
+                currentCameraIndex = cameraIndex % cameras.length;
+            }
+
+            const cameraId = camerasList[currentCameraIndex].id;
             scanning = true;
 
             html5QrCode.start(
                 cameraId,
-                {
-                    fps: 10,
-                    qrbox: 250,        // taille du carré "guide"
-                    aspectRatio: 1.0,  // carré exact
-                    rememberLastUsedCamera: true
-                },
+                { fps: 10, qrbox: 250, aspectRatio: 1.0, rememberLastUsedCamera: true },
                 decodedText => {
-                    if (!scanning) return; // ignore si déjà redirigé
+                    if(!scanning) return;
                     scanning = false;
-
-                    // Affiche le QR scanné en temps réel
                     document.getElementById('qr-result').innerText = decodedText;
 
-                    // Arrêt du scanner
                     html5QrCode.stop().then(() => {
-                        // Redirection vers la route avec l'ID lu
                         window.location.href = "{{ path('admin_user_scan_id', {'hexId': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
                     }).catch(err => console.error("Erreur arrêt scanner :", err));
                 },
                 errorMessage => {
-                    // erreurs de scan ignorées
+                    // erreurs ignorées
                 }
             ).catch(err => console.error("Erreur démarrage scanner :", err));
         } else {
@@ -72,11 +80,20 @@ document.getElementById('reset-scanner').addEventListener('click', function() {
         html5QrCode.stop().then(() => {
             document.getElementById('qr-result').innerText = "Aucun QR détecté";
             scanning = false;
-            startScanner();
+            startScanner(currentCameraIndex);
         }).catch(err => console.error("Erreur arrêt scanner :", err));
     }
 });
 
-window.addEventListener('DOMContentLoaded', startScanner);
+// Bouton "Changer de caméra"
+document.getElementById('switch-camera').addEventListener('click', function() {
+    if(!camerasList.length) return;
+    html5QrCode.stop().then(() => {
+        currentCameraIndex = (currentCameraIndex + 1) % camerasList.length;
+        startScanner(currentCameraIndex);
+    }).catch(err => console.error("Erreur arrêt scanner :", err));
+});
+
+window.addEventListener('DOMContentLoaded', () => startScanner());
 </script>
 {% endblock %}
