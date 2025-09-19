@@ -161,13 +161,13 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/user/scan', name: 'admin_user_scan')]
+    #[Route('/scan', name: 'admin_user_scan')]
     public function scan(): Response
     {
         return $this->render('admin/user/scan.html.twig');
     }
 
-    #[Route('/admin/user/scan/{hexId}', name: 'admin_user_scan_id')]
+    #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
     public function scanId(int $hexId, UserRepository $userRepository, IdEncoderService $idEncoderService): Response
     {
         dd($hexId);

@@ -19,7 +19,7 @@
         document.getElementById('qr-result').innerText = "Utilisateur détecté : " + decodedText;
 
         // Redirection vers la route check
-        window.location.href = "{{ path('admin_user_scan_id', {'id': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
+        window.location.href = "{{ path('admin_user_scan_id', {'hexId': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
     }
 
     function onScanFailure(error) {
