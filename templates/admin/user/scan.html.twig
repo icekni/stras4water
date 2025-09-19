@@ -4,13 +4,13 @@
 
 {% block body %}
 <h1>Scanner QR Code utilisateur</h1>
-<p>Placez le QR code devant la caméra de votre smartphone.</p>
+<p>Placez le QR code devant la caméra de votre smartphone ou PC.</p>
 
 <div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
-    <!-- Zone caméra / scanner -->
+    <!-- Carré caméra / scanner -->
     <div id="qr-reader" style="width: 300px; height: 300px; border: 2px solid #333;"></div>
 
-    <!-- Zone résultat en temps réel -->
+    <!-- Zone résultat -->
     <div style="flex: 1;">
         <h3>QR Code détecté :</h3>
         <div id="qr-result" style="padding: 1rem; border: 1px solid #ccc; min-height: 50px;">
@@ -20,46 +20,63 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+<!-- Librairie -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
-let html5QrcodeScanner;
+let html5QrCode;
+let scanning = false; // pour éviter plusieurs redirections simultanées
 
 function startScanner() {
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", 
-        { fps: 10, qrbox: 250 },
-        false
-    );
+    html5QrCode = new Html5Qrcode("qr-reader");
 
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-}
+    Html5Qrcode.getCameras().then(cameras => {
+        if(cameras && cameras.length) {
+            const cameraId = cameras[0].id;
+            scanning = true;
 
-function onScanSuccess(decodedText, decodedResult) {
-    // Affiche le QR scanné en temps réel
-    document.getElementById('qr-result').innerText = decodedText;
+            html5QrCode.start(
+                cameraId,
+                {
+                    fps: 10,
+                    qrbox: 250,        // taille du carré "guide"
+                    aspectRatio: 1.0,  // carré exact
+                    rememberLastUsedCamera: true
+                },
+                decodedText => {
+                    if (!scanning) return; // ignore si déjà redirigé
+                    scanning = false;
 
-    // Redirection vers la route check (si tu veux rediriger automatiquement)
-    if(decodedText) {
-        window.location.href = "{{ path('admin_user_check', {'id': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
-    }
-}
+                    // Affiche le QR scanné en temps réel
+                    document.getElementById('qr-result').innerText = decodedText;
 
-function onScanFailure(error) {
-    // On peut ignorer les erreurs de lecture
-    // console.warn(`QR Scan failed: ${error}`);
+                    // Arrêt du scanner
+                    html5QrCode.stop().then(() => {
+                        // Redirection vers la route avec l'ID lu
+                        window.location.href = "{{ path('admin_user_scan_id', {'hexId': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
+                    }).catch(err => console.error("Erreur arrêt scanner :", err));
+                },
+                errorMessage => {
+                    // erreurs de scan ignorées
+                }
+            ).catch(err => console.error("Erreur démarrage scanner :", err));
+        } else {
+            alert("Aucune caméra détectée.");
+        }
+    }).catch(err => console.error("Erreur récupération caméras :", err));
 }
 
 // Bouton "Scanner à nouveau"
 document.getElementById('reset-scanner').addEventListener('click', function() {
-    if(html5QrcodeScanner) {
-        html5QrcodeScanner.clear().then(() => {
+    if(html5QrCode) {
+        html5QrCode.stop().then(() => {
             document.getElementById('qr-result').innerText = "Aucun QR détecté";
+            scanning = false;
             startScanner();
-        });
+        }).catch(err => console.error("Erreur arrêt scanner :", err));
     }
 });
 
-// Démarre le scanner au chargement
-startScanner();
+window.addEventListener('DOMContentLoaded', startScanner);
 </script>
 {% endblock %}
