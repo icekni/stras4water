@@ -170,8 +170,13 @@ class AdminUserController extends AbstractController
     #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
     public function scanId(int $hexId, UserRepository $userRepository, IdEncoderService $idEncoderService): Response
     {
-        dd($hexId);
+        $id = $idEncoderService->decode($hexId);
+        $user = $userRepository->find($id);
 
-        return $this->render('admin/user/scan.html.twig');
+        if ($user == null) {
+            throw $this->createNotFoundException("Utilisateur #$id introuvable");
+        }
+
+        return $this->redirectToRoute('admin_user_check', ['id' => $user->getId()]);
     }
 }

@@ -7,14 +7,14 @@
 
   <h1 class="mb-4 text-center text-danger">Cours de Salsa Rueda à Strasbourg</h1>
 
-  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-    <div class="text-center mb-4">
-      <a href="#inscription" class="btn btn-outline-danger btn-lg">S’inscrire dès maintenant</a>
-    </div>
-  {% elseif inscription_possible == false %}
+  {% if inscription_possible == false %}
   <div class="text-center mb-4">
     <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
   </div>
+  {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+    <div class="text-center mb-4">
+      <a href="#inscription" class="btn btn-outline-danger btn-lg">S’inscrire dès maintenant</a>
+    </div>
   {% endif %}
 
   <!-- Description -->

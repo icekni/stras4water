@@ -18,13 +18,13 @@
     • Se présenter et parler de soi simplement
   </div>
 
-  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <div class="text-center mb-4">
-    <a href="#inscription" class="btn btn-outline-info">→ Inscription et abonnements</a>
-  </div>
-  {% elseif inscription_possible == false %}
+  {% if inscription_possible == false %}
   <div class="text-center mb-4">
     <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
+  {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <div class="text-center mb-4">
+    <a href="#inscription" class="btn btn-outline-info">→ Inscription et abonnements</a>
   </div>
   {% endif %}
 
