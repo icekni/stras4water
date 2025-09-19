@@ -4,31 +4,62 @@
 
 {% block body %}
 <h1>Scanner QR Code utilisateur</h1>
-
 <p>Placez le QR code devant la caméra de votre smartphone.</p>
 
-<div id="qr-reader" style="width: 100%; max-width: 400px; margin: auto;"></div>
-<div id="qr-result" style="margin-top: 1rem;"></div>
+<div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
+    <!-- Zone caméra / scanner -->
+    <div id="qr-reader" style="width: 300px; height: 300px; border: 2px solid #333;"></div>
 
-<!-- Inclure la librairie HTML5 QR Code -->
+    <!-- Zone résultat en temps réel -->
+    <div style="flex: 1;">
+        <h3>QR Code détecté :</h3>
+        <div id="qr-result" style="padding: 1rem; border: 1px solid #ccc; min-height: 50px;">
+            Aucun QR détecté
+        </div>
+        <button id="reset-scanner" class="btn btn-outline-primary mt-2">Scanner à nouveau</button>
+    </div>
+</div>
+
 <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
 <script>
-    function onScanSuccess(decodedText, decodedResult) {
-        // decodedText = contenu du QR code (ex: ID de l'utilisateur)
-        console.log(`QR Code détecté : ${decodedText}`);
-        document.getElementById('qr-result').innerText = "Utilisateur détecté : " + decodedText;
+let html5QrcodeScanner;
 
-        // Redirection vers la route check
-        window.location.href = "{{ path('admin_user_scan_id', {'hexId': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
-    }
-
-    function onScanFailure(error) {
-        // Ignorer les erreurs de lecture
-    }
-
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 10, qrbox: 250 }
+function startScanner() {
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", 
+        { fps: 10, qrbox: 250 },
+        false
     );
+
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    // Affiche le QR scanné en temps réel
+    document.getElementById('qr-result').innerText = decodedText;
+
+    // Redirection vers la route check (si tu veux rediriger automatiquement)
+    if(decodedText) {
+        window.location.href = "{{ path('admin_user_check', {'id': 'ID_REPLACE'}) }}".replace('ID_REPLACE', decodedText);
+    }
+}
+
+function onScanFailure(error) {
+    // On peut ignorer les erreurs de lecture
+    // console.warn(`QR Scan failed: ${error}`);
+}
+
+// Bouton "Scanner à nouveau"
+document.getElementById('reset-scanner').addEventListener('click', function() {
+    if(html5QrcodeScanner) {
+        html5QrcodeScanner.clear().then(() => {
+            document.getElementById('qr-result').innerText = "Aucun QR détecté";
+            startScanner();
+        });
+    }
+});
+
+// Démarre le scanner au chargement
+startScanner();
 </script>
 {% endblock %}
