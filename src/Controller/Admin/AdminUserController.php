@@ -174,7 +174,7 @@ class AdminUserController extends AbstractController
     }
 
     #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
-    public function scanId(int $hexId, UserRepository $userRepository, IdEncoderService $idEncoderService): Response
+    public function scanId(string $hexId, UserRepository $userRepository, IdEncoderService $idEncoderService): Response
     {
         $id = $idEncoderService->decode($hexId);
         $user = $userRepository->find($id);
