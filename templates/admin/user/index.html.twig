@@ -3,17 +3,20 @@
 {% block title %}Utilisateurs{% endblock %}
 
 {% block body %}
-    <h1>Utilisateurs</h1>
+<h1>Utilisateurs</h1>
 
-    <a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
+<a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
-    <table class="table table-bordered table-striped">
+<!-- Version desktop : tableau -->
+<div class="table-responsive d-none d-md-block">
+    <table class="table table-bordered table-striped align-middle">
         <thead>
             <tr>
                 <th>Nom & Prénom</th>
                 <th>Email</th>
                 <th>Adhérent</th>
                 <th>Abonnements & Cartes</th>
+                <th>Séances d'essai</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -22,37 +25,117 @@
             <tr>
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
-
+                <td>{{ user.isAdherent ? '✔️' : '❌' }}</td>
                 <td>
-                    {{ user.isAdherent ? '✔️' : '❌' }}
-                </td>
-
-                <td>
-                    {% set listeVide = true %}
-                    {% for abonnementSouscrit in user.abonnementSouscrits %}
-                        {% set listeVide = false %}
-                        <div>{{ abonnementSouscrit.abonnement.nom }}</div>
+                    {% set hasAbonnement = false %}
+                    {% for ab in user.abonnementSouscrits %}
+                        <div>
+                            {{ ab.abonnement.nom }}
+                            {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
+                                <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
+                                   class="btn btn-sm btn-success ms-1">Vérifier</a>
+                            {% endif %}
+                        </div>
+                        {% set hasAbonnement = true %}
                     {% endfor %}
-                    {% for carteSouscrite in user.carteSouscrites %}
-                        {% set listeVide = false %}
-                        <div>{{ carteSouscrite.carte.nom }}</div>
+                    {% for c in user.carteSouscrites %}
+                        <div>
+                            {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
+                            <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                               class="btn btn-sm btn-danger ms-1"
+                               onclick="return confirm('Retirer une séance de cette carte ?');">
+                               Retirer
+                            </a>
+                            {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+                                <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
+                                   class="btn btn-sm btn-success ms-1">Vérifier</a>
+                            {% endif %}
+                        </div>
+                        {% set hasAbonnement = true %}
                     {% endfor %}
-                    {% if listeVide %}
+                    {% if not hasAbonnement %}
                         <span class="text-muted">Aucun en cours</span>
                     {% endif %}
                 </td>
-
+                <td>{{ user.seancesEssai|default(0) }}</td>
                 <td>
-                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                    {# <form method="post" action="{{ path('admin_user_delete', {'id': user.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet utilisateur ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                        <button class="btn btn-sm btn-danger">Supprimer</button>
-                    </form> #}
+                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning mb-1 w-100">Modifier</a>
+                    {% if user.isAdherent %}
+                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                        class="btn btn-sm btn-info w-100"
+                        target="_blank"
+                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                            Carte de membre
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="5">Aucun utilisateur.</td></tr>
+            <tr><td colspan="6">Aucun utilisateur.</td></tr>
         {% endfor %}
         </tbody>
     </table>
+</div>
+
+<!-- Version mobile : cartes -->
+<div class="d-block d-md-none">
+    {% for user in users %}
+        <div class="card mb-2 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ user.nom }} {{ user.prenom }}</h5>
+                <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                <p class="mb-1"><strong>Adhérent:</strong> {{ user.isAdherent ? '✔️' : '❌' }}</p>
+
+                <p class="mb-1"><strong>Abonnements & Cartes:</strong>
+                    {% set hasAbonnement = false %}
+                    {% for ab in user.abonnementSouscrits %}
+                        <div>
+                            {{ ab.abonnement.nom }}
+                            {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
+                                <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
+                                   class="btn btn-sm btn-success ms-1">Vérifier</a>
+                            {% endif %}
+                        </div>
+                        {% set hasAbonnement = true %}
+                    {% endfor %}
+                    {% for c in user.carteSouscrites %}
+                        <div>
+                            {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
+                            <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                               class="btn btn-sm btn-danger ms-1 mb-1"
+                               onclick="return confirm('Retirer une séance de cette carte ?');">
+                               Retirer
+                            </a>
+                            {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+                                <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
+                                   class="btn btn-sm btn-success ms-1 mb-1">Vérifier</a>
+                            {% endif %}
+                        </div>
+                        {% set hasAbonnement = true %}
+                    {% endfor %}
+                    {% if not hasAbonnement %}
+                        <span class="text-muted">Aucun en cours</span>
+                    {% endif %}
+                </p>
+
+                <p class="mb-1"><strong>Séances d'essai:</strong> {{ user.seancesEssai|default(0) }}</p>
+
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning flex-grow-1">Modifier</a>
+
+                    {% if user.isAdherent %}
+                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                        class="btn btn-sm btn-info flex-grow-1"
+                        target="_blank"
+                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                            Carte de membre
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>Aucun utilisateur.</p>
+    {% endfor %}
+</div>
 {% endblock %}

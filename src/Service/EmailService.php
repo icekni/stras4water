@@ -70,7 +70,7 @@ class EmailService {
             ]);
 
         if ($withAdhesionCard && $pdfCard) {
-            $email->attach($pdfCard, 'carte-adhesion.pdf', 'application/pdf');
+            $email->attachFromPath($pdfCard, 'carte-de-membre.pdf', 'application/pdf');
         }
         
         $this->mailer->send($email);

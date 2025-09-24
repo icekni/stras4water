@@ -32,20 +32,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class FrontController extends AbstractController
 {
-    #[Route('/test/{id}', name: 'test')]
-    public function test(User $user, CarteDeMembreGenerator $generator): Response
-    {
-        $pdfContent = $generator->generate($user, '2025/2026');
-
-        if (!$pdfContent) {
-            return new Response('Utilisateur non adhérent ou erreur.', 404);
-        }
-
-        return new Response($pdfContent, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="carte_adhérent.pdf"',
-        ]);
-    }
 
     #[Route('/', name: 'home')]
     public function index(): Response

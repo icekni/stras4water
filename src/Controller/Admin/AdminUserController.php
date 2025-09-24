@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Enum\Statut;
 use App\Form\AdminUserType;
 use App\Repository\UserRepository;
+use App\Service\CarteDeMembreGenerator;
 use App\Service\IdEncoderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,9 +29,11 @@ class AdminUserController extends AbstractController
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
         ]);
-    }#[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
+    }
+    
+    #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
-    public function form(?User $user, Request $request, EntityManagerInterface $em): Response
+    public function form(?User $user, Request $request, EntityManagerInterface $em, CarteDeMembreGenerator $carteDeMembreGenerator): Response
     {
         $isNew = false;
 
@@ -74,7 +77,7 @@ class AdminUserController extends AbstractController
                     $user->addCarteSouscrite($souscrite);
                     $em->persist($souscrite);
                 }
-
+                
                 $em->persist($user);
             } else {
                 // Edition : suppression de ce qui n'est plus coché
@@ -125,6 +128,9 @@ class AdminUserController extends AbstractController
             }
 
             $em->flush();
+
+            if ($isNew) 
+                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
 
             $this->addFlash('success', $isNew ? 'Utilisateur créé avec succès.' : 'Utilisateur modifié avec succès.');
             return $this->redirectToRoute('admin_user_index');
@@ -178,5 +184,20 @@ class AdminUserController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_user_check', ['id' => $user->getId()]);
+    }
+
+    private function getSaisonAdhesion(): string
+    {
+        $now = new \DateTimeImmutable();
+        $year = (int) $now->format('Y');
+        $month = (int) $now->format('n'); // 1 à 12
+
+        if ($month >= 9) {
+            // De septembre à décembre → saison commence cette année
+            return $year . '/' . ($year + 1);
+        } else {
+            // De janvier à août → saison a commencé l'année précédente
+            return ($year - 1) . '/' . $year;
+        }
     }
 }

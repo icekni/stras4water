@@ -8,10 +8,14 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class CarteDeMembreGenerator
 {
+    private string $projectDir;
+
     public function __construct(
         private KernelInterface $kernel,
         private QrCodeGenerator $qrCodeGenerator
-    ) {}
+    ) {
+        $this->projectDir = $kernel->getProjectDir();
+    }
 
     public function generate(User $user, string $annee): ?string
     {
@@ -33,7 +37,7 @@ class CarteDeMembreGenerator
         // Année d’adhésion
         $pdf->SetFont('Helvetica', 'b', 15.5);
         $pdf->SetTextColor(1, 67, 96);
-        $pdf->Text(55, 20.4, '2025/2026');
+        $pdf->Text(55, 20.4, $annee);
 
         // Nom & prénom
         $pdf->SetFont('Helvetica', '', 12);
@@ -47,6 +51,9 @@ class CarteDeMembreGenerator
             $pdf->Image($qrCodePath, 61, 25, 26, 26); // X, Y, largeur, hauteur
         }
 
-        return $pdf->Output('S'); // Retourne le PDF binaire
+        $filePath = $this->projectDir . '/public/cartesMembre/' . $user->getId() . '.pdf';
+        $pdf->Output($filePath, 'F');
+
+        return $filePath;
     }
 }
