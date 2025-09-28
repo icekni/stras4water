@@ -198,5 +198,5 @@ class AdminUserController extends AbstractController
             // De janvier à août → saison a commencé l'année précédente
             return ($year - 1) . '/' . $year;
         }
-    }
+    }    
 }
