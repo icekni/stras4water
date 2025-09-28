@@ -129,12 +129,7 @@ class AdminUserController extends AbstractController
 
             $em->flush();
 
-<<<<<<< HEAD
             $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
-=======
-            if ($isNew) 
-                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
->>>>>>> origin/main
 
             $this->addFlash('success', $isNew ? 'Utilisateur créé avec succès.' : 'Utilisateur modifié avec succès.');
             return $this->redirectToRoute('admin_user_index');
