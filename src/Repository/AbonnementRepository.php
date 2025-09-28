@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Abonnement;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,16 @@ class AbonnementRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Abonnement::class);
+    }
+
+    public function getAbonnementsDisponiblesPourUser(User $user): array
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.isActif = true')
+            ->andWhere(':now BETWEEN a.validFrom AND a.validUntil')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

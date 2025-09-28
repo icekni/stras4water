@@ -3,7 +3,13 @@
 namespace App\Controller;
 
 use App\Enum\DonationStatus;
+use App\Enum\Statut;
+use App\Repository\AbonnementSouscritRepository;
+use App\Repository\CarteSouscriteRepository;
 use App\Repository\DonationRepository;
+use App\Repository\UserRepository;
+use App\Service\CarteDeMembreGenerator;
+use App\Service\CommandeDetailsBuilder;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -16,7 +22,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final class WebHookController extends AbstractController
 {
     #[Route('/webhook/stripe', name: 'stripe_webhook')]
-    public function handleStripeWebhook(Request $request, EntityManagerInterface $entityManager, DonationRepository $donationRepository, EmailService $emailService): Response
+    public function handleStripeWebhook(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        DonationRepository $donationRepository, 
+        UserRepository $userRepository,
+        AbonnementSouscritRepository $abonnementRepository,
+        CarteSouscriteRepository $carteRepository,
+        EmailService $emailService,
+        CarteDeMembreGenerator $carteDeMembreGenerator,
+        CommandeDetailsBuilder $commandeDetailsBuilder
+    ): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->headers->get('stripe-signature');
@@ -25,20 +41,23 @@ final class WebHookController extends AbstractController
         try {
             $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
         } catch (\Exception $e) {
-            return new Response('Webhook Error', 400);
+            return new Response('Webhook Error: ' . $e->getMessage(), 400);
         }
 
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
-
             if (isset($session->payment_intent)) {
                 $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
                 $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
-
+                
                 $donId = $paymentIntent->metadata->don_id ?? null;
+                $userId = $paymentIntent->metadata->user_id ?? null;
+                $adhesion = $paymentIntent->metadata->adhesion === "true";
+                $abonnementIds = isset($paymentIntent->metadata->abonnement_ids) ? explode(',', $paymentIntent->metadata->abonnement_ids) : [];
+                $carteIds = isset($paymentIntent->metadata->carte_ids) ? explode(',', $paymentIntent->metadata->carte_ids) : [];
             } else {
                 $donId = null;
-                $net = null;
+                return new Response('No payment intent', 400);
             }
             
             if ($donId) {
@@ -57,12 +76,75 @@ final class WebHookController extends AbstractController
                     $donation->setStatus(DonationStatus::COMPLETED);
                 }
 
-                $entityManager->flush();
+                $emailService->sendMail(
+                    'Stras4Water - Don',
+                    'don@stras4water.org',
+                    'Réception d\'un nouveau don',
+                    "Bonjour,\nVous avez reçu un nouveau don de {$donation->getMontantNet()} € via Stripe."
+                );
             }
+            else {
+                $user = $userId ? $userRepository->find($userId) : null;
+
+                if (!$user) {
+                    return new Response('User not found', 400);
+                }
+
+                foreach ($abonnementIds as $id) {
+                    $abonnement = $abonnementRepository->find($id);
+                    if ($abonnement && $abonnement->getUser() === $user && $abonnement->getStatut() === Statut::CREATED) {
+                        if ($abonnement->isTarifReduit()) {
+                            $abonnement->setStatut(Statut::PENDING);
+                            $abonnement->setTarifReduitVerifie(false);
+                        }
+                        else {
+                            $abonnement->setStatut(Statut::ACTIVE);
+                        }
+                    }
+                }
+
+                foreach ($carteIds as $id) {
+                    $carte = $carteRepository->find($id);
+                    if ($carte && $carte->getUser() === $user && $carte->getStatut() === Statut::CREATED) {
+                        if ($carte->isTarifReduit()) {
+                            $carte->setStatut(Statut::PENDING);
+                            $carte->setTarifReduitVerifie(false);
+                        }
+                        else {
+                            $carte->setStatut(Statut::ACTIVE);
+                        }
+                    }
+                }
+
+                if ($adhesion) {
+                    $user->setIsAdherent(true);
+                }
+
+                $detailsCommande = $commandeDetailsBuilder->build($adhesion, $abonnementIds, $carteIds, $user, $this->getSaisonAdhesion());
+                $pdfCard = $adhesion ? $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion()) : null;
+
+                $emailService->sendConfirmationCommande($user, $adhesion, $pdfCard, $detailsCommande);
+
+            }
+
+            $entityManager->flush();
         }
 
-        $emailService->sendMail('Stras4Water - Don', 'don@stras4water.org', 'Reception d\'un nouveau don', 'Bonjour,\nVous avez recu un nouveau don de ' . $donation->getMontantNet() . '€ via stripe.');
-
         return new Response('OK', 200);
+    }
+
+    private function getSaisonAdhesion(): string
+    {
+        $now = new \DateTimeImmutable();
+        $year = (int) $now->format('Y');
+        $month = (int) $now->format('n'); // 1 à 12
+
+        if ($month >= 9) {
+            // De septembre à décembre → saison commence cette année
+            return $year . '/' . ($year + 1);
+        } else {
+            // De janvier à août → saison a commencé l'année précédente
+            return ($year - 1) . '/' . $year;
+        }
     }
 }

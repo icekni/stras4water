@@ -47,6 +47,8 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
+            $this->addFlash('warning', 'Votre email doit etre vérifié pour pouvoir continuer. Vous allez recevoir un email pour confirmer votre adresse email, cliquez sur le lien présent dedans.');
+
             $this->emailVerifier->sendEmailConfirmation(
                 'app_verify_email',
                 $user,
@@ -76,21 +78,21 @@ class RegistrationController extends AbstractController
         $redirect = $request->query->get('redirect');
 
         if (!$email) {
-            $this->addFlash('verify_email_error', 'Adresse email manquante.');
+            $this->addFlash('danger', 'Adresse email manquante.');
             return $this->redirectToRoute('app_login');
         }
 
         $user = $userRepository->findOneBy(['email' => $email]);
 
         if (!$user) {
-            $this->addFlash('verify_email_error', 'Utilisateur introuvable.');
+            $this->addFlash('danger', 'Utilisateur introuvable.');
             return $this->redirectToRoute('app_login');
         }
 
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $exception->getReason());
+            $this->addFlash('danger', $exception->getReason());
             return $this->redirectToRoute('app_register');
         }
 

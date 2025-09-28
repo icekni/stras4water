@@ -19,12 +19,6 @@ class Abonnement
     private ?string $nom = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $validFrom = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $validUntil = null;
-
-    #[ORM\Column]
     private ?float $tarif = null;
 
     #[ORM\Column(nullable: true)]
@@ -46,9 +40,15 @@ class Abonnement
     #[ORM\OneToMany(targetEntity: AbonnementSouscrit::class, mappedBy: 'abonnement', orphanRemoval: true)]
     private Collection $abonnementSouscrits;
 
+    #[ORM\ManyToOne(inversedBy: 'abonnements')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Saison $saison = null;
+
     public function __construct()
     {
         $this->abonnementSouscrits = new ArrayCollection();
+        $this->hasTarifReduit = false;
+        $this->isActif = true;
     }
 
     public function getId(): ?int
@@ -64,30 +64,6 @@ class Abonnement
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getValidFrom(): ?\DateTimeImmutable
-    {
-        return $this->validFrom;
-    }
-
-    public function setValidFrom(\DateTimeImmutable $validFrom): static
-    {
-        $this->validFrom = $validFrom;
-
-        return $this;
-    }
-
-    public function getValidUntil(): ?\DateTimeImmutable
-    {
-        return $this->validUntil;
-    }
-
-    public function setValidUntil(\DateTimeImmutable $validUntil): static
-    {
-        $this->validUntil = $validUntil;
 
         return $this;
     }
@@ -178,6 +154,18 @@ class Abonnement
                 $abonnementSouscrit->setAbonnement(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSaison(): ?Saison
+    {
+        return $this->saison;
+    }
+
+    public function setSaison(?Saison $saison): static
+    {
+        $this->saison = $saison;
 
         return $this;
     }

@@ -1,0 +1,182 @@
+{% extends 'base/base.html.twig' %}
+
+{% block title %}Cours d’anglais - Stras4Water{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+
+  <h1 class="mb-3 text-info text-center">
+    Cours d’anglais à Strasbourg
+  </h1>
+
+  <div class="border border-info rounded p-3 mb-4 mx-auto" style="max-width: 320px; font-size: 0.9rem; background-color: #e9f5fb;">
+    <strong>Niveau requis : A1</strong><br>
+    (Débutants / Faux débutants)<br><br>
+    Exemples d’aptitudes à ce niveau :<br>
+    • Savoir dire « Je m’appelle... »<br>
+    • Comprendre et utiliser des mots simples<br>
+    • Se présenter et parler de soi simplement
+  </div>
+
+  {% if inscription_possible == false %}
+  <div class="text-center mb-4">
+    <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
+  {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <div class="text-center mb-4">
+    <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
+  </div>
+  {% endif %}
+
+  <!-- Description -->
+  <div class="mb-5">
+    <p>
+      L’apprentissage de l’<strong>anglais</strong> est aujourd’hui un véritable atout pour la vie quotidienne, professionnelle ou associative. 
+      Chez Stras4Water, nous proposons des <strong>cours de langues accessibles à tous</strong>, dans une ambiance conviviale et solidaire.
+    </p>
+
+    <div class="text-center my-4">
+      <img src="{{ asset('img/anglais-cours.webp') }}" alt="Cours d’anglais Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+    </div>
+
+    <ul class="list-unstyled">
+      <li>📅 <strong>Quand ?</strong> Tous les <strong>mardis de 19h30 à 20h30</strong>, du <strong>10 septembre 2025</strong> à <strong>fin juin 2026</strong> (hors vacances scolaires).</li>
+      <li>📍 <strong>Où ?</strong> <em>Maison des Associations de Strasbourg, 1a place des Orphelins, 67000 Strasbourg</em>.</li>
+      <li>🕖 <strong>Accueil & inscriptions sur place ou en ligne <a href="#inscription" >ici</a></strong>.</li>
+      <li>🎁 <strong>Premier cours offert</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité !</li>
+    </ul>
+
+    <p>
+      En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> qui agit pour l’accès à l’eau propre dans les zones en difficulté. ❤️
+    </p>
+
+    <p>
+      L’objectif est de pratiquer l’anglais dans un cadre bienveillant et participatif, sans pression ni jugement. Le contenu s’adapte au niveau du groupe et privilégie la mise en situation.
+    </p>
+
+    <p>
+      Comme pour toutes nos activités, les cours sont <strong>accessibles financièrement</strong>, avec des <strong>tarifs solidaires</strong> réduits de moitié pour les personnes en situation précaire.
+    </p>
+
+    <p>
+      Pour toute question, n’hésitez pas à <a href="{{ path('contact') }}">nous contacter</a> ou à <strong>nous suivre sur les réseaux sociaux</strong> pour rester informé·e de nos activités.
+    </p>
+  </div>
+
+  <!-- Type d'abonnement -->
+  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+
+  <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+      {% for abonnement in abonnements %}
+        <div class="col">
+          <input type="radio" class="btn-check abonnement-radio"
+                name="item"
+                id="abonnement-{{ abonnement.id }}"
+                value="abonnement-{{ abonnement.id }}"
+                data-has-reduit="{{ abonnement.hasTarifReduit ? '1' : '0' }}"
+                required>
+          <label class="btn btn-outline-primary w-100 text-start" for="abonnement-{{ abonnement.id }}">
+            <strong>{{ abonnement.nom }}</strong><br>
+            Du {{ abonnement.saison.dateDebut|date("d-m-Y") }} au {{ abonnement.saison.dateFin|date("d-m-Y") }}<br>
+            Tarif normal : {{ abonnement.tarif }} €{% if abonnement.hasTarifReduit %}, réduit : {{ abonnement.tarifReduit }} €{% endif %}
+          </label>
+        </div>
+      {% endfor %}
+
+      {% for carte in cartes %}
+        <div class="col">
+          <input type="radio" class="btn-check carte-radio"
+                name="item"
+                id="carte-{{ carte.id }}"
+                value="carte-{{ carte.id }}"
+                data-has-reduit="{{ carte.hasTarifReduit ? '1' : '0' }}"
+                required>
+          <label class="btn btn-outline-primary w-100 text-start" for="carte-{{ carte.id }}">
+            <strong>{{ carte.nom }}</strong><br>
+            Tarif normal : {{ carte.tarif }} €{% if carte.hasTarifReduit %}, réduit : {{ carte.tarifReduit }} €{% endif %}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Tarif réduit -->
+    <div id="tarif-container" class="d-none">
+      <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
+      <div class="d-flex gap-3 mb-4">
+        <div>
+          <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
+          <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
+        </div>
+        <div>
+          <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
+          <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Justificatif info -->
+    <div class="alert alert-warning d-none" id="justificatif-wrapper">
+      ⚠️ Vous avez choisi le tarif réduit : <strong>un justificatif vous sera demandé lors de votre première séance</strong>. Merci de le prévoir.
+    </div>
+
+    <!-- Alerte adhésion -->
+    <div class="alert alert-info mt-4">
+      ⚠️ <strong>L'adhésion annuelle est obligatoire</strong> pour toute souscription.
+      Elle est automatiquement ajoutée au panier si vous n'êtes pas encore adhérent(e).
+      <br><br>
+      <strong>Si vous n'êtes pas connecté(e)</strong> : vous serez invité à vous connecter ou créer un compte.
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
+  </form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const radiosAbonnement = document.querySelectorAll('.abonnement-radio, .carte-radio');
+    const tarifContainer = document.getElementById('tarif-container');
+    const justificatifWrapper = document.getElementById('justificatif-wrapper');
+    const radiosTarif = document.querySelectorAll('input[name="tarif"]');
+
+    radiosAbonnement.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const hasReduit = radio.dataset.hasReduit === '1';
+
+        if (hasReduit) {
+          tarifContainer.classList.remove('d-none');
+
+          radiosTarif.forEach(r => r.required = true);
+
+          const tarifNormalRadio = document.getElementById('tarif_normal');
+          if (tarifNormalRadio) {
+            tarifNormalRadio.checked = true;
+          }
+
+          justificatifWrapper.classList.add('d-none');
+        } else {
+          tarifContainer.classList.add('d-none');
+          justificatifWrapper.classList.add('d-none');
+          radiosTarif.forEach(t => {
+            t.checked = false;
+            t.required = false;
+          });
+        }
+      });
+    });
+
+    radiosTarif.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'reduit') {
+          justificatifWrapper.classList.remove('d-none');
+        } else {
+          justificatifWrapper.classList.add('d-none');
+        }
+      });
+    });
+  });
+</script>
+  {% endif %}
+
+</section>
+{% endblock %}

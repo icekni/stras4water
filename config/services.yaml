@@ -7,6 +7,7 @@ parameters:
     HELLOASSO_CLIENT_ID: '%env(string:HELLOASSO_CLIENT_ID)%'
     HELLOASSO_CLIENT_SECRET: '%env(string:HELLOASSO_CLIENT_SECRET)%'
     HELLOASSO_API_URL: '%env(string:HELLOASSO_API_URL)%'
+    upload_dir: '%env(resolve:UPLOAD_DIR)%'
 services:
     # default configuration for services in *this* file
     _defaults:

@@ -1,0 +1,53 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Liste des saisons{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Liste des saisons</h1>
+
+        <a href="{{ path('admin_saison_new') }}" class="btn btn-success mb-3">Ajouter une saison</a>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for saison in saisons %}
+                    <tr>
+                        <td>{{ saison.id }}</td>
+                        <td>{{ saison.nom }}</td>
+                        <td>{{ saison.dateDebut ? saison.dateDebut|date('d/m/Y') : '' }}</td>
+                        <td>{{ saison.dateFin ? saison.dateFin|date('d/m/Y') : '' }}</td>
+                        <td>
+                            {% if saison.isActif %}
+                                ✅
+                            {% else %}
+                                ❌
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('admin_saison_edit', {id: saison.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+
+                            <form method="post" action="{{ path('admin_saison_delete', {id: saison.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer cette saison ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_saison_' ~ saison.id) }}">
+                                <button class="btn btn-sm btn-danger">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucune saison trouvée.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

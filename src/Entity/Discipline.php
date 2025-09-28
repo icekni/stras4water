@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DisciplineRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DisciplineRepository::class)]
@@ -18,6 +19,11 @@ class Discipline
 
     #[ORM\Column]
     private ?bool $isActif = null;
+
+    public function __construct()
+    {        
+        $this->isActif = true;
+    }
 
     public function getId(): ?int
     {

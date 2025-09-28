@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Donation;
+use App\Entity\User;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -21,7 +22,7 @@ class EmailService {
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
             ->subject('Votre reçu fiscal Stras4Water est disponible')
-            ->htmlTemplate('donation/recu_fiscal_email.html.twig')
+            ->htmlTemplate('emails/recu_fiscal_email.html.twig')
             ->attachFromPath($donation->getUrlRecuFiscal(), 'recu-fiscal.pdf', 'application/pdf')
             ->context([
                 'don' => $donation->getMontant(),
@@ -36,7 +37,7 @@ class EmailService {
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($donation->getEmail())
             ->subject('Complétez vos informations pour recevoir votre reçu fiscal')
-            ->htmlTemplate('donation/request_fiscal_data.html.twig')
+            ->htmlTemplate('emails/request_fiscal_data.html.twig')
                     ->context([
                         'donation' => $donation,
                         'url' => $url,
@@ -47,11 +48,31 @@ class EmailService {
     function sendMail(string $nom, string $from, string $subject, string $text): void
     {
         $email = (new Email())
-            ->from(new Address($from, $nom))
+            ->from($_ENV['EMAIL_CONTACT'])
             ->to($_ENV['EMAIL_CONTACT'])
-            ->subject($subject)
+            ->subject("Nouveau message de : " . $from . " - " . $nom . " : " . $subject)
             ->text($text);
 
+        $this->mailer->send($email);
+    }
+
+    public function sendConfirmationCommande(User $user, bool $withAdhesionCard, ?string $pdfCard = null, array $detailsCommande = []): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address('contact@stras4water.org', 'Stras4Water'))
+            ->to($user->getEmail())
+            ->subject('Confirmation de votre commande Stras4Water')
+            ->htmlTemplate('emails/confirmation_commande.html.twig')
+            ->context([
+                'user' => $user,
+                'withAdhesionCard' => $withAdhesionCard,
+                'details' => $detailsCommande,
+            ]);
+
+        if ($withAdhesionCard && $pdfCard) {
+            $email->attachFromPath($pdfCard, 'carte-de-membre.pdf', 'application/pdf');
+        }
+        
         $this->mailer->send($email);
     }
 }

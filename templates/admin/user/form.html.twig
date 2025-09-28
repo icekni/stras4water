@@ -1,0 +1,24 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}{{ user is defined ? 'Modifier utilisateur' : 'Créer utilisateur' }}{% endblock %}
+
+{% block body %}
+<h1>{{ user is defined ? 'Modifier utilisateur' : 'Créer utilisateur' }}</h1>
+
+{{ form_start(form) }}
+
+    {{ form_row(form.email) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.prenom) }}
+    {{ form_row(form.isAdherent) }}
+    {{ form_row(form.abonnementsDisponibles) }}
+    {{ form_row(form.cartesDisponibles) }}
+    {{ form_row(form.roles) }}
+
+    <button class="btn btn-primary">
+        {{ user is defined ? 'Enregistrer les modifications' : 'Créer l\'utilisateur' }}
+    </button>
+
+{{ form_end(form) }}
+
+{% endblock %}

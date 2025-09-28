@@ -1,0 +1,14 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}{{ editMode ? 'Modifier' : 'Créer' }} un lien{% endblock %}
+
+{% block body %}
+    <h1>{{ editMode ? 'Modifier' : 'Créer' }} un lien</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.urlCible) }}
+        <button class="btn btn-success">{{ editMode ? 'Mettre à jour' : 'Créer' }}</button>
+        <a href="{{ path('admin_links_index') }}" class="btn btn-secondary">Retour</a>
+    {{ form_end(form) }}
+{% endblock %}

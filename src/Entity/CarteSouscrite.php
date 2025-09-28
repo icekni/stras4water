@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Dto\ValidationResult;
 use App\Repository\CarteSouscriteRepository;
 use Doctrine\ORM\Mapping as ORM;
 use \App\Enum\Statut;
+use DateTime;
+use DateTimeImmutable;
 
 #[ORM\Entity(repositoryClass: CarteSouscriteRepository::class)]
 class CarteSouscrite
@@ -30,6 +33,20 @@ class CarteSouscrite
 
     #[ORM\Column(enumType: Statut::class)]
     private ?Statut $statut = null;
+
+    #[ORM\Column]
+    private ?bool $tarifReduitVerifie = null;
+
+    #[ORM\Column]
+    private ?bool $isTarifReduit = null;
+
+    public function __construct()
+    {
+        $this->statut = Statut::CREATED;
+        $this->createdAt = new DateTimeImmutable();
+        $this->isTarifReduit = false;
+        $this->tarifReduitVerifie = false;
+    }
 
     public function getId(): ?int
     {
@@ -92,6 +109,43 @@ class CarteSouscrite
     public function setStatut(Statut $statut): static
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function isValid (): ValidationResult
+    {
+        if ($this->seancesRestantes <= 0) {
+            return new ValidationResult(false, 'La carte de cours est épuisée.');
+        }
+
+        if (!$this->carte->isActif()) {
+            return new ValidationResult(false, 'La carte a été désactivée.');
+        }
+
+        return new ValidationResult(true);
+    }
+
+    public function isTarifReduitVerifie(): ?bool
+    {
+        return $this->tarifReduitVerifie;
+    }
+
+    public function setTarifReduitVerifie(bool $tarifReduitVerifie): static
+    {
+        $this->tarifReduitVerifie = $tarifReduitVerifie;
+
+        return $this;
+    }
+
+    public function isTarifReduit(): ?bool
+    {
+        return $this->isTarifReduit;
+    }
+
+    public function setIsTarifReduit(bool $isTarifReduit): static
+    {
+        $this->isTarifReduit = $isTarifReduit;
 
         return $this;
     }
