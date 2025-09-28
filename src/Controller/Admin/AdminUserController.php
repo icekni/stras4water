@@ -129,12 +129,7 @@ class AdminUserController extends AbstractController
 
             $em->flush();
 
-<<<<<<< HEAD
             $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
-=======
-            if ($isNew) 
-                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
->>>>>>> origin/main
 
             $this->addFlash('success', $isNew ? 'Utilisateur créé avec succès.' : 'Utilisateur modifié avec succès.');
             return $this->redirectToRoute('admin_user_index');
@@ -203,9 +198,5 @@ class AdminUserController extends AbstractController
             // De janvier à août → saison a commencé l'année précédente
             return ($year - 1) . '/' . $year;
         }
-<<<<<<< HEAD
-    }    
-=======
     }
->>>>>>> origin/main
 }
