@@ -42,8 +42,8 @@ class CarteDeMembreGenerator
         // Nom & prénom
         $pdf->SetFont('Helvetica', '', 12);
         $pdf->SetTextColor(0, 118, 168);
-        $pdf->Text(4, 37, mb_convert_encoding($user->getPrenom(), 'Windows-1252', 'UTF-8'));
-        $pdf->Text(4, 50, mb_convert_encoding($user->getNom(), 'Windows-1252', 'UTF-8'));
+        $pdf->Text(4, 37, mb_convert_encoding($user->getNom(), 'Windows-1252', 'UTF-8'));
+        $pdf->Text(4, 50, mb_convert_encoding($user->getPrenom(), 'Windows-1252', 'UTF-8'));
 
 
         // Intégrer le QR code
