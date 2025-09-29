@@ -72,8 +72,27 @@
         <div class="d-none d-lg-block sidebar-lg p-3">
             <h6 class="text-uppercase text-muted">Navigation</h6>
                 <ul class="nav flex-column">
+                    <!-- Accueil -->
                     <li class="nav-item">
                         <a href="{{ path('admin_dashboard') }}" class="nav-link">Accueil</a>
+                    </li>
+
+                    <!-- Scanner une carte -->
+                    <li class="nav-item">
+                        <a href="{{ path('admin_user_scan') }}" class="nav-link">Scanner une carte</a>
+                    </li>
+
+                    <!-- Dons -->
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons" role="button" aria-expanded="false" aria-controls="submenu-dons">
+                            Dons
+                        </a>
+                        <div class="collapse ps-3" id="submenu-dons">
+                            <a href="{{ path('admin_donations_create') }}" class="nav-link">Créer un don</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('admin_donations_index') }}" class="nav-link">Tous les dons</a>
+                            {% endif %}
+                        </div>
                     </li>
 
                     {% if is_granted('ROLE_ADMIN') %}
@@ -102,19 +121,7 @@
                                 <a href="{{ path('admin_carte_index') }}" class="nav-link">Cartes</a>
                             </div>
                         </li>
-                    {% endif %}
 
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons" role="button" aria-expanded="false" aria-controls="submenu-dons">
-                            Dons
-                        </a>
-                        <div class="collapse ps-3" id="submenu-dons">
-                            <a href="{{ path('admin_donations_index') }}" class="nav-link">Tous les dons</a>
-                            <a href="{{ path('admin_donations_create') }}" class="nav-link">Saisir un don</a>
-                        </div>
-                    </li>
-
-                    {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#submenu-liens" role="button" aria-expanded="false" aria-controls="submenu-liens">
                                 Gestion des liens
@@ -137,8 +144,27 @@
             <div class="offcanvas-body">
                 <h6 class="text-uppercase text-muted">Navigation</h6>
                     <ul class="nav flex-column">
+                        <!-- Accueil -->
                         <li class="nav-item">
                             <a href="{{ path('admin_dashboard') }}" class="nav-link">Accueil</a>
+                        </li>
+
+                        <!-- Scanner une carte -->
+                        <li class="nav-item">
+                            <a href="{{ path('admin_user_scan') }}" class="nav-link">Scanner une carte</a>
+                        </li>
+
+                        <!-- Dons -->
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons-mobile" role="button" aria-expanded="false" aria-controls="submenu-dons-mobile">
+                                Dons
+                            </a>
+                            <div class="collapse ps-3" id="submenu-dons-mobile">
+                                <a href="{{ path('admin_donations_create') }}" class="nav-link">Créer un don</a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('admin_donations_index') }}" class="nav-link">Tous les dons</a>
+                                {% endif %}
+                            </div>
                         </li>
 
                         {% if is_granted('ROLE_ADMIN') %}
@@ -147,44 +173,32 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-souscription" role="button" aria-expanded="false" aria-controls="submenu-souscription">
+                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-souscription-mobile" role="button" aria-expanded="false" aria-controls="submenu-souscription-mobile">
                                     Souscriptions
                                 </a>
-                                <div class="collapse ps-3" id="submenu-souscription">
+                                <div class="collapse ps-3" id="submenu-souscription-mobile">
                                     <a href="{{ path('admin_abonnement_index') }}" class="nav-link">Abonnements</a>
                                     <a href="{{ path('admin_carte_index') }}" class="nav-link">Cartes</a>
                                 </div>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-configuration" role="button" aria-expanded="false" aria-controls="submenu-configuration">
+                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-configuration-mobile" role="button" aria-expanded="false" aria-controls="submenu-configuration-mobile">
                                     Configuration
                                 </a>
-                                <div class="collapse ps-3" id="submenu-configuration">
+                                <div class="collapse ps-3" id="submenu-configuration-mobile">
                                     <a href="{{ path('admin_discipline_index') }}" class="nav-link">Disciplines</a>
                                     <a href="{{ path('admin_saison_index') }}" class="nav-link">Saisons</a>
                                     <a href="{{ path('admin_abonnement_index') }}" class="nav-link">Abonnements</a>
                                     <a href="{{ path('admin_carte_index') }}" class="nav-link">Cartes</a>
                                 </div>
                             </li>
-                        {% endif %}
 
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons" role="button" aria-expanded="false" aria-controls="submenu-dons">
-                                Dons
-                            </a>
-                            <div class="collapse ps-3" id="submenu-dons">
-                                <a href="{{ path('admin_donations_index') }}" class="nav-link">Tous les dons</a>
-                                <a href="{{ path('admin_donations_create') }}" class="nav-link">Saisir un don</a>
-                            </div>
-                        </li>
-
-                        {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-liens" role="button" aria-expanded="false" aria-controls="submenu-liens">
+                                <a class="nav-link" data-bs-toggle="collapse" href="#submenu-liens-mobile" role="button" aria-expanded="false" aria-controls="submenu-liens-mobile">
                                     Gestion des liens
                                 </a>
-                                <div class="collapse ps-3" id="submenu-liens">
+                                <div class="collapse ps-3" id="submenu-liens-mobile">
                                     <a href="{{ path('admin_links_index') }}" class="nav-link">Tous les liens</a>
                                     <a href="{{ path('admin_links_new') }}" class="nav-link">Créer un lien</a>
                                 </div>

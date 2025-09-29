@@ -11,10 +11,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/cartes')]
 class AdminCarteController extends AbstractController
 {
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/', name: 'admin_carte_index', methods: ['GET'])]
     public function index(CarteRepository $carteRepository): Response
     {
@@ -23,6 +26,7 @@ class AdminCarteController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_carte_new', methods: ['GET', 'POST'])]
     #[Route('/{id}/edit', name: 'admin_carte_edit', methods: ['GET', 'POST'])]
     public function form(Request $request, EntityManagerInterface $em, ?Carte $carte = null): Response
@@ -47,6 +51,7 @@ class AdminCarteController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/delete', name: 'admin_carte_delete', methods: ['POST'])]
     public function delete(Request $request, Carte $carte, EntityManagerInterface $em): Response
     {

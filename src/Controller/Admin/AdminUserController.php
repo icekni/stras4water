@@ -17,7 +17,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/user')]
 class AdminUserController extends AbstractController
 {
@@ -31,6 +33,7 @@ class AdminUserController extends AbstractController
         ]);
     }
     
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
     public function form(?User $user, Request $request, EntityManagerInterface $em, CarteDeMembreGenerator $carteDeMembreGenerator): Response
