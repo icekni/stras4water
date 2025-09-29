@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ACCUEIL')]
 class AdminDonationController extends AbstractController
 {
     #[Route('/admin/donations', name: 'admin_donations_index')]
@@ -36,7 +37,6 @@ class AdminDonationController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_ACCUEIL')]
     #[Route('/admin/donations/create', name: 'admin_donations_create')]
     public function create(Request $request, EmailService $emailService, EntityManagerInterface $entityManager): Response
     {
@@ -69,6 +69,7 @@ class AdminDonationController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/donations/refund/{id}', name: 'admin_donations_refund')]
     public function refund(Donation $donation, EntityManagerInterface $entityManager, RecuFiscalService $recuFiscalService): Response
     {
@@ -94,6 +95,7 @@ class AdminDonationController extends AbstractController
         return $this->redirectToRoute('admin_donations_index');
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/donations/resend/{id}', name: 'admin_donations_resend')]
     public function resend(Request $request, Donation $donation, EntityManagerInterface $entityManager, EmailService $emailService): Response
     {
@@ -115,6 +117,7 @@ class AdminDonationController extends AbstractController
         return $this->redirectToRoute('admin_donations_index');
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/donations/receipt/{id}', name: 'admin_donations_receipt')]
     public function getReceipt(Donation $donation): Response
     {
@@ -127,6 +130,7 @@ class AdminDonationController extends AbstractController
         return new BinaryFileResponse($pdfPath, 200, ['Content-Type' => 'application/pdf'], false, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/donations/delete/{id}', name: 'admin_donations_delete', methods: ['POST'])]
     public function delete(Request $request, Donation $donation, EntityManagerInterface $em): Response
     {

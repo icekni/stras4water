@@ -7,9 +7,14 @@
 
 <a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
+<!-- Champ de recherche -->
+<div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher par nom, prénom ou email...">
+</div>
+
 <!-- Version desktop : tableau -->
 <div class="table-responsive d-none d-md-block">
-    <table class="table table-bordered table-striped align-middle">
+    <table class="table table-bordered table-striped align-middle" id="usersTable">
         <thead>
             <tr>
                 <th>Nom & Prénom</th>
@@ -22,7 +27,7 @@
         </thead>
         <tbody>
         {% for user in users %}
-            <tr>
+            <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.isAdherent ? '✔️' : '❌' }}</td>
@@ -78,9 +83,9 @@
 </div>
 
 <!-- Version mobile : cartes -->
-<div class="d-block d-md-none">
+<div class="d-block d-md-none" id="usersCards">
     {% for user in users %}
-        <div class="card mb-2 shadow-sm">
+        <div class="card mb-2 shadow-sm" data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
             <div class="card-body">
                 <h5 class="card-title">{{ user.nom }} {{ user.prenom }}</h5>
                 <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
@@ -138,4 +143,88 @@
         <p>Aucun utilisateur.</p>
     {% endfor %}
 </div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function normalize(str) {
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Algorithme simple Soundex JS
+function soundex(s) {
+    if (!s) return "";
+    s = s.toUpperCase().replace(/[^A-Z]/g, "");
+    const a = s.split("");
+    const f = a.shift();
+    const codes = {B:1,F:1,P:1,V:1,C:2,G:2,J:2,K:2,Q:2,S:2,X:2,Z:2,D:3,T:3,L:4,M:5,N:5,R:6};
+    const result = [f];
+    let prev = codes[f] || 0;
+    for (let c of a) {
+        const code = codes[c] || 0;
+        if (code !== prev && code !== 0) result.push(code);
+        prev = code;
+    }
+    return (result.join("") + "000").slice(0,4);
+}
+
+// Levenshtein distance
+function levenshtein(a, b) {
+    const al = a.length, bl = b.length;
+    if (al === 0) return bl;
+    if (bl === 0) return al;
+    let matrix = [];
+    for (let i=0;i<=bl;i++){matrix[i]=[i];}
+    for (let j=0;j<=al;j++){matrix[0][j]=j;}
+    for (let i=1;i<=bl;i++){
+        for (let j=1;j<=al;j++){
+            const cost = (b[i-1]===a[j-1])?0:1;
+            matrix[i][j] = Math.min(
+                matrix[i-1][j]+1,
+                matrix[i][j-1]+1,
+                matrix[i-1][j-1]+cost
+            );
+        }
+    }
+    return matrix[bl][al];
+}
+
+document.getElementById("searchInput").addEventListener("input", function() {
+    const term = normalize(this.value);
+    if (term.length < 3) {
+        document.querySelectorAll("#usersTable tbody tr").forEach(tr => tr.style.display="");
+        document.querySelectorAll("#usersCards .card").forEach(card => card.style.display="");
+        return;
+    }
+
+    document.querySelectorAll("#usersTable tbody tr").forEach(tr => {
+        const nom = normalize(tr.dataset.nom);
+        const prenom = normalize(tr.dataset.prenom);
+        const email = normalize(tr.dataset.email);
+
+        const match = [nom, prenom, email].some(str => {
+            const sdxTerm = soundex(term);
+            const sdxStr = soundex(str);
+            return str.includes(term) || levenshtein(term,str)<=2 || sdxTerm===sdxStr;
+        });
+
+        tr.style.display = match ? "" : "none";
+    });
+
+    document.querySelectorAll("#usersCards .card").forEach(card => {
+        const nom = normalize(card.dataset.nom);
+        const prenom = normalize(card.dataset.prenom);
+        const email = normalize(card.dataset.email);
+
+        const match = [nom, prenom, email].some(str => {
+            const sdxTerm = soundex(term);
+            const sdxStr = soundex(str);
+            return str.includes(term) || levenshtein(term,str)<=2 || sdxTerm===sdxStr;
+        });
+
+        card.style.display = match ? "" : "none";
+    });
+});
+</script>
 {% endblock %}
