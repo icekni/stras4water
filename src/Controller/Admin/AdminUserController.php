@@ -36,8 +36,13 @@ class AdminUserController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
-    public function form(?User $user, Request $request, EntityManagerInterface $em, CarteDeMembreGenerator $carteDeMembreGenerator): Response
-    {
+    public function form(
+        ?User $user,
+        Request $request,
+        EntityManagerInterface $em,
+        CarteDeMembreGenerator $carteDeMembreGenerator,
+        UserRepository $userRepository
+    ): Response {
         $isNew = false;
 
         if (!$user) {
@@ -55,48 +60,26 @@ class AdminUserController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $abonnementsCoches = $form->get('abonnementsDisponibles')->getData();
-            $cartesCochées = $form->get('cartesDisponibles')->getData();
-
-            if ($isNew) {
-                // Nouveau user => juste ajout de ce qui est coché
-                foreach ($abonnementsCoches as $abonnement) {
-                    $souscrit = new AbonnementSouscrit();
-                    $souscrit->setUser($user);
-                    $souscrit->setAbonnement($abonnement);
-                    $souscrit->setStatut(Statut::ACTIVE);
-                    $user->addAbonnementSouscrit($souscrit);
-                    $em->persist($souscrit);
+        if ($form->isSubmitted()) {
+            // ✅ Vérification si un user existe déjà avec le même email
+            if ($isNew && $user->getEmail()) {
+                $existingUser = $userRepository->findOneBy(['email' => $user->getEmail()]);
+                if ($existingUser) {
+                    $this->addFlash('warning', sprintf(
+                        "Un utilisateur avec l’email %s existe déjà. Vous pouvez le modifier directement.",
+                        $user->getEmail()
+                    ));
+                    return $this->redirectToRoute('admin_user_edit', ['id' => $existingUser->getId()]);
                 }
+            }
 
-                foreach ($cartesCochées as $carte) {
-                    $souscrite = new CarteSouscrite();
-                    $souscrite->setUser($user);
-                    $souscrite->setCarte($carte);
-                    $souscrite->setStatut(Statut::ACTIVE);
-                    $souscrite->setSeancesRestantes($carte->getNombreSeances());
-                    $user->addCarteSouscrite($souscrite);
-                    $em->persist($souscrite);
-                }
-                
-                $em->persist($user);
-            } else {
-                // Edition : suppression de ce qui n'est plus coché
-                $abonnementsSouscritsExistants = clone $user->getAbonnementSouscrits();
-                foreach ($abonnementsSouscritsExistants as $abonnementSouscrit) {
-                    if (!in_array($abonnementSouscrit->getAbonnement(), $abonnementsCoches, true)) {
-                        $user->removeAbonnementSouscrit($abonnementSouscrit);
-                        $em->remove($abonnementSouscrit);
-                    }
-                }
+            if ($form->isValid()) {
+                $abonnementsCoches = $form->get('abonnementsDisponibles')->getData();
+                $cartesCochées = $form->get('cartesDisponibles')->getData();
 
-                foreach ($abonnementsCoches as $abonnement) {
-                    $dejaSouscrit = $user->getAbonnementSouscrits()->exists(
-                        fn($key, $s) => $s->getAbonnement() === $abonnement
-                    );
-                    if (!$dejaSouscrit) {
+                if ($isNew) {
+                    // Nouveau user => ajout direct
+                    foreach ($abonnementsCoches as $abonnement) {
                         $souscrit = new AbonnementSouscrit();
                         $souscrit->setUser($user);
                         $souscrit->setAbonnement($abonnement);
@@ -104,21 +87,8 @@ class AdminUserController extends AbstractController
                         $user->addAbonnementSouscrit($souscrit);
                         $em->persist($souscrit);
                     }
-                }
 
-                $cartesSouscritesExistantes = clone $user->getCarteSouscrites();
-                foreach ($cartesSouscritesExistantes as $carteSouscrite) {
-                    if (!in_array($carteSouscrite->getCarte(), $cartesCochées, true)) {
-                        $user->removeCarteSouscrite($carteSouscrite);
-                        $em->remove($carteSouscrite);
-                    }
-                }
-
-                foreach ($cartesCochées as $carte) {
-                    $dejaSouscrite = $user->getCarteSouscrites()->exists(
-                        fn($key, $s) => $s->getCarte() === $carte
-                    );
-                    if (!$dejaSouscrite) {
+                    foreach ($cartesCochées as $carte) {
                         $souscrite = new CarteSouscrite();
                         $souscrite->setUser($user);
                         $souscrite->setCarte($carte);
@@ -127,15 +97,64 @@ class AdminUserController extends AbstractController
                         $user->addCarteSouscrite($souscrite);
                         $em->persist($souscrite);
                     }
+                    
+                    $em->persist($user);
+                } else {
+                    // Edition : synchro abonnements
+                    $abonnementsSouscritsExistants = clone $user->getAbonnementSouscrits();
+                    foreach ($abonnementsSouscritsExistants as $abonnementSouscrit) {
+                        if (!in_array($abonnementSouscrit->getAbonnement(), $abonnementsCoches, true)) {
+                            $user->removeAbonnementSouscrit($abonnementSouscrit);
+                            $em->remove($abonnementSouscrit);
+                        }
+                    }
+
+                    foreach ($abonnementsCoches as $abonnement) {
+                        $dejaSouscrit = $user->getAbonnementSouscrits()->exists(
+                            fn($key, $s) => $s->getAbonnement() === $abonnement
+                        );
+                        if (!$dejaSouscrit) {
+                            $souscrit = new AbonnementSouscrit();
+                            $souscrit->setUser($user);
+                            $souscrit->setAbonnement($abonnement);
+                            $souscrit->setStatut(Statut::ACTIVE);
+                            $user->addAbonnementSouscrit($souscrit);
+                            $em->persist($souscrit);
+                        }
+                    }
+
+                    // Edition : synchro cartes
+                    $cartesSouscritesExistantes = clone $user->getCarteSouscrites();
+                    foreach ($cartesSouscritesExistantes as $carteSouscrite) {
+                        if (!in_array($carteSouscrite->getCarte(), $cartesCochées, true)) {
+                            $user->removeCarteSouscrite($carteSouscrite);
+                            $em->remove($carteSouscrite);
+                        }
+                    }
+
+                    foreach ($cartesCochées as $carte) {
+                        $dejaSouscrite = $user->getCarteSouscrites()->exists(
+                            fn($key, $s) => $s->getCarte() === $carte
+                        );
+                        if (!$dejaSouscrite) {
+                            $souscrite = new CarteSouscrite();
+                            $souscrite->setUser($user);
+                            $souscrite->setCarte($carte);
+                            $souscrite->setStatut(Statut::ACTIVE);
+                            $souscrite->setSeancesRestantes($carte->getNombreSeances());
+                            $user->addCarteSouscrite($souscrite);
+                            $em->persist($souscrite);
+                        }
+                    }
                 }
+
+                $em->flush();
+
+                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
+
+                $this->addFlash('success', $isNew ? 'Utilisateur créé avec succès.' : 'Utilisateur modifié avec succès.');
+                return $this->redirectToRoute('admin_user_index');
             }
-
-            $em->flush();
-
-            $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
-
-            $this->addFlash('success', $isNew ? 'Utilisateur créé avec succès.' : 'Utilisateur modifié avec succès.');
-            return $this->redirectToRoute('admin_user_index');
         }
 
         return $this->render('admin/user/form.html.twig', [
@@ -161,7 +180,7 @@ class AdminUserController extends AbstractController
             ['user' => $user],
             ['id' => 'DESC']
         );
-        // dd($abonnements, $cartes);
+
         return $this->render('admin/user/check.html.twig', [
             'user'        => $user,
             'abonnements' => $abonnements,
@@ -195,10 +214,8 @@ class AdminUserController extends AbstractController
         $month = (int) $now->format('n'); // 1 à 12
 
         if ($month >= 9) {
-            // De septembre à décembre → saison commence cette année
             return $year . '/' . ($year + 1);
         } else {
-            // De janvier à août → saison a commencé l'année précédente
             return ($year - 1) . '/' . $year;
         }
     }
