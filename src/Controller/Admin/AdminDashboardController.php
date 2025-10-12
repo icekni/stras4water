@@ -29,6 +29,15 @@ class AdminDashboardController extends AbstractController
         // Tous les utilisateurs
         $users = $userRepository->findAll();
 
+        // 🔹 Nombre total d’adhérents (utilisateurs ayant une adhésion en cours)
+        $totalAdherents = 0;
+        foreach ($users as $user) {
+            // Ici, on considère qu’un adhérent a au moins une adhésion active
+            if ($user->isAdherent()) {
+                $totalAdherents++;
+            }
+        }
+
         // Comptage des utilisateurs par discipline (abonnements + cartes)
         $usersPerDiscipline = [];
 
@@ -58,6 +67,8 @@ class AdminDashboardController extends AbstractController
             'donationInterval' => $interval,
             'users' => $users,
             'usersPerDiscipline' => $usersPerDiscipline,
+            'totalAdherents' => $totalAdherents, // 👈 ajouté ici
         ]);
     }
+
 }
