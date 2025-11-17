@@ -82,6 +82,11 @@
                         <a href="{{ path('admin_user_scan') }}" class="nav-link">Scanner une carte</a>
                     </li>
 
+                    <!-- Liste des utilisateurs -->
+                    <li class="nav-item">
+                        <a href="{{ path('admin_user_index') }}" class="nav-link">Utilisateurs</a>
+                    </li>
+
                     <!-- Dons -->
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons" role="button" aria-expanded="false" aria-controls="submenu-dons">
@@ -96,9 +101,6 @@
                     </li>
 
                     {% if is_granted('ROLE_ADMIN') %}
-                        <li class="nav-item">
-                            <a href="{{ path('admin_user_index') }}" class="nav-link">Utilisateurs</a>
-                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#submenu-souscription" role="button" aria-expanded="false" aria-controls="submenu-souscription">
@@ -154,6 +156,11 @@
                             <a href="{{ path('admin_user_scan') }}" class="nav-link">Scanner une carte</a>
                         </li>
 
+                        <!-- Liste des utilisateurs -->
+                        <li class="nav-item">
+                            <a href="{{ path('admin_user_index') }}" class="nav-link">Utilisateurs</a>
+                        </li>
+
                         <!-- Dons -->
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#submenu-dons-mobile" role="button" aria-expanded="false" aria-controls="submenu-dons-mobile">
@@ -165,9 +172,6 @@
                                     <a href="{{ path('admin_donations_index') }}" class="nav-link">Tous les dons</a>
                                 {% endif %}
                             </div>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ path('admin_user_index') }}" class="nav-link">Utilisateurs</a>
                         </li>
 
                         {% if is_granted('ROLE_ADMIN') %}
