@@ -234,11 +234,9 @@
                 <div class="hearer_icon d-none d-lg-flex align-items-center gap-3">
                     <a class="btn btn-success rounded-pill" href="{{ path('donation') }}" aria-label="Faire un don">Je fais un don</a>
 					
-  					{% if inscription_possible == false %}
-						<a href="{{ path('cart_show') }}" class="text-decoration-none me-3 d-flex align-items-center" aria-label="Voir le panier">
-							<i class="bi bi-cart3 me-1"></i> Panier
-						</a>
-					{% endif %}
+					<a href="{{ path('cart_show') }}" class="text-decoration-none me-3 d-flex align-items-center" aria-label="Voir le panier">
+						<i class="bi bi-cart3 me-1"></i> Panier
+					</a>
 
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -260,7 +258,6 @@
 
                 </div>
 
-				{% if inscription_possible == false %}
                 {# Mobile panier en bas du menu #}
                 <div class="d-lg-none mt-3 text-center">
                     <hr>
@@ -268,7 +265,6 @@
                         <i class="bi bi-cart3 me-1"></i> Panier
                     </a>
                 </div>
-				{% endif %}
 
             </div>
         </div>
