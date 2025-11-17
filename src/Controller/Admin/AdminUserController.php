@@ -34,6 +34,24 @@ class AdminUserController extends AbstractController
     }
     
     #[IsGranted('ROLE_ADMIN')]
+    #[Route('/{id}/delete', name: 'admin_user_delete', methods: ['POST'])]
+    public function delete(User $user, Request $request, EntityManagerInterface $em): Response
+    {
+        // Protection CSRF
+        if (!$this->isCsrfTokenValid('delete_user_' . $user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('admin_user_index');
+        }
+
+        // Suppression automatique en cascade via orphanRemoval=true
+        $em->remove($user);
+        $em->flush();
+
+        $this->addFlash('success', 'Utilisateur supprimé avec succès.');
+        return $this->redirectToRoute('admin_user_index');
+    }
+    
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
     public function form(

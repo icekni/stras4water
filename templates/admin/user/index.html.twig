@@ -65,6 +65,15 @@
                 <td>{{ user.seancesEssai|default(0) }}</td>
                 <td>
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning mb-1 w-100">Modifier</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <form method="post"
+                        action="{{ path('admin_user_delete', {id: user.id}) }}"
+                        onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
+                        <input type="hidden" name="_token"
+                            value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                        <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>                   
+                    {% endif %} 
                     {% if user.isAdherent %}
                         <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
                         class="btn btn-sm btn-info w-100"
@@ -127,7 +136,15 @@
 
                 <div class="d-flex flex-wrap gap-1 mt-2">
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning flex-grow-1">Modifier</a>
-
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <form method="post"
+                        action="{{ path('admin_user_delete', {id: user.id}) }}"
+                        onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
+                        <input type="hidden" name="_token"
+                            value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                            <button class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>    
+                    {% endif %}
                     {% if user.isAdherent %}
                         <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
                         class="btn btn-sm btn-info flex-grow-1"
