@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Abonnement;
 use App\Entity\Carte;
 use App\Entity\User;
+use App\Repository\AbonnementRepository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -40,6 +41,12 @@ class AdminUserType extends AbstractType
                 'expanded' => true, 
                 'mapped' => false,  
                 'data' => $options['abonnements_souscrits'],
+                'query_builder' => function (AbonnementRepository $ar) {
+                    return $ar->createQueryBuilder('a')
+                        ->andWhere('a.isActif = :actif')
+                        ->setParameter('actif', true)
+                        ->orderBy('a.nom', 'ASC');
+                },
             ])
             ->add('cartesDisponibles', EntityType::class, [
                 'class' => Carte::class,
