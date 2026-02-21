@@ -16,6 +16,14 @@ class CarteSouscriteRepository extends ServiceEntityRepository
         parent::__construct($registry, CarteSouscrite::class);
     }
 
+    public function findAllActif(): array
+    {
+        return $this->createQueryBuilder('cartesSouscrites')
+            ->Where('cartesSouscrites.seancesRestantes > 0')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return CarteSouscrite[] Returns an array of CarteSouscrite objects
     //     */
