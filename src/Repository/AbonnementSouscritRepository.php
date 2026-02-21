@@ -16,6 +16,16 @@ class AbonnementSouscritRepository extends ServiceEntityRepository
         parent::__construct($registry, AbonnementSouscrit::class);
     }
 
+    public function findAllActif(): array
+    {
+        return $this->createQueryBuilder('abonnementsSouscrits')
+            ->innerJoin('abonnementsSouscrits.abonnement', 'a')
+            ->andWhere('a.isActif = :actif')
+            ->setParameter('actif', true)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return AbonnementSouscrit[] Returns an array of AbonnementSouscrit objects
     //     */

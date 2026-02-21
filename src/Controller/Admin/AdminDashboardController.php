@@ -42,14 +42,14 @@ class AdminDashboardController extends AbstractController
         $usersPerDiscipline = [];
 
         // Abonnements
-        foreach ($abonnementSouscritRepository->findAll() as $abonnementSouscrit) {
+        foreach ($abonnementSouscritRepository->findAllActif() as $abonnementSouscrit) {
             $discipline = $abonnementSouscrit->getAbonnement()->getDiscipline()->getNom();
             $userId = $abonnementSouscrit->getUser()->getId();
             $usersPerDiscipline[$discipline][$userId] = true; // clé unique par user
         }
 
         // Cartes
-        foreach ($carteSouscriteRepository->findAll() as $carteSouscrite) {
+        foreach ($carteSouscriteRepository->findAllActif() as $carteSouscrite) {
             foreach ($carteSouscrite->getCarte()->getDisciplines() as $discipline) {
                 $disciplineNom = $discipline->getNom();
                 $userId = $carteSouscrite->getUser()->getId();
