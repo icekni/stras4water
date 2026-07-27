@@ -50,7 +50,7 @@
                     <td>{{ don.moyenPaiement.value }}</td> 
                     <td>
                         {% if don.urlRecuFiscal %}
-                            <a href="{{ path('admin_donations_create', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ path('admin_donations_receipt', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 Voir le reçu
                             </a>
                             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendModal"

@@ -122,7 +122,6 @@ class AdminDonationController extends AbstractController
     public function getReceipt(Donation $donation): Response
     {
         $pdfPath = $donation->getUrlRecuFiscal();
-
         if (!file_exists($pdfPath)) {
             throw $this->createNotFoundException('PDF receipt not found.');
         }
