@@ -85,12 +85,14 @@ class AdminAbonnementController extends AbstractController
     #[Route('/{id}/delete', name: 'admin_abonnement_delete', methods: ['POST'])]
     public function delete(Request $request, Abonnement $abonnement, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$abonnement->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete_abonnement_'.$abonnement->getId(), $request->request->get('_token'))) {
             $em->remove($abonnement);
             $em->flush();
+            // dd("test2");
 
             $this->addFlash('success', 'Abonnement supprimé avec succès.');
         }
+        // dd("test3");
 
         return $this->redirectToRoute('admin_abonnement_index');
     }
