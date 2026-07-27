@@ -14,13 +14,16 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         $error = $authenticationUtils->getLastAuthenticationError();
+        if ($error) {            
+            $this->addFlash('danger', $error->getMessage());
+        }
         $showResendLink = false;
-
+        
         if ($error instanceof CustomUserMessageAccountStatusException && $error->getMessageKey() === 'account_not_verified') {
             $showResendLink = true;
             $error = null;
-        }
-
+            }
+            
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
 
