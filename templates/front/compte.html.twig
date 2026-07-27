@@ -54,15 +54,7 @@
         </div>
     </div>
 
-    {# Future blocks à activer plus tard #}
     <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes abonnements</h2>
-            <p class="text-muted text-center">Fonctionnalité à venir.</p>
-        </div>
-    </div>
-
-    <div class="card shadow-lg rounded-4">
         <div class="card-body">
             <h2 class="mb-4 text-center">Mon statut</h2>
             <p class="text-center">
@@ -72,6 +64,51 @@
                     ❌ Vous n'êtes pas encore adhérent de l'association.
                 {% endif %}
             </p>
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes abonnements actifs</h2>
+            {% if abonnements is empty %}
+                <p class="text-muted text-center">Aucun abonnement pour le moment.</p>
+            {% else %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Carte</th>
+                            <th>Seances restantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for abonnement in abonnements %}
+                            <tr>
+                                <td>{{ abonnement.abonnement.nom }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes cartes actives</h2>
+            {% if cartes is empty %}
+                <p class="text-muted text-center">Aucune carte pour le moment.</p>
+            {% else %}
+                <table class="table table-striped">
+                    <tbody>
+                        {% for carte in cartes %}
+                            <tr>
+                                <td>{{ carte.carte.nom }}</td>
+                                <td>{{ carte.seancesRestantes }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 </div>
