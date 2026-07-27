@@ -74,12 +74,6 @@
                 <p class="text-muted text-center">Aucun abonnement pour le moment.</p>
             {% else %}
                 <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Carte</th>
-                            <th>Seances restantes</th>
-                        </tr>
-                    </thead>
                     <tbody>
                         {% for abonnement in abonnements %}
                             <tr>
@@ -99,6 +93,12 @@
                 <p class="text-muted text-center">Aucune carte pour le moment.</p>
             {% else %}
                 <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Carte</th>
+                            <th>Seances restantes</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {% for carte in cartes %}
                             <tr>

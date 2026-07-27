@@ -168,10 +168,12 @@ class CartController extends AbstractController
                 ? $abonnement->getTarifReduit()
                 : $abonnement->getTarif();
 
+            $statut = $abonnementCart['tarif'] === 'reduit' ? Statut::CREATED : Statut::ACTIVE;
+
             $abonnementSouscrit = new AbonnementSouscrit();
             $abonnementSouscrit->setUser($user);
             $abonnementSouscrit->setAbonnement($abonnement);
-            $abonnementSouscrit->setStatut(Statut::CREATED);
+            $abonnementSouscrit->setStatut($statut);
             $abonnementSouscrit->setIsTarifReduit($abonnementCart['tarif'] === 'reduit');
 
             $em->persist($abonnementSouscrit);
@@ -187,10 +189,12 @@ class CartController extends AbstractController
                 ? $carte->getTarifReduit()
                 : $carte->getTarif();
 
+            $statut = $abonnementCart['tarif'] === 'reduit' ? Statut::CREATED : Statut::ACTIVE;
+
             $carteSouscrite = new CarteSouscrite();
             $carteSouscrite->setUser($user);
             $carteSouscrite->setCarte($carte);
-            $carteSouscrite->setStatut(Statut::CREATED);
+            $carteSouscrite->setStatut($statut);
             $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
             $carteSouscrite->setSeancesRestantes($carte->getnombreSeances());
 
