@@ -237,7 +237,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getAbonnementSouscrits(): Collection
     {
-        return $this->abonnementSouscrits;
+        return $this->abonnementSouscrits->filter(fn(AbonnementSouscrit $abonnementSouscrit) => $abonnementSouscrit->isValid()->isValid);
     }
 
     public function addAbonnementSouscrit(AbonnementSouscrit $abonnementSouscrit): static
