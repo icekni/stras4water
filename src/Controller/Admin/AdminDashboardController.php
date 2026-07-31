@@ -33,7 +33,7 @@ class AdminDashboardController extends AbstractController
         $totalAdherents = 0;
         foreach ($users as $user) {
             // Ici, on considère qu’un adhérent a au moins une adhésion active
-            if ($user->isAdherent()) {
+            if ($user->getAdhesion() !== null) {
                 $totalAdherents++;
             }
         }
