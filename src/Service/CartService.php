@@ -108,9 +108,9 @@ class CartService
         //     return new CartAddResult(false, 'Vous avez déjà un abonnement actif pour une discipline couverte par cette carte.');
         // }
 
-        if ($this->isCarteConflitAvecCartesUtilisateur($user, $carte)) {
-            return new CartAddResult(false, 'Vous avez deja cette carte.');
-        }
+        // if ($this->isCarteConflitAvecCartesUtilisateur($user, $carte)) {
+        //     return new CartAddResult(false, 'Vous avez deja cette carte.');
+        // }
 
         foreach ($cart['cartes'] as $row) {
             if ($row['id'] === $carte->getId()) {

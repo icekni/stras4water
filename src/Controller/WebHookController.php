@@ -123,14 +123,14 @@ final class WebHookController extends AbstractController
                 }
 
                 if ($adhesion) {
-                        if (!$user->getAdhesion()) {
-                            $adhesionEntity = new Adhesion();
+                    if (!$user->getAdhesion()) {
+                        $adhesionEntity = new Adhesion();
 
-                            $adhesionEntity->setUser($user);
-                            $adhesionEntity->setMoyenPaiement(MoyenPaiement::STRIPE);
+                        $adhesionEntity->setUser($user);
+                        $adhesionEntity->setMoyenPaiement(MoyenPaiement::STRIPE);
 
-                            $entityManager->persist($adhesionEntity);
-                        }
+                        $entityManager->persist($adhesionEntity);
+                    }
                 }
 
                 $detailsCommande = $commandeDetailsBuilder->build($adhesion, $abonnementIds, $carteIds, $user, $this->getSaisonAdhesion());
