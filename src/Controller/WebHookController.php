@@ -130,6 +130,7 @@ final class WebHookController extends AbstractController
                         $adhesionEntity->setMoyenPaiement(MoyenPaiement::STRIPE);
 
                         $entityManager->persist($adhesionEntity);
+                        $entityManager->flush();
                     }
                 }
 
