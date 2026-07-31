@@ -30,7 +30,7 @@
             <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.isAdherent ? '✔️' : '❌' }}</td>
+                <td>{{ user.adhesion ? '✔️' : '❌' }}</td>
                 <td>
                     {% set hasAbonnement = false %}
                     {% for ab in user.abonnementSouscrits %}
@@ -74,7 +74,7 @@
                         <button class="btn btn-sm btn-danger">Supprimer</button>
                     </form>                   
                     {% endif %} 
-                    {% if user.isAdherent %}
+                    {% if user.adhesion %}
                         <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
                         class="btn btn-sm btn-info w-100"
                         target="_blank"
@@ -98,7 +98,7 @@
             <div class="card-body">
                 <h5 class="card-title">{{ user.nom }} {{ user.prenom }}</h5>
                 <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
-                <p class="mb-1"><strong>Adhérent:</strong> {{ user.isAdherent ? '✔️' : '❌' }}</p>
+                <p class="mb-1"><strong>Adhérent:</strong> {{ user.adhesion ? '✔️' : '❌' }}</p>
 
                 <p class="mb-1"><strong>Abonnements & Cartes:</strong>
                     {% set hasAbonnement = false %}
@@ -145,7 +145,7 @@
                             <button class="btn btn-sm btn-danger">Supprimer</button>
                     </form>    
                     {% endif %}
-                    {% if user.isAdherent %}
+                    {% if user.adhesion %}
                         <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
                         class="btn btn-sm btn-info flex-grow-1"
                         target="_blank"

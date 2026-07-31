@@ -6,6 +6,7 @@ use App\Entity\Abonnement;
 use App\Entity\AbonnementSouscrit;
 use App\Entity\Carte;
 use App\Entity\CarteSouscrite;
+use App\Enum\MoyenPaiement;
 use App\Enum\Statut;
 use App\Repository\AbonnementRepository;
 use App\Repository\AbonnementSouscritRepository;
@@ -174,6 +175,7 @@ class CartController extends AbstractController
             $abonnementSouscrit->setUser($user);
             $abonnementSouscrit->setAbonnement($abonnement);
             $abonnementSouscrit->setStatut($statut);
+            $abonnementSouscrit->setMoyenPaiement(MoyenPaiement::STRIPE);
             $abonnementSouscrit->setIsTarifReduit($abonnementCart['tarif'] === 'reduit');
 
             $em->persist($abonnementSouscrit);
@@ -195,6 +197,7 @@ class CartController extends AbstractController
             $carteSouscrite->setUser($user);
             $carteSouscrite->setCarte($carte);
             $carteSouscrite->setStatut($statut);
+            $carteSouscrite->setMoyenPaiement(MoyenPaiement::STRIPE);
             $carteSouscrite->setIsTarifReduit($carteCart['tarif'] === 'reduit');
             $carteSouscrite->setSeancesRestantes($carte->getnombreSeances());
 

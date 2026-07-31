@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Dto\ValidationResult;
+use App\Enum\MoyenPaiement;
 use App\Repository\CarteSouscriteRepository;
 use Doctrine\ORM\Mapping as ORM;
 use \App\Enum\Statut;
@@ -26,7 +27,7 @@ class CarteSouscrite
     private ?Carte $carte = null;
 
     #[ORM\Column]
-    private ?int $seancesRestantes = null;
+    private ?int $seancesRestantes = 10;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -39,6 +40,9 @@ class CarteSouscrite
 
     #[ORM\Column]
     private ?bool $isTarifReduit = null;
+
+    #[ORM\Column(enumType: MoyenPaiement::class)]
+    private ?MoyenPaiement $moyenPaiement = null;
 
     public function __construct()
     {
@@ -146,6 +150,18 @@ class CarteSouscrite
     public function setIsTarifReduit(bool $isTarifReduit): static
     {
         $this->isTarifReduit = $isTarifReduit;
+
+        return $this;
+    }
+
+    public function getMoyenPaiement(): ?MoyenPaiement
+    {
+        return $this->moyenPaiement;
+    }
+
+    public function setMoyenPaiement(MoyenPaiement $moyenPaiement): static
+    {
+        $this->moyenPaiement = $moyenPaiement;
 
         return $this;
     }

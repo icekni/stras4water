@@ -17,7 +17,7 @@ class RecuFiscalService
         $this->projectDir = $kernel->getProjectDir();
         $this->emailService = $emailService;
     }
-        // generate("RF2025-00001", $user, "50.05", $dateDon, new DateTimeImmutable(), TypeDon::NUMERAIRE, MoyenPaiement::CASH);
+
     public function generate(
         Donation $donation,
         string $nom, 
@@ -115,7 +115,8 @@ class RecuFiscalService
                 $pdf->SetXY(51.7, 202); 
                 $pdf->Cell(5, 10, 'x', 0, 0, 'C');
                 break;
-            case MoyenPaiement::CARTE:
+            case MoyenPaiement::STRIPE:
+            case MoyenPaiement::SUMUP:
             case MoyenPaiement::VIREMENT:
                 $pdf->SetXY(101.3, 202); 
                 $pdf->Cell(5, 10, 'x', 0, 0, 'C');

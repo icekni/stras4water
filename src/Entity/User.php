@@ -50,9 +50,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prenom = null;
 
-    #[ORM\Column]
-    private ?bool $isAdherent = null;
-
     /**
      * @var Collection<int, AbonnementSouscrit>
      */
@@ -71,13 +68,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: SeanceEssai::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $seanceEssais;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?Adhesion $adhesion = null;
+
     public function __construct()
     {
         $this->donations = new ArrayCollection();
         $this->abonnementSouscrits = new ArrayCollection();
         $this->carteSouscrites = new ArrayCollection();
         $this->seanceEssais = new ArrayCollection();
-        $this->isAdherent = false;
         $this->isVerified = false;
     }
 
@@ -220,18 +219,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isAdherent(): ?bool
-    {
-        return $this->isAdherent;
-    }
-
-    public function setIsAdherent(bool $isAdherent): static
-    {
-        $this->isAdherent = $isAdherent;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, AbonnementSouscrit>
      */
@@ -318,6 +305,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $seanceEssai->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdhesion(): ?Adhesion
+    {
+        return $this->adhesion;
+    }
+
+    public function setAdhesion(Adhesion $adhesion): static
+    {
+        // set the owning side of the relation if necessary
+        if ($adhesion->getUser() !== $this) {
+            $adhesion->setUser($this);
+        }
+
+        $this->adhesion = $adhesion;
 
         return $this;
     }

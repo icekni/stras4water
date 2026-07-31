@@ -34,32 +34,6 @@ class AdminUserType extends AbstractType
                 'multiple' => true,
                 'label' => 'Rôles',
             ])
-            ->add('abonnementsDisponibles', EntityType::class, [
-                'class' => Abonnement::class,
-                'choice_label' => 'nom', 
-                'multiple' => true,
-                'expanded' => true, 
-                'mapped' => false,  
-                'data' => $options['abonnements_souscrits'],
-                'query_builder' => function (AbonnementRepository $ar) {
-                    return $ar->createQueryBuilder('a')
-                        ->andWhere('a.isActif = :actif')
-                        ->setParameter('actif', true)
-                        ->orderBy('a.nom', 'ASC');
-                },
-            ])
-            ->add('cartesDisponibles', EntityType::class, [
-                'class' => Carte::class,
-                'choice_label' => 'nom',
-                'multiple' => true,
-                'expanded' => true,
-                'mapped' => false,
-                'data' => $options['cartes_souscrites'],
-            ])
-            ->add('isAdherent', CheckboxType::class, [
-                'required' => false,
-                'label' => 'Adhésion',
-            ])
         ;
     }
 

@@ -4,11 +4,15 @@ namespace App\Controller\Admin;
 
 use App\Entity\Abonnement;
 use App\Entity\AbonnementSouscrit;
+use App\Entity\Adhesion;
 use App\Entity\CarteSouscrite;
 use App\Entity\Saison;
 use App\Entity\User;
 use App\Enum\Statut;
+use App\Form\AbonnementSouscritType;
+use App\Form\AdhesionType;
 use App\Form\AdminUserType;
+use App\Form\CarteSouscriteType;
 use App\Repository\UserRepository;
 use App\Service\CarteDeMembreGenerator;
 use App\Service\IdEncoderService;
@@ -53,8 +57,51 @@ class AdminUserController extends AbstractController
     
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
+    public function new(
+        ?User $user,
+        Request $request,
+        EntityManagerInterface $em,
+        CarteDeMembreGenerator $carteDeMembreGenerator,
+        UserRepository $userRepository
+    ): Response {
+        $user = new User();
+
+        $form = $this->createForm(AdminUserType::class, $user);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            // ✅ Vérification si un user existe déjà avec le même email
+            if ($user->getEmail()) {
+                $existingUser = $userRepository->findOneBy(['email' => $user->getEmail()]);
+                if ($existingUser) {
+                    $this->addFlash('warning', sprintf(
+                        "Un utilisateur avec l’email %s existe déjà. Vous pouvez le modifier directement.",
+                        $user->getEmail()
+                    ));
+                    return $this->redirectToRoute('admin_user_edit', ['id' => $existingUser->getId()]);
+                }
+            }
+
+            if ($form->isValid()) {
+                $em->persist($user);
+                $em->flush();
+
+                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
+
+                $this->addFlash('success', 'Utilisateur créé avec succès.');
+                return $this->redirectToRoute('admin_user_index');
+            }
+        }
+
+        return $this->render('admin/user/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
-    public function form(
+    public function edit(
         ?User $user,
         Request $request,
         EntityManagerInterface $em,
@@ -92,80 +139,6 @@ class AdminUserController extends AbstractController
             }
 
             if ($form->isValid()) {
-                $abonnementsCoches = $form->get('abonnementsDisponibles')->getData();
-                $cartesCochées = $form->get('cartesDisponibles')->getData();
-
-                if ($isNew) {
-                    // Nouveau user => ajout direct
-                    foreach ($abonnementsCoches as $abonnement) {
-                        $souscrit = new AbonnementSouscrit();
-                        $souscrit->setUser($user);
-                        $souscrit->setAbonnement($abonnement);
-                        $souscrit->setStatut(Statut::ACTIVE);
-                        $user->addAbonnementSouscrit($souscrit);
-                        $em->persist($souscrit);
-                    }
-
-                    foreach ($cartesCochées as $carte) {
-                        $souscrite = new CarteSouscrite();
-                        $souscrite->setUser($user);
-                        $souscrite->setCarte($carte);
-                        $souscrite->setStatut(Statut::ACTIVE);
-                        $souscrite->setSeancesRestantes($carte->getNombreSeances());
-                        $user->addCarteSouscrite($souscrite);
-                        $em->persist($souscrite);
-                    }
-                    
-                    $em->persist($user);
-                } else {
-                    // Edition : synchro abonnements
-                    $abonnementsSouscritsExistants = clone $user->getAbonnementSouscrits();
-                    foreach ($abonnementsSouscritsExistants as $abonnementSouscrit) {
-                        if (!in_array($abonnementSouscrit->getAbonnement(), $abonnementsCoches, true)) {
-                            $user->removeAbonnementSouscrit($abonnementSouscrit);
-                            $em->remove($abonnementSouscrit);
-                        }
-                    }
-
-                    foreach ($abonnementsCoches as $abonnement) {
-                        $dejaSouscrit = $user->getAbonnementSouscrits()->exists(
-                            fn($key, $s) => $s->getAbonnement() === $abonnement
-                        );
-                        if (!$dejaSouscrit) {
-                            $souscrit = new AbonnementSouscrit();
-                            $souscrit->setUser($user);
-                            $souscrit->setAbonnement($abonnement);
-                            $souscrit->setStatut(Statut::ACTIVE);
-                            $user->addAbonnementSouscrit($souscrit);
-                            $em->persist($souscrit);
-                        }
-                    }
-
-                    // Edition : synchro cartes
-                    $cartesSouscritesExistantes = clone $user->getCarteSouscrites();
-                    foreach ($cartesSouscritesExistantes as $carteSouscrite) {
-                        if (!in_array($carteSouscrite->getCarte(), $cartesCochées, true)) {
-                            $user->removeCarteSouscrite($carteSouscrite);
-                            $em->remove($carteSouscrite);
-                        }
-                    }
-
-                    foreach ($cartesCochées as $carte) {
-                        $dejaSouscrite = $user->getCarteSouscrites()->exists(
-                            fn($key, $s) => $s->getCarte() === $carte
-                        );
-                        if (!$dejaSouscrite) {
-                            $souscrite = new CarteSouscrite();
-                            $souscrite->setUser($user);
-                            $souscrite->setCarte($carte);
-                            $souscrite->setStatut(Statut::ACTIVE);
-                            $souscrite->setSeancesRestantes($carte->getNombreSeances());
-                            $user->addCarteSouscrite($souscrite);
-                            $em->persist($souscrite);
-                        }
-                    }
-                }
-
                 $em->flush();
 
                 $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
@@ -175,7 +148,7 @@ class AdminUserController extends AbstractController
             }
         }
 
-        return $this->render('admin/user/form.html.twig', [
+        return $this->render('admin/user/edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user,
         ]);
@@ -223,6 +196,161 @@ class AdminUserController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_user_check', ['id' => $user->getId()]);
+    }
+
+    #[Route('/{id}/adhesion/add', name: 'admin_user_adhesion_add')]
+    public function ajouterAdhesion(
+        User $user,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $adhesion = new Adhesion();
+        $adhesion->setUser($user);
+        $adhesion->setCreatedAt(new \DateTimeImmutable());
+
+        $form = $this->createForm(AdhesionType::class, $adhesion);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($adhesion);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_user_edit', [
+                'id' => $user->getId(),
+            ]);
+        }
+
+        return $this->render('admin/user/addAdhesion.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/adhesion/{id}/delete', name: 'admin_user_adhesion_delete', methods: ['POST'])]
+    public function supprimerAdhesion(
+        Adhesion $adhesion,
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete_adhesion' . $adhesion->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $userId = $adhesion->getUser()->getId();
+
+        $em->remove($adhesion);
+        $em->flush();
+
+        return $this->redirectToRoute('admin_user_edit', [
+            'id' => $userId,
+        ]);
+    }
+
+    #[Route('/{id}/abonnement/add', name: 'admin_abonnement_ajouter')]
+    public function ajouterAbonnement(
+        User $user,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $abonnementSouscrit = new AbonnementSouscrit();
+        $abonnementSouscrit->setUser($user);
+
+        $form = $this->createForm(
+            AbonnementSouscritType::class,
+            $abonnementSouscrit
+        );
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($abonnementSouscrit);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_user_edit', [
+                'id' => $user->getId(),
+            ]);
+        }
+
+        return $this->render('admin/user/addAbonnement.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/abonnement/{id}/delete', name: 'admin_user_abonnement_delete', methods: ['POST'])]
+    public function supprimerAbonnement(
+        AbonnementSouscrit $abonnementSouscrit,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$this->isCsrfTokenValid(
+            'delete_abonnement' . $abonnementSouscrit->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $userId = $abonnementSouscrit->getUser()->getId();
+
+        $em->remove($abonnementSouscrit);
+        $em->flush();
+
+        return $this->redirectToRoute('admin_user_edit', [
+            'id' => $userId,
+        ]);
+    }
+
+    #[Route('/{id}/carte/add', name: 'admin_user_carte_add')]
+    public function ajouterCarte(
+        User $user,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $carteSouscrite = new CarteSouscrite();
+        $carteSouscrite->setUser($user);
+        $carteSouscrite->setSeancesRestantes(10);
+
+        $form = $this->createForm(CarteSouscriteType::class, $carteSouscrite);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($carteSouscrite);
+            $em->flush();
+
+            return $this->redirectToRoute('admin_user_edit', [
+                'id' => $user->getId(),
+            ]);
+        }
+
+        return $this->render('admin/user/addCarte.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/carte/{id}/delete', name: 'admin_user_carte_delete', methods: ['POST'])]
+    public function supprimerCarte(
+        CarteSouscrite $carteSouscrite,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        if (!$this->isCsrfTokenValid(
+            'delete_carte' . $carteSouscrite->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $userId = $carteSouscrite->getUser()->getId();
+
+        $em->remove($carteSouscrite);
+        $em->flush();
+
+        return $this->redirectToRoute('admin_user_edit', [
+            'id' => $userId,
+        ]);
     }
 
     private function getSaisonAdhesion(): string

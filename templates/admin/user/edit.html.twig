@@ -1,0 +1,128 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Modifier utilisateur{% endblock %}
+
+{% block body %}
+<h1>Modifier utilisateur</h1>
+
+{% if user.adhesion %}
+    <span class="badge bg-success">
+        Adhérent
+    </span>
+    <small>
+        depuis le {{ user.adhesion.createdAt|date('d/m/Y') }}
+    </small>
+    <form method="post"
+        action="{{ path('admin_user_adhesion_delete', {id: user.adhesion.id}) }}"
+        onsubmit="return confirm('Supprimer cette adhésion ?');"
+        class="d-inline">
+        <input type="hidden" name="_token"
+                value="{{ csrf_token('delete_adhesion' ~ user.adhesion.id) }}">
+
+        <button class="btn btn-danger btn-sm">
+            Supprimer l'adhésion
+        </button>
+    </form>
+{% else %}
+    <a href="{{ path('admin_user_adhesion_add', {id: user.id}) }}"
+    class="btn btn-primary">
+        Ajouter une adhésion
+    </a>
+{% endif %}
+
+{{ form_start(form) }}
+
+    {{ form_row(form.email) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.prenom) }}
+    {{ form_row(form.roles) }}
+
+    <button class="btn btn-primary">
+        {{ user is defined ? 'Enregistrer les modifications' : 'Créer l\'utilisateur' }}
+    </button>
+
+{{ form_end(form) }}
+
+    <h2>Abonnements</h2>
+
+    {% if user.abonnementSouscrits|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Abonnement</th>
+                    <th>Date</th>
+                    <th>Moyen de paiement</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for abonnement in user.abonnementSouscrits %}
+                <tr>
+                    <td>{{ abonnement.abonnement.nom }}</td>
+                    <td>{{ abonnement.createdAt|date('d/m/Y') }}</td>
+                    <td>{{ abonnement.moyenPaiement.name }}</td>
+                    <td>
+                        <form method="post"
+                            action="{{ path('admin_user_abonnement_delete', {id: abonnement.id}) }}"
+                            onsubmit="return confirm('Supprimer cet abonnement ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_abonnement' ~ abonnement.id) }}">
+                            <button class="btn btn-danger btn-sm">
+                                Supprimer
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun abonnement.</p>
+    {% endif %}
+
+    <a href="{{ path('admin_abonnement_ajouter', {id: user.id}) }}"
+        class="btn btn-primary">
+        Ajouter un abonnement
+    </a>
+
+
+    <h2 class="mt-4">Cartes</h2>
+
+    {% if user.carteSouscrites|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Carte</th>
+                    <th>Date</th>
+                    <th>Moyen de paiement</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for carte in user.carteSouscrites %}
+                <tr>
+                    <td>{{ carte.carte.nom }}</td>
+                    <td>{{ carte.createdAt|date('d/m/Y') }}</td>
+                    <td>{{ carte.moyenPaiement.name }}</td>
+                    <td>
+                        <form method="post"
+                            action="{{ path('admin_user_carte_delete', {id: carte.id}) }}"
+                            onsubmit="return confirm('Supprimer cette carte ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_carte' ~ carte.id) }}">
+                            <button class="btn btn-danger btn-sm">
+                                Supprimer
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucune carte.</p>
+    {% endif %}
+
+    <a href="{{ path('admin_user_carte_add', {id: user.id}) }}" class="btn btn-primary">
+        Ajouter une carte
+    </a>
+
+{% endblock %}

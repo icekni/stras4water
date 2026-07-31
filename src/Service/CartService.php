@@ -145,7 +145,7 @@ class CartService
     private function checkAdhesion(array &$cart): void
     {
         $user = $this->security->getUser();
-        $needsAdhesion = !($user instanceof User && $user->isAdherent());
+        $needsAdhesion = !($user instanceof User && $user->getAdhesion() !== null);
         if ($needsAdhesion) {
             if (!$cart['adhesion']) {
                 $cart['adhesion'] = true;
