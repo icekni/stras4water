@@ -11,52 +11,51 @@ class CsvExporterService
     /**
      * @param ComptabiliteLigne[] $lignes
      */
-    public function export(array $lignes): Response
+    public function generate(array $lignes): string
     {
-        $response = new StreamedResponse(function () use ($lignes) {
+        $handle = fopen('php://temp', 'r+');
 
-            $handle = fopen('php://output', 'w');
+        fwrite($handle, "\xEF\xBB\xBF");
 
-            // BOM UTF-8 pour Excel
-            fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, [
+            'date',
+            'type',
+            'libelle',
+            'discipline',
+            'moyen_paiement',
+        ], ';');
+
+        foreach ($lignes as $ligne) {
 
             fputcsv($handle, [
-                'date',
-                'nom',
-                'type',
-                'libelle',
-                'discipline',
-                'moyen_paiement',
+                $ligne->date->format('d/m/Y'),
+                $ligne->type,
+                $ligne->libelle,
+                $ligne->discipline ?? '',
+                $ligne->moyenPaiement->name,
             ], ';');
+        }
 
-            foreach ($lignes as $ligne) {
+        rewind($handle);
 
-                fputcsv($handle, [
-                    $ligne->date->format('d/m/Y'),
-                    $ligne->type,
-                    $ligne->libelle,
-                    $ligne->discipline ?? '',
-                    $ligne->moyenPaiement->name,
-                ], ';');
+        $csv = stream_get_contents($handle);
 
-            }
+        fclose($handle);
 
-            fclose($handle);
+        return $csv;
+    }
 
-        });
+    public function export(array $lignes): Response
+    {
+        $csv = $this->generate($lignes);
 
-        $filename = 'comptabilite_' . date('Y-m-d') . '.csv';
-
-        $response->headers->set(
-            'Content-Type',
-            'text/csv; charset=UTF-8'
+        return new Response(
+            $csv,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="comptabilite_'.date('Y-m-d').'.csv"',
+            ]
         );
-
-        $response->headers->set(
-            'Content-Disposition',
-            'attachment; filename="' . $filename . '"'
-        );
-
-        return $response;
     }
 }

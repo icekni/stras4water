@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Service\ComptabiliteCsvExporter;
 use App\Service\ComptabiliteService;
 use App\Service\CsvExporterService;
+use App\Service\EmailService;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,5 +50,37 @@ class AdminComptabiliteController extends AbstractController
         $lignes = $comptabiliteService->getLignes($fromDate, $toDate);
 
         return $csvExporter->export($lignes);
+    }
+
+    #[Route('/export/mail', name: 'admin_comptabilite_export_mail', methods: ['POST'])]
+    public function exportMail(
+        Request $request,
+        ComptabiliteService $comptabiliteService,
+        CsvExporterService $csvExporter,
+        EmailService $emailService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('export_csv_mail', $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $from = $request->request->get('from');
+        $to = $request->request->get('to');
+        $email = $request->request->get('email');
+
+        $fromDate = $from ? new DateTimeImmutable($from.' 00:00:00') : null;
+        $toDate = $to ? new DateTimeImmutable($to.' 23:59:59') : null;
+
+        $lignes = $comptabiliteService->getLignes($fromDate, $toDate);
+
+        $csv = $csvExporter->generate($lignes);
+
+        $emailService->sendComptabiliteCsv($email, $csv);
+
+        $this->addFlash('success', 'Le CSV a été envoyé.');
+
+        return $this->redirectToRoute('admin_comptabilite_index', [
+            'from' => $from,
+            'to' => $to,
+        ]);
     }
 }

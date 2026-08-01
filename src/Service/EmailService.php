@@ -75,4 +75,20 @@ class EmailService {
         
         $this->mailer->send($email);
     }
+
+    public function sendComptabiliteCsv(string $emailDestinataire, string $csv): void
+    {
+        $email = (new Email())
+            ->from(new Address('contact@stras4water.org', 'Stras4Water'))
+            ->to($emailDestinataire)
+            ->subject('Export comptabilité')
+            ->text('Veuillez trouver le CSV en pièce jointe.')
+            ->attach(
+                $csv,
+                'comptabilite_' . date('Y-m-d') . '.csv',
+                'text/csv'
+            );
+
+        $this->mailer->send($email);
+    }
 }
