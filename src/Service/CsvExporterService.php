@@ -21,6 +21,7 @@ class CsvExporterService
             'date',
             'type',
             'libelle',
+            'tarif',
             'discipline',
             'moyen_paiement',
         ], ';');
@@ -31,6 +32,7 @@ class CsvExporterService
                 $ligne->date->format('d/m/Y'),
                 $ligne->type,
                 $ligne->libelle,
+                $ligne->typeTarif ?? '',
                 $ligne->discipline ?? '',
                 $ligne->moyenPaiement->name,
             ], ';');
