@@ -31,12 +31,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminUserController extends AbstractController
 {
     #[Route('/', name: 'admin_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(UserRepository $userRepository, Request $request): Response
     {
         $users = $userRepository->findAll();
+        
+        $search = $request->query->get('search');
 
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
+            'search' => $search,
         ]);
     }
     
@@ -91,11 +94,10 @@ class AdminUserController extends AbstractController
                 $em->persist($user);
                 $em->flush();
 
-                $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
-                $emailService->sendMembershipCard($user);
-
                 $this->addFlash('success', 'Utilisateur créé avec succès.');
-                return $this->redirectToRoute('admin_user_index');
+                return $this->redirectToRoute('admin_user_index', [
+                    'search' => $user->getEmail(),
+                ]);
             }
         }
 
@@ -207,7 +209,9 @@ class AdminUserController extends AbstractController
     public function ajouterAdhesion(
         User $user,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        CarteDeMembreGenerator $carteDeMembreGenerator,
+        EmailService $emailService
     ): Response {
         $adhesion = new Adhesion();
         $adhesion->setUser($user);
@@ -220,6 +224,9 @@ class AdminUserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($adhesion);
             $em->flush();
+
+            $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());            
+            $emailService->sendMembershipCard($user);
 
             return $this->redirectToRoute('admin_user_edit', [
                 'id' => $user->getId(),

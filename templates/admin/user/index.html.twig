@@ -14,7 +14,7 @@
 
 <!-- Champ de recherche -->
 <div class="mb-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher par nom, prénom ou email...">
+    <input type="text" id="searchInput" class="form-control" value="{{ search }}" placeholder="Rechercher par nom, prénom ou email...">
 </div>
 
 <!-- Version desktop : tableau -->
@@ -26,7 +26,6 @@
                 <th>Email</th>
                 <th>Adhérent</th>
                 <th>Abonnements & Cartes</th>
-                <th>Séances d'essai</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -69,7 +68,6 @@
                         <span class="text-muted">Aucun en cours</span>
                     {% endif %}
                 </td>
-                <td>{{ user.seancesEssai|default(0) }}</td>
                 <td>
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning mb-1 w-100">Modifier</a>
                     {% if is_granted('ROLE_ADMIN') %}
@@ -96,7 +94,7 @@
                                     type="submit"
                                     class="btn btn-info"
                                     onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
-                                    📧 carte de membre
+                                    📧 Carte de membre
                                 </button>
                             </form>
                         </div>
@@ -151,8 +149,6 @@
                     {% endif %}
                 </p>
 
-                <p class="mb-1"><strong>Séances d'essai:</strong> {{ user.seancesEssai|default(0) }}</p>
-
                 <div class="d-flex flex-wrap gap-1 mt-2">
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning flex-grow-1">Modifier</a>
                     {% if is_granted('ROLE_ADMIN') %}
@@ -179,7 +175,7 @@
                                     type="submit"
                                     class="btn btn-info"
                                     onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
-                                    📧 carte de membre
+                                    📧 Carte de membre
                                 </button>
                             </form>
                         </div>
@@ -274,5 +270,10 @@ document.getElementById("searchInput").addEventListener("input", function() {
         card.style.display = match ? "" : "none";
     });
 });
+
+const searchInput = document.getElementById("searchInput");
+if (searchInput.value.trim() !== "") {
+    searchInput.dispatchEvent(new Event("input"));
+}
 </script>
 {% endblock %}
