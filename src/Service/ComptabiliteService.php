@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\ComptabiliteLigne;
+use App\Enum\MoyenPaiement;
 use App\Repository\AbonnementSouscritRepository;
 use App\Repository\AdhesionRepository;
 use App\Repository\CarteSouscriteRepository;
@@ -25,7 +26,11 @@ class ComptabiliteService
     ): array {
         $lignes = [];
 
-        foreach ($this->adhesionRepository->findBetweenDates($from, $to) as $adhesion) {
+        $adhesions = $this->exclureBenevole(
+            $this->adhesionRepository->findBetweenDates($from, $to)
+        );
+
+        foreach ($adhesions as $adhesion) {
             $lignes[] = new ComptabiliteLigne(
                 date: $adhesion->getCreatedAt(),
                 type: 'Adhésion',
@@ -35,7 +40,12 @@ class ComptabiliteService
             );
         }
 
-        foreach ($this->abonnementRepository->findBetweenDates($from, $to) as $abonnement) {
+
+        $abonnements = $this->exclureBenevole(
+            $this->abonnementRepository->findBetweenDates($from, $to)
+        );
+
+        foreach ($abonnements as $abonnement) {
             $lignes[] = new ComptabiliteLigne(
                 date: $abonnement->getCreatedAt(),
                 type: 'Abonnement',
@@ -45,7 +55,12 @@ class ComptabiliteService
             );
         }
 
-        foreach ($this->carteRepository->findBetweenDates($from, $to) as $carte) {
+
+        $cartes = $this->exclureBenevole(
+            $this->carteRepository->findBetweenDates($from, $to)
+        );
+
+        foreach ($cartes as $carte) {
             $lignes[] = new ComptabiliteLigne(
                 date: $carte->getCreatedAt(),
                 type: 'Carte',
@@ -66,5 +81,19 @@ class ComptabiliteService
         );
 
         return $lignes;
+    }
+
+
+    /**
+     * @template T
+     * @param T[] $elements
+     * @return T[]
+     */
+    private function exclureBenevole(array $elements): array
+    {
+        return array_filter(
+            $elements,
+            fn ($element) => $element->getMoyenPaiement() !== MoyenPaiement::BENEVOLE
+        );
     }
 }
