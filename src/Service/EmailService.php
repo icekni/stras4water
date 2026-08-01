@@ -5,15 +5,18 @@ namespace App\Service;
 use App\Entity\Donation;
 use App\Entity\User;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 
 class EmailService {
     private MailerInterface $mailer;
+    private ParameterBagInterface $parameterBag;
 
-    public function __construct(MailerInterface $mailer){
+    public function __construct(MailerInterface $mailer, ParameterBagInterface $parameterBag){
         $this->mailer = $mailer;
+        $this->parameterBag = $parameterBag;
     }
 
     function sendRecuFiscal(Donation $donation): void
@@ -88,6 +91,28 @@ class EmailService {
                 'comptabilite_' . date('Y-m-d') . '.csv',
                 'text/csv'
             );
+
+        $this->mailer->send($email);
+    }
+
+    public function sendMembershipCard(User $user): void
+    {
+        $pdf = $this->parameterBag->get('kernel.project_dir')
+            . '/public/cartesMembre/' . $user->getId() . '.pdf';
+
+        $email = (new TemplatedEmail())
+            ->from(new Address('contact@stras4water.org', 'Stras4Water'))
+            ->to($user->getEmail())
+            ->subject('Votre carte de membre Stras4Water')
+            ->htmlTemplate('emails/carte_membre.html.twig')
+            ->attachFromPath(
+                $pdf,
+                'carte-de-membre.pdf',
+                'application/pdf'
+            )
+            ->context([
+                'user' => $user,
+            ]);
 
         $this->mailer->send($email);
     }

@@ -15,6 +15,7 @@ use App\Form\AdminUserType;
 use App\Form\CarteSouscriteType;
 use App\Repository\UserRepository;
 use App\Service\CarteDeMembreGenerator;
+use App\Service\EmailService;
 use App\Service\IdEncoderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -350,6 +351,26 @@ class AdminUserController extends AbstractController
 
         return $this->redirectToRoute('admin_user_edit', [
             'id' => $userId,
+        ]);
+    }
+
+    #[Route('/{id}/send-card', name: 'admin_user_send_card', methods: ['POST'])]
+    public function sendCard(
+        User $user,
+        Request $request,
+        EmailService $emailService,
+    ): Response {
+
+        if (!$this->isCsrfTokenValid('send_card_'.$user->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $emailService->sendMembershipCard($user);
+
+        $this->addFlash('success', 'La carte de membre a été envoyée.');
+
+        return $this->redirectToRoute('admin_user_index', [
+            'id' => $user->getId(),
         ]);
     }
 

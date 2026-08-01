@@ -30,7 +30,9 @@
             <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.adhesion ? '✔️' : '❌' }}</td>
+                <td>
+                    {{ user.adhesion ? '✔️' : '❌' }}
+                </td>
                 <td>
                     {% set hasAbonnement = false %}
                     {% for ab in user.abonnementSouscrits %}
@@ -75,12 +77,24 @@
                     </form>                   
                     {% endif %} 
                     {% if user.adhesion %}
-                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                        class="btn btn-sm btn-info w-100"
-                        target="_blank"
-                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                            Carte de membre
-                        </a>
+                        <div class="mt-3">
+                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                            class="btn btn-sm btn-info w-100"
+                            target="_blank"
+                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                                📥 Carte de membre
+                            </a>
+                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-info"
+                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
+                                    📧 carte de membre
+                                </button>
+                            </form>
+                        </div>
                     {% endif %}
                 </td>
             </tr>
@@ -146,12 +160,24 @@
                     </form>    
                     {% endif %}
                     {% if user.adhesion %}
-                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                        class="btn btn-sm btn-info flex-grow-1"
-                        target="_blank"
-                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                            Carte de membre
-                        </a>
+                        <div class="mt-2">
+                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                            class="btn btn-sm btn-info flex-grow-1"
+                            target="_blank"
+                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                                📥 Carte de membre
+                            </a>
+                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-info"
+                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
+                                    📧 carte de membre
+                                </button>
+                            </form>
+                        </div>
                     {% endif %}
                 </div>
             </div>
