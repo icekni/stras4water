@@ -55,6 +55,10 @@ class Adhesion
     public function setUser(User $user): static
     {
         $this->user = $user;
+        
+        if ($user->getAdhesion() !== $this) {
+            $user->setAdhesion($this);
+        }
 
         return $this;
     }
