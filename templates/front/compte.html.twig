@@ -61,7 +61,17 @@
             <h2 class="mb-4 text-center">Mon statut</h2>
             <p class="text-center">
                 {% if isAdherent %}
-                    ✅ Vous êtes adhérent de l'association pour la saison {{ saisonEnCours }}
+                <p class="mb-3">
+                    ✅ Vous êtes adhérent de l'association pour la saison
+                    <strong>{{ saisonEnCours }}</strong>.
+                </p>                    
+                <a  href="{{ asset('cartesMembre/' ~ app.user.id ~ '.pdf') }}"
+                    target="_blank"
+                    download="carte-de-membre-{{ app.user.nom }}-{{ app.user.prenom }}.pdf"
+                    class="btn btn-primary">
+                    <i class="bi bi-download"></i>
+                    Télécharger ma carte de membre
+                </a>
                 {% else %}
                     ❌ Vous n'êtes pas encore adhérent de l'association.
                 {% endif %}

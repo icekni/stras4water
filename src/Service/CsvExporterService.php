@@ -60,4 +60,41 @@ class CsvExporterService
             ]
         );
     }
+
+    public function exportAdherents(array $users): Response
+    {
+        $handle = fopen('php://temp', 'r+');
+
+        fwrite($handle, "\xEF\xBB\xBF");
+
+        fputcsv($handle, [
+            'nom',
+            'prenom',
+            'email',
+        ], ';');
+
+        foreach ($users as $user) {
+
+            fputcsv($handle, [
+                $user->getNom(),
+                $user->getPrenom(),
+                $user->getEmail(),
+            ], ';');
+        }
+
+        rewind($handle);
+
+        $csv = stream_get_contents($handle);
+
+        fclose($handle);
+
+        return new Response(
+            $csv,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="adherents_'.date('Y-m-d').'.csv"',
+            ]
+        );
+    }
 }

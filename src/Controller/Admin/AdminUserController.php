@@ -13,8 +13,10 @@ use App\Form\AbonnementSouscritType;
 use App\Form\AdhesionType;
 use App\Form\AdminUserType;
 use App\Form\CarteSouscriteType;
+use App\Repository\AdhesionRepository;
 use App\Repository\UserRepository;
 use App\Service\CarteDeMembreGenerator;
+use App\Service\CsvExporterService;
 use App\Service\EmailService;
 use App\Service\IdEncoderService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -372,6 +374,16 @@ class AdminUserController extends AbstractController
         return $this->redirectToRoute('admin_user_index', [
             'id' => $user->getId(),
         ]);
+    }
+
+    #[Route('/export', name: 'admin_user_export', methods: ['GET'])]
+    public function export(
+        AdhesionRepository $adhesionRepository,
+        CsvExporterService $csvExporter,
+    ): Response {
+        $users = array_map(fn($adhesion) => $adhesion->getUser(), $adhesionRepository->findAll());
+        
+        return $csvExporter->exportAdherents($users);
     }
 
     private function getSaisonAdhesion(): string
