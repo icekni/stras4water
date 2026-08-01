@@ -37,6 +37,7 @@ class ComptabiliteService
                 date: $adhesion->getCreatedAt(),
                 type: 'Adhésion',
                 libelle: 'Adhésion',
+                typeTarif: null,
                 discipline: null,
                 moyenPaiement: $adhesion->getMoyenPaiement(),
             );
@@ -51,7 +52,8 @@ class ComptabiliteService
             $lignes[] = new ComptabiliteLigne(
                 date: $abonnement->getCreatedAt(),
                 type: 'Abonnement',
-                libelle: $abonnement->getAbonnement()->getNom(),
+                libelle: $abonnement->getAbonnement()->getNom(),                
+                typeTarif: $abonnement->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
                 discipline: $abonnement->getAbonnement()->getDiscipline()?->getNom(),
                 moyenPaiement: $abonnement->getMoyenPaiement(),
             );
@@ -67,6 +69,7 @@ class ComptabiliteService
                 date: $carte->getCreatedAt(),
                 type: 'Carte',
                 libelle: $carte->getCarte()->getNom(),
+                typeTarif: $carte->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
                 discipline: implode(
                     ', ',
                     $carte->getCarte()->getDisciplines()
@@ -77,19 +80,19 @@ class ComptabiliteService
             );
         }
 
-        foreach ($this->donationRepository->findBetweenDates($from, $to) as $donation) {
-            $lignes[] = new ComptabiliteLigne(
-                date: $donation->getCreatedAt(),
-                type: 'Don',
-                libelle: sprintf(
-                    'Don %s - %.2f €',
-                    $donation->getTypeDon()?->name,
-                    $donation->getMontant()
-                ),
-                discipline: null,
-                moyenPaiement: $donation->getMoyenPaiement(),
-            );
-        }
+        // foreach ($this->donationRepository->findBetweenDates($from, $to) as $donation) {
+        //     $lignes[] = new ComptabiliteLigne(
+        //         date: $donation->getCreatedAt(),
+        //         type: 'Don',
+        //         libelle: sprintf(
+        //             'Don %s - %.2f €',
+        //             $donation->getTypeDon()?->name,
+        //             $donation->getMontant()
+        //         ),
+        //         discipline: null,
+        //         moyenPaiement: $donation->getMoyenPaiement(),
+        //     );
+        // }
 
         usort(
             $lignes,

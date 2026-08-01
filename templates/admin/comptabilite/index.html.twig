@@ -61,6 +61,7 @@
         <th>Date</th>
         <th>Type</th>
         <th>Libellé</th>
+        <th>Tarif (Réduit/plein)</th>
         <th>Discipline</th>
         <th>Paiement</th>
     </tr>
@@ -74,6 +75,7 @@
             <td>{{ ligne.date|date('d/m/Y H:i') }}</td>
             <td>{{ ligne.type }}</td>
             <td>{{ ligne.libelle }}</td>
+            <td>{{ ligne.typeTarif }}</td>
             <td>{{ ligne.discipline }}</td>
             <td>{{ ligne.moyenPaiement.name }}</td>
         </tr>

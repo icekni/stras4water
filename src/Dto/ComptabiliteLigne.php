@@ -11,6 +11,7 @@ class ComptabiliteLigne
         public readonly \DateTimeImmutable $date,
         public readonly string $type,
         public readonly string $libelle,
+        public readonly ?string $typeTarif,
         public readonly ?string $discipline,
         public readonly MoyenPaiement $moyenPaiement,
     ) {
