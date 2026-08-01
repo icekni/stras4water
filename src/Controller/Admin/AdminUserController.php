@@ -65,7 +65,8 @@ class AdminUserController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         CarteDeMembreGenerator $carteDeMembreGenerator,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        EmailService $emailService
     ): Response {
         $user = new User();
 
@@ -91,6 +92,7 @@ class AdminUserController extends AbstractController
                 $em->flush();
 
                 $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion());
+                $emailService->sendMembershipCard($user);
 
                 $this->addFlash('success', 'Utilisateur créé avec succès.');
                 return $this->redirectToRoute('admin_user_index');
