@@ -7,6 +7,7 @@ use App\Enum\MoyenPaiement;
 use App\Repository\AbonnementSouscritRepository;
 use App\Repository\AdhesionRepository;
 use App\Repository\CarteSouscriteRepository;
+use App\Repository\DonationRepository;
 
 class ComptabiliteService
 {
@@ -14,6 +15,7 @@ class ComptabiliteService
         private AdhesionRepository $adhesionRepository,
         private AbonnementSouscritRepository $abonnementRepository,
         private CarteSouscriteRepository $carteRepository,
+        private DonationRepository $donationRepository
     ) {
     }
 
@@ -72,6 +74,20 @@ class ComptabiliteService
                         ->toArray()
                 ),
                 moyenPaiement: $carte->getMoyenPaiement(),
+            );
+        }
+
+        foreach ($this->donationRepository->findBetweenDates($from, $to) as $donation) {
+            $lignes[] = new ComptabiliteLigne(
+                date: $donation->getCreatedAt(),
+                type: 'Don',
+                libelle: sprintf(
+                    'Don %s - %.2f €',
+                    $donation->getTypeDon()?->name,
+                    $donation->getMontant()
+                ),
+                discipline: null,
+                moyenPaiement: $donation->getMoyenPaiement(),
             );
         }
 
