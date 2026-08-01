@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\AbonnementSouscrit;
 use App\Entity\Discipline;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,6 +24,33 @@ class AbonnementSouscritRepository extends ServiceEntityRepository
             ->innerJoin('abonnementsSouscrits.abonnement', 'a')
             ->andWhere('a.isActif = :actif')
             ->setParameter('actif', true)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AbonnementSouscrit[]
+     */
+    public function findBetweenDates(
+        ?DateTimeImmutable $from,
+        ?DateTimeImmutable $to
+    ): array {
+        $qb = $this->createQueryBuilder('a');
+
+        if ($from) {
+            $qb
+                ->andWhere('a.createdAt >= :from')
+                ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb
+                ->andWhere('a.createdAt <= :to')
+                ->setParameter('to', $to);
+        }
+
+        return $qb
+            ->orderBy('a.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

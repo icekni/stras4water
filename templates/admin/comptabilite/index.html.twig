@@ -1,0 +1,122 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Comptabilité{% endblock %}
+
+{% block body %}
+
+<h1>Comptabilité</h1>
+
+<form method="get" class="row g-3 align-items-end mb-4">
+
+    <div class="col-auto">
+        <label for="from" class="form-label">Du</label>
+        <input
+            type="date"
+            id="from"
+            name="from"
+            value="{{ from }}"
+            class="form-control">
+    </div>
+
+    <div class="col-auto">
+        <label for="to" class="form-label">Au</label>
+        <input
+            type="date"
+            id="to"
+            name="to"
+            value="{{ to }}"
+            class="form-control">
+    </div>
+
+    <div class="col-auto">
+        <button class="btn btn-primary">
+            Filtrer
+        </button>
+    </div>
+
+    <div class="col-auto">
+        <a
+            class="btn btn-success"
+            href="{{ path('admin_comptabilite_export', {
+                from: from,
+                to: to
+            }) }}">
+            Export CSV
+        </a>
+    </div>
+
+</form>
+
+<p>
+    Période rapide :
+    <a href="#" class="periode" data-months="3">3 mois</a> |
+    <a href="#" class="periode" data-months="6">6 mois</a> |
+    <a href="#" class="periode" data-months="12">1 an</a>
+</p>
+
+<table class="table table-striped">
+
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Libellé</th>
+        <th>Discipline</th>
+        <th>Paiement</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    {% for ligne in lignes %}
+
+        <tr>
+            <td>{{ ligne.date|date('d/m/Y H:i') }}</td>
+            <td>{{ ligne.type }}</td>
+            <td>{{ ligne.libelle }}</td>
+            <td>{{ ligne.discipline }}</td>
+            <td>{{ ligne.moyenPaiement.name }}</td>
+        </tr>
+
+    {% else %}
+
+        <tr>
+            <td colspan="6">
+                Aucun résultat.
+            </td>
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+<script>
+
+const from = document.getElementById('from');
+const to = document.getElementById('to');
+
+document.querySelectorAll('.periode').forEach(link => {
+
+    link.addEventListener('click', e => {
+
+        e.preventDefault();
+
+        const months = parseInt(link.dataset.months);
+
+        const end = new Date();
+        const start = new Date();
+
+        start.setMonth(start.getMonth() - months);
+
+        from.value = start.toISOString().slice(0,10);
+        to.value = end.toISOString().slice(0,10);
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

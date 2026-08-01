@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CarteSouscrite;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -20,6 +21,33 @@ class CarteSouscriteRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('cartesSouscrites')
             ->Where('cartesSouscrites.seancesRestantes > 0')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return CarteSouscrite[]
+     */
+    public function findBetweenDates(
+        ?DateTimeImmutable $from,
+        ?DateTimeImmutable $to
+    ): array {
+        $qb = $this->createQueryBuilder('c');
+
+        if ($from) {
+            $qb
+                ->andWhere('c.createdAt >= :from')
+                ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb
+                ->andWhere('c.createdAt <= :to')
+                ->setParameter('to', $to);
+        }
+
+        return $qb
+            ->orderBy('c.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
