@@ -8,9 +8,11 @@
 <a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
 
+{% if is_granted('ROLE_ADMIN') %}
 <a class="btn btn-primary mb-3 btn-success" href="{{ path('admin_user_export') }}">
     Exporter les adherents (.csv)
 </a>
+{% endif %}
 
 <!-- Champ de recherche -->
 <div class="mb-3">

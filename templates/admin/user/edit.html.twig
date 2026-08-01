@@ -40,6 +40,9 @@
     <button class="btn btn-primary">
         {{ user is defined ? 'Enregistrer les modifications' : 'Créer l\'utilisateur' }}
     </button>
+    <a href="{{ path('admin_user_index') }}" class="btn btn-secondary">
+        ← Retour à la liste
+    </a>
 
 {{ form_end(form) }}
 

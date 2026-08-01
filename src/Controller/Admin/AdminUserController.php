@@ -61,7 +61,6 @@ class AdminUserController extends AbstractController
         return $this->redirectToRoute('admin_user_index');
     }
     
-    #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
     public function new(
         ?User $user,
@@ -106,7 +105,6 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
     public function edit(
         ?User $user,
