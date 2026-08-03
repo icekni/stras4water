@@ -169,7 +169,7 @@ class CartController extends AbstractController
                 ? $abonnement->getTarifReduit()
                 : $abonnement->getTarif();
 
-            $statut = $abonnementCart['tarif'] === 'reduit' ? Statut::CREATED : Statut::ACTIVE;
+            $statut = Statut::CREATED;
 
             $abonnementSouscrit = new AbonnementSouscrit();
             $abonnementSouscrit->setUser($user);
@@ -191,7 +191,7 @@ class CartController extends AbstractController
                 ? $carte->getTarifReduit()
                 : $carte->getTarif();
 
-            $statut = $carteCart['tarif'] === 'reduit' ? Statut::CREATED : Statut::ACTIVE;
+            $statut = Statut::CREATED;
 
             $carteSouscrite = new CarteSouscrite();
             $carteSouscrite->setUser($user);

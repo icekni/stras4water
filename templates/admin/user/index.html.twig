@@ -42,29 +42,33 @@
                 <td>
                     {% set hasAbonnement = false %}
                     {% for ab in user.abonnementSouscrits %}
-                        <div>
-                            {{ ab.abonnement.nom }}
-                            {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                                <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
-                                   class="btn btn-sm btn-success ms-1">Vérifier</a>
-                            {% endif %}
-                        </div>
-                        {% set hasAbonnement = true %}
+                        {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
+                            <div>
+                                {{ ab.abonnement.nom }}
+                                {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
+                                    <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
+                                    class="btn btn-sm btn-success ms-1">Vérifier</a>
+                                {% endif %}
+                            </div>
+                            {% set hasAbonnement = true %}
+                        {% endif %}
                     {% endfor %}
                     {% for c in user.carteSouscrites %}
-                        <div>
-                            {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
-                            <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
-                               class="btn btn-sm btn-danger ms-1"
-                               onclick="return confirm('Retirer une séance de cette carte ?');">
-                               Retirer
-                            </a>
-                            {% if c.isTarifReduit and not c.tarifReduitVerifie %}
-                                <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
-                                   class="btn btn-sm btn-success ms-1">Vérifier</a>
-                            {% endif %}
-                        </div>
-                        {% set hasAbonnement = true %}
+                        {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
+                            <div>
+                                {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
+                                <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                                class="btn btn-sm btn-danger ms-1"
+                                onclick="return confirm('Retirer une séance de cette carte ?');">
+                                Retirer
+                                </a>
+                                {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+                                    <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
+                                    class="btn btn-sm btn-success ms-1">Vérifier</a>
+                                {% endif %}
+                            </div>
+                            {% set hasAbonnement = true %}
+                        {% endif %}
                     {% endfor %}
                     {% if not hasAbonnement %}
                         <span class="text-muted">Aucun en cours</span>
