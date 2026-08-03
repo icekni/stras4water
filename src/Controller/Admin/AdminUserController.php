@@ -265,6 +265,7 @@ class AdminUserController extends AbstractController
     ): Response {
         $abonnementSouscrit = new AbonnementSouscrit();
         $abonnementSouscrit->setUser($user);
+        $abonnementSouscrit->setStatut(Statut::ACTIVE);
 
         $form = $this->createForm(
             AbonnementSouscritType::class,
@@ -320,6 +321,7 @@ class AdminUserController extends AbstractController
         $carteSouscrite = new CarteSouscrite();
         $carteSouscrite->setUser($user);
         $carteSouscrite->setSeancesRestantes(10);
+        $carteSouscrite->setStatut(Statut::ACTIVE);
 
         $form = $this->createForm(CarteSouscriteType::class, $carteSouscrite);
 
