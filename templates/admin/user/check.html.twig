@@ -18,18 +18,20 @@
 <h2>Abonnements en cours</h2>
 <ul class="list-group">
 {% for ab in abonnements %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <strong>{{ ab.abonnement.discipline.nom }}</strong> — Saison : {{ ab.abonnement.saison.nom }}
-            {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                <span class="ms-2">
-                    ⚠️ Justificatif non vérifié
-                    <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
-                        class="btn btn-sm btn-success ms-1">Vérifier</a>
-                </span>
-            {% endif %}
-        </div>
-    </li>
+    {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ ab.abonnement.discipline.nom }}</strong> — Saison : {{ ab.abonnement.saison.nom }}
+                {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
+                    <span class="ms-2">
+                        ⚠️ Justificatif non vérifié
+                        <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
+                            class="btn btn-sm btn-success ms-1">Vérifier</a>
+                    </span>
+                {% endif %}
+            </div>
+        </li>
+    {% endif %}
 {% else %}
     <li class="list-group-item">Aucun abonnement souscrit.</li>
 {% endfor %}
@@ -38,29 +40,31 @@
 <h2>Cartes souscrites</h2>
 <ul class="list-group">
 {% for c in cartes %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <strong>
-                {% for discipline in c.carte.disciplines %}
-                    {{ discipline.nom }}{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            </strong> — Séances restantes : {{ c.seancesRestantes }}
-            {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+    {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>
+                    {% for discipline in c.carte.disciplines %}
+                        {{ discipline.nom }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </strong> — Séances restantes : {{ c.seancesRestantes }}
+                {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+                    <span class="ms-2">
+                        ⚠️ Justificatif non vérifié
+                        <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
+                            class="btn btn-sm btn-success ms-1">Vérifier</a>
+                    </span>
+                {% endif %}
                 <span class="ms-2">
-                    ⚠️ Justificatif non vérifié
-                    <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
-                        class="btn btn-sm btn-success ms-1">Vérifier</a>
+                    <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                    class="btn btn-sm btn-danger ms-1"
+                    onclick="return confirm('Retirer une séance de cette carte ?');">
+                    Retirer une séance
+                    </a>
                 </span>
-            {% endif %}
-            <span class="ms-2">
-                <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
-                   class="btn btn-sm btn-danger ms-1"
-                   onclick="return confirm('Retirer une séance de cette carte ?');">
-                   Retirer une séance
-                </a>
-            </span>
-        </div>
-    </li>
+            </div>
+        </li>
+    {% endif %}
 {% else %}
     <li class="list-group-item">Aucune carte souscrite.</li>
 {% endfor %}

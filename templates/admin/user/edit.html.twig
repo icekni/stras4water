@@ -60,21 +60,23 @@
             </thead>
             <tbody>
             {% for abonnement in user.abonnementSouscrits %}
-                <tr>
-                    <td>{{ abonnement.abonnement.nom }}</td>
-                    <td>{{ abonnement.createdAt|date('d/m/Y') }}</td>
-                    <td>{{ abonnement.moyenPaiement.name }}</td>
-                    <td>
-                        <form method="post"
-                            action="{{ path('admin_user_abonnement_delete', {id: abonnement.id}) }}"
-                            onsubmit="return confirm('Supprimer cet abonnement ?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete_abonnement' ~ abonnement.id) }}">
-                            <button class="btn btn-danger btn-sm">
-                                Supprimer
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                {% if abonnement.statut != constant('App\\Enum\\Statut::CREATED') %}
+                    <tr>
+                        <td>{{ abonnement.abonnement.nom }}</td>
+                        <td>{{ abonnement.createdAt|date('d/m/Y') }}</td>
+                        <td>{{ abonnement.moyenPaiement.name }}</td>
+                        <td>
+                            <form method="post"
+                                action="{{ path('admin_user_abonnement_delete', {id: abonnement.id}) }}"
+                                onsubmit="return confirm('Supprimer cet abonnement ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_abonnement' ~ abonnement.id) }}">
+                                <button class="btn btn-danger btn-sm">
+                                    Supprimer
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>
@@ -102,21 +104,23 @@
             </thead>
             <tbody>
             {% for carte in user.carteSouscrites %}
-                <tr>
-                    <td>{{ carte.carte.nom }}</td>
-                    <td>{{ carte.createdAt|date('d/m/Y') }}</td>
-                    <td>{{ carte.moyenPaiement.name }}</td>
-                    <td>
-                        <form method="post"
-                            action="{{ path('admin_user_carte_delete', {id: carte.id}) }}"
-                            onsubmit="return confirm('Supprimer cette carte ?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete_carte' ~ carte.id) }}">
-                            <button class="btn btn-danger btn-sm">
-                                Supprimer
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                {% if carte.statut != constant('App\\Enum\\Statut::CREATED') %}
+                    <tr>
+                        <td>{{ carte.carte.nom }}</td>
+                        <td>{{ carte.createdAt|date('d/m/Y') }}</td>
+                        <td>{{ carte.moyenPaiement.name }}</td>
+                        <td>
+                            <form method="post"
+                                action="{{ path('admin_user_carte_delete', {id: carte.id}) }}"
+                                onsubmit="return confirm('Supprimer cette carte ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_carte' ~ carte.id) }}">
+                                <button class="btn btn-danger btn-sm">
+                                    Supprimer
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>
