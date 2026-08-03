@@ -133,11 +133,13 @@ final class FrontController extends AbstractController
         $donations = $em->getRepository(Donation::class)->findBy(['user' => $user]);
 
         // statut adhérent à calculer selon ta logique (adhésion en cours dans la saison...)
-        $isAdherent = $user->isAdherent(); 
-        $saisonEnCours = '2024/2025'; // dynamique si besoin
+        $isAdherent = $user->getAdhesion() !== null; 
+        $saisonEnCours = '2026/2027'; // dynamique si besoin
 
         return $this->render('front/compte.html.twig', [
             'userForm' => $form,
+            'abonnements' => $user->getAbonnementSouscrits(),
+            'cartes' => $user->getCarteSouscrites(),
             'donations' => $donations,
             'isAdherent' => $isAdherent,
             'saisonEnCours' => $saisonEnCours

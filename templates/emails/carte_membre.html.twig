@@ -23,37 +23,8 @@
     <h1>Confirmation de votre commande</h1>
     <p>Bonjour {{ user.prenom }},</p>
 
-    {% set adhesions = details|filter(d => d.type == 'Adhésion') %}
-    {% set abonnements = details|filter(d => d.type == 'Abonnement') %}
-    {% set cartes = details|filter(d => d.type == 'Carte') %}
-
-    {% if adhesions|length > 0 %}
-      <h2>Adhésion</h2>
-      <ul>
-        {% for adhesion in adhesions %}
-          <li>{{ adhesion.libelle }}</li>
-        {% endfor %}
-      </ul>
-      <p>Votre carte de membre est jointe à ce message au format PDF. Elle vous sera demandé en début de cours, vous pouvez la présenter directement depuis votre telephone, ou l'imprimer, au choix.</p>
-    {% endif %}
-
-    {% if abonnements|length > 0 %}
-      <h2>Abonnements souscrits</h2>
-      <ul>
-        {% for ab in abonnements %}
-          <li>{{ ab.libelle }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-
-    {% if cartes|length > 0 %}
-      <h2>Cartes de cours</h2>
-      <ul>
-        {% for carte in cartes %}
-          <li>{{ carte.libelle }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+    <h2>Adhésion</h2>
+    <p>Votre carte de membre est jointe à ce message au format PDF. Elle vous sera demandé en début de cours, vous pouvez la présenter directement depuis votre telephone, ou l'imprimer, au choix.</p>
 
     <p>Nous vous remercions pour votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire à <a href="mailto:contact@stras4water.org">contact@stras4water.org</a>.</p>
 

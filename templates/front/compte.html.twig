@@ -42,6 +42,8 @@
                                 <td>
                                     {% if don.numeroOrdreRF %}
                                         <a href="{{ path('displayRF', {id: don.id}) }}" target="_blank">Télécharger</a>
+                                    {% elseif don.wantsRecuFiscal %}
+                                        <em>En attente (vérifiez vos mails)</em>
                                     {% else %}
                                         <em>Non demandé</em>
                                     {% endif %}
@@ -54,24 +56,71 @@
         </div>
     </div>
 
-    {# Future blocks à activer plus tard #}
     <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes abonnements</h2>
-            <p class="text-muted text-center">Fonctionnalité à venir.</p>
-        </div>
-    </div>
-
-    <div class="card shadow-lg rounded-4">
         <div class="card-body">
             <h2 class="mb-4 text-center">Mon statut</h2>
             <p class="text-center">
                 {% if isAdherent %}
-                    ✅ Vous êtes adhérent de l'association pour la saison {{ saisonEnCours }}
+                <p class="mb-3">
+                    ✅ Vous êtes adhérent de l'association pour la saison
+                    <strong>{{ saisonEnCours }}</strong>.
+                </p>                    
+                <a  href="{{ asset('cartesMembre/' ~ app.user.id ~ '.pdf') }}"
+                    target="_blank"
+                    download="carte-de-membre-{{ app.user.nom }}-{{ app.user.prenom }}.pdf"
+                    class="btn btn-primary">
+                    <i class="bi bi-download"></i>
+                    Télécharger ma carte de membre
+                </a>
                 {% else %}
                     ❌ Vous n'êtes pas encore adhérent de l'association.
                 {% endif %}
             </p>
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes abonnements actifs</h2>
+            {% if abonnements is empty %}
+                <p class="text-muted text-center">Aucun abonnement pour le moment.</p>
+            {% else %}
+                <table class="table table-striped">
+                    <tbody>
+                        {% for abonnement in abonnements %}
+                            <tr>
+                                <td>{{ abonnement.abonnement.nom }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-lg rounded-4 mb-4">
+        <div class="card-body">
+            <h2 class="mb-4 text-center">Mes cartes actives</h2>
+            {% if cartes is empty %}
+                <p class="text-muted text-center">Aucune carte pour le moment.</p>
+            {% else %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Carte</th>
+                            <th>Seances restantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for carte in cartes %}
+                            <tr>
+                                <td>{{ carte.carte.nom }}</td>
+                                <td>{{ carte.seancesRestantes }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 </div>

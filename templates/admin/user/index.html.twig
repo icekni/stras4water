@@ -7,9 +7,16 @@
 
 <a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
+
+{% if is_granted('ROLE_ADMIN') %}
+<a class="btn btn-primary mb-3 btn-success" href="{{ path('admin_user_export') }}">
+    Exporter les adherents (.csv)
+</a>
+{% endif %}
+
 <!-- Champ de recherche -->
 <div class="mb-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher par nom, prénom ou email...">
+    <input type="text" id="searchInput" class="form-control" value="{{ search }}" placeholder="Rechercher par nom, prénom ou email...">
 </div>
 
 <!-- Version desktop : tableau -->
@@ -21,7 +28,6 @@
                 <th>Email</th>
                 <th>Adhérent</th>
                 <th>Abonnements & Cartes</th>
-                <th>Séances d'essai</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -30,7 +36,9 @@
             <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.isAdherent ? '✔️' : '❌' }}</td>
+                <td>
+                    {{ user.adhesion ? '✔️' : '❌' }}
+                </td>
                 <td>
                     {% set hasAbonnement = false %}
                     {% for ab in user.abonnementSouscrits %}
@@ -62,7 +70,6 @@
                         <span class="text-muted">Aucun en cours</span>
                     {% endif %}
                 </td>
-                <td>{{ user.seancesEssai|default(0) }}</td>
                 <td>
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning mb-1 w-100">Modifier</a>
                     {% if is_granted('ROLE_ADMIN') %}
@@ -74,13 +81,25 @@
                         <button class="btn btn-sm btn-danger">Supprimer</button>
                     </form>                   
                     {% endif %} 
-                    {% if user.isAdherent %}
-                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                        class="btn btn-sm btn-info w-100"
-                        target="_blank"
-                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                            Carte de membre
-                        </a>
+                    {% if user.adhesion %}
+                        <div class="mt-3">
+                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                            class="btn btn-sm btn-info w-100"
+                            target="_blank"
+                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                                📥 Carte de membre
+                            </a>
+                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-info"
+                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
+                                    📧 Carte de membre
+                                </button>
+                            </form>
+                        </div>
                     {% endif %}
                 </td>
             </tr>
@@ -98,7 +117,7 @@
             <div class="card-body">
                 <h5 class="card-title">{{ user.nom }} {{ user.prenom }}</h5>
                 <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
-                <p class="mb-1"><strong>Adhérent:</strong> {{ user.isAdherent ? '✔️' : '❌' }}</p>
+                <p class="mb-1"><strong>Adhérent:</strong> {{ user.adhesion ? '✔️' : '❌' }}</p>
 
                 <p class="mb-1"><strong>Abonnements & Cartes:</strong>
                     {% set hasAbonnement = false %}
@@ -132,8 +151,6 @@
                     {% endif %}
                 </p>
 
-                <p class="mb-1"><strong>Séances d'essai:</strong> {{ user.seancesEssai|default(0) }}</p>
-
                 <div class="d-flex flex-wrap gap-1 mt-2">
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning flex-grow-1">Modifier</a>
                     {% if is_granted('ROLE_ADMIN') %}
@@ -145,13 +162,25 @@
                             <button class="btn btn-sm btn-danger">Supprimer</button>
                     </form>    
                     {% endif %}
-                    {% if user.isAdherent %}
-                        <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                        class="btn btn-sm btn-info flex-grow-1"
-                        target="_blank"
-                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                            Carte de membre
-                        </a>
+                    {% if user.adhesion %}
+                        <div class="mt-2">
+                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                            class="btn btn-sm btn-info flex-grow-1"
+                            target="_blank"
+                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
+                                📥 Carte de membre
+                            </a>
+                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-info"
+                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
+                                    📧 Carte de membre
+                                </button>
+                            </form>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -243,5 +272,10 @@ document.getElementById("searchInput").addEventListener("input", function() {
         card.style.display = match ? "" : "none";
     });
 });
+
+const searchInput = document.getElementById("searchInput");
+if (searchInput.value.trim() !== "") {
+    searchInput.dispatchEvent(new Event("input"));
+}
 </script>
 {% endblock %}

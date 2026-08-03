@@ -38,8 +38,28 @@ class DonManuelType extends AbstractType
             ->add('moyenPaiement', ChoiceType::class, [
                 'label' => 'Mode de paiement',
                 'choices' => array_combine(
-                    array_map(fn($c) => ucfirst(strtolower($c->name)), MoyenPaiement::cases()),
-                    MoyenPaiement::cases()
+                    array_map(
+                        fn (MoyenPaiement $c) => match ($c) {
+                            MoyenPaiement::CASH => 'Espèces',
+                            MoyenPaiement::SUMUP => 'Carte bancaire',
+                            MoyenPaiement::VIREMENT => 'Virement',
+                            MoyenPaiement::CHEQUE => 'Chèque',
+                        },
+                        array_filter(
+                            MoyenPaiement::cases(),
+                            fn (MoyenPaiement $c) => !in_array($c, [
+                                MoyenPaiement::STRIPE,
+                                MoyenPaiement::BENEVOLE,
+                            ], true)
+                        )
+                    ),
+                    array_filter(
+                        MoyenPaiement::cases(),
+                        fn (MoyenPaiement $c) => !in_array($c, [
+                            MoyenPaiement::STRIPE,
+                            MoyenPaiement::BENEVOLE,
+                        ], true)
+                    )
                 ),
                 'choice_value' => fn ($choice) => $choice?->value,
                 'data' => MoyenPaiement::CASH,

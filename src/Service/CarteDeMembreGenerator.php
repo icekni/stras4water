@@ -19,7 +19,7 @@ class CarteDeMembreGenerator
 
     public function generate(User $user, string $annee): ?string
     {
-        if (!$user->isAdherent()) {
+        if (!$user->getAdhesion()) {
             return null;
         }
 

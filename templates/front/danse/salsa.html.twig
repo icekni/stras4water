@@ -6,33 +6,50 @@
 <section class="container my-5">
 
   <h1 class="mb-4 text-center text-danger">Cours de Salsa Rueda à Strasbourg</h1>
-
   {% if inscription_possible == false %}
   <div class="text-center mb-4">
     <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
   </div>
   {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
     <div class="text-center mb-4">
-      <a href="#inscription" class="btn btn-outline-danger btn-lg">S’inscrire dès maintenant</a>
+    <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
     </div>
   {% endif %}
 
   <!-- Description -->
   <div class="mb-5">
     <p>
-      Venez apprendre la <strong>Salsa Rueda</strong>, une danse festive, dynamique et collective ! Idéale pour se défouler, rencontrer du monde et progresser dans une ambiance bienveillante.
-    </p>
+      Venez apprendre la <strong>Salsa Rueda</strong>, une danse festive, dynamique et collective !
+      Que vous soyez <strong>débutant</strong> ou que vous ayez déjà quelques bases, nos cours vous permettront de progresser dans une ambiance conviviale et bienveillante.    </p>
 
     <div class="text-center my-4">
       <img src="{{ asset('img/rueda.jpg') }}" alt="Cours de salsa Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
 
     <ul class="list-unstyled">
-      <li>📅 <strong>Quand ?</strong> Tous les <strong>mercredis de 20h30 à 21h30</strong>, du <strong>10 septembre 2025</strong> à <strong>fin juin 2026</strong> (hors vacances scolaires).</li>
-      <li>📍 <strong>Où ?</strong> <em>53 Rue Saint-Urbain, 67100 Strasbourg</em>, dans une salle de danse lumineuse et spacieuse.</li>
-      <li>🕖 <strong>Accueil & inscriptions sur place dès 19h15 ou en ligne</strong>.</li>
-      <li>🎁 <strong>Première séance offerte</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité !</li>
+      <li>📅 <strong>Mardi – Kaleidoscoop</strong> (5 rue de la Coopérative, Strasbourg)</li>
+      <ul>
+        <li>🕢 19h30 à 20h30 : <strong>Cours débutant</strong></li>
+        <li>🕣 20h30 à 21h30 : <strong>Cours intermédiaire</strong></li>
+      </ul>
+
+      <li class="mt-2">📅 <strong>Mercredi – Salle Saint-Joseph</strong> (53 rue Saint-Urbain, Strasbourg)</li>
+      <ul>
+        <li>🕣 20h30 à 21h30 : <strong>Cours débutant</strong></li>
+      </ul>
+
+      <li class="mt-4">
+        📆 Les cours ont lieu de <strong>septembre à fin juin</strong> (hors vacances scolaires).
+      </li>
+
+      <li class="mt-4">
+        ✨ <strong>Avec un seul abonnement au cours débutant, vous pouvez participer aux deux cours débutants :</strong>
+        le mardi au Kaleidoscoop <strong>et</strong> le mercredi à la salle Saint-Joseph.
+      </li>
+
+      <li class="mt-4">🎁 <strong>Première séance offerte</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité.</li>
     </ul>
+
 
 <p>
   <strong>Les débutants sont bienvenus en cours d’année</strong>, mais il faut bien être conscient qu’ils auront du retard par rapport aux participants arrivés dès septembre. Il faudra donc s’armer de motivation pour rattraper ce qui a été vu au début de la saison.

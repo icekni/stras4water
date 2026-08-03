@@ -1,0 +1,23 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}
+Ajouter une adhésion
+{% endblock %}
+
+{% block body %}
+
+<h1>
+    Ajouter une adhésion à {{ user.prenom }} {{ user.nom }}
+</h1>
+
+{{ form_start(form) }}
+
+    {{ form_row(form.moyenPaiement) }}
+
+    <button class="btn btn-primary">
+        Enregistrer l'adhésion
+    </button>
+
+{{ form_end(form) }}
+
+{% endblock %}

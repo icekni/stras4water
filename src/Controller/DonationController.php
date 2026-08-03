@@ -35,7 +35,7 @@ final class DonationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $donation->setMoyenPaiement(MoyenPaiement::CARTE);
+            $donation->setMoyenPaiement(MoyenPaiement::STRIPE);
             $donation->setTypeDon(TypeDon::NUMERAIRE);
             $entityManager->persist($donation);
             $entityManager->flush();

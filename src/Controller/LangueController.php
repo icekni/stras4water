@@ -30,6 +30,7 @@ final class LangueController extends AbstractController
         return $this->render('front/langue/anglais.html.twig', [
             "abonnements" => $abonnements,
             "cartes" => $cartes,
+            "inscription_possible" => $_ENV['INSCRIPTION_POSSIBLE'] == "true"
         ]);
     }
 
@@ -52,6 +53,7 @@ final class LangueController extends AbstractController
         return $this->render('front/langue/espagnol.html.twig', [
             "abonnements" => $abonnements,
             "cartes" => $cartes,
+            "inscription_possible" => $_ENV['INSCRIPTION_POSSIBLE'] == "true"
         ]);
     }
 
@@ -74,6 +76,7 @@ final class LangueController extends AbstractController
         return $this->render('front/langue/allemand.html.twig', [
             "abonnements" => $abonnements,
             "cartes" => $cartes,
+            "inscription_possible" => $_ENV['INSCRIPTION_POSSIBLE'] == "true"
         ]);
     }
 }

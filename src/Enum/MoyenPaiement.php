@@ -4,7 +4,9 @@ namespace App\Enum;
 enum MoyenPaiement: string
 {
     case CASH = 'cash';
-    case CARTE = 'carte';
+    case STRIPE = 'stripe';
+    case SUMUP = 'sumup';
     case VIREMENT = 'virement';
     case CHEQUE = 'cheque';
+    case BENEVOLE = 'benevole';
 }

@@ -218,7 +218,6 @@
                                 <ul class="dropdown-menu" aria-labelledby="dropdownLangue">
                                     <li><a class="dropdown-item" href="{{ path('espagnol') }}">Espagnol</a></li>
                                     <li><a class="dropdown-item" href="{{ path('anglais') }}">Anglais</a></li>
-                                    <li><a class="dropdown-item" href="{{ path('allemand') }}">Allemand</a></li>
 								
                                 </ul>
                             </li>
@@ -317,7 +316,7 @@
 					<li><a href="{{ path('ml') }}" class="text-decoration-none text-dark">Mentions légales</a></li>
 					<li><a href="{{ path('donation') }}" class="text-decoration-none text-dark">Faire un don</a></li>
 					<li><a href="{{ path('confidentialite') }}" class="text-decoration-none text-dark">Politique de confidentialité</a></li>
-					<li><a href="{{ path('admin_dashboard') }}" class="text-decoration-none text-dark">Espace admin</a></li>
+					{% if is_granted('ROLE_ACCUEIL') %}<li><a href="{{ path('admin_dashboard') }}" class="text-decoration-none text-dark">Espace admin</a></li>{% endif %}
 					</ul>
 				</div>
 				</div>

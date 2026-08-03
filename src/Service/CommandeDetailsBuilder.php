@@ -28,7 +28,7 @@ class CommandeDetailsBuilder
             $now = new \DateTimeImmutable();
             $annee = (int) $now->format('Y');
             $mois = (int) $now->format('m');
-            $saison = $mois >= 9 ? "$annee/" . ($annee + 1) : ($annee - 1) . "/$annee";
+            $saison = $mois >= 7 ? "$annee/" . ($annee + 1) : ($annee - 1) . "/$annee";
 
             $details[] = [
                 'type' => 'Adhésion',

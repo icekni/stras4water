@@ -8,7 +8,7 @@
     <p><strong>Email :</strong> {{ user.email }}</p>
     <p>
         <strong>Adhésion :</strong>
-        {% if user.isAdherent %}
+        {% if user.adhesion %}
             ✅ En cours
         {% else %}
             ❌ Non actif
@@ -68,6 +68,9 @@
 <div class="mt-4">
     <a href="{{ path('admin_user_scan') }}" class="btn btn-secondary">
         ← Retour à la page de scan
+    </a>
+    <a href="{{ path('admin_user_index') }}" class="btn btn-secondary">
+        ← Retour à la liste
     </a>
 </div>
 {% endblock %}

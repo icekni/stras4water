@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Adhesion;
 use App\Enum\DonationStatus;
+use App\Enum\MoyenPaiement;
 use App\Enum\Statut;
 use App\Repository\AbonnementSouscritRepository;
+use App\Repository\AdhesionRepository;
 use App\Repository\CarteSouscriteRepository;
 use App\Repository\DonationRepository;
 use App\Repository\UserRepository;
@@ -27,6 +30,7 @@ final class WebHookController extends AbstractController
         EntityManagerInterface $entityManager, 
         DonationRepository $donationRepository, 
         UserRepository $userRepository,
+        AdhesionRepository $adhesionRepository,
         AbonnementSouscritRepository $abonnementRepository,
         CarteSouscriteRepository $carteRepository,
         EmailService $emailService,
@@ -100,6 +104,7 @@ final class WebHookController extends AbstractController
                         else {
                             $abonnement->setStatut(Statut::ACTIVE);
                         }
+                        $abonnement->setMoyenPaiement(MoyenPaiement::STRIPE);
                     }
                 }
 
@@ -113,11 +118,20 @@ final class WebHookController extends AbstractController
                         else {
                             $carte->setStatut(Statut::ACTIVE);
                         }
+                        $carte->setMoyenPaiement(MoyenPaiement::STRIPE);
                     }
                 }
 
                 if ($adhesion) {
-                    $user->setIsAdherent(true);
+                    if (!$user->getAdhesion()) {
+                        $adhesionEntity = new Adhesion();
+
+                        $adhesionEntity->setUser($user);
+                        $adhesionEntity->setMoyenPaiement(MoyenPaiement::STRIPE);
+
+                        $entityManager->persist($adhesionEntity);
+                        $entityManager->flush();
+                    }
                 }
 
                 $detailsCommande = $commandeDetailsBuilder->build($adhesion, $abonnementIds, $carteIds, $user, $this->getSaisonAdhesion());
@@ -139,11 +153,9 @@ final class WebHookController extends AbstractController
         $year = (int) $now->format('Y');
         $month = (int) $now->format('n'); // 1 à 12
 
-        if ($month >= 9) {
-            // De septembre à décembre → saison commence cette année
+        if ($month >= 7) {
             return $year . '/' . ($year + 1);
         } else {
-            // De janvier à août → saison a commencé l'année précédente
             return ($year - 1) . '/' . $year;
         }
     }

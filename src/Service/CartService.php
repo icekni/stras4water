@@ -108,9 +108,9 @@ class CartService
         //     return new CartAddResult(false, 'Vous avez déjà un abonnement actif pour une discipline couverte par cette carte.');
         // }
 
-        if ($this->isCarteConflitAvecCartesUtilisateur($user, $carte)) {
-            return new CartAddResult(false, 'Vous avez deja cette carte.');
-        }
+        // if ($this->isCarteConflitAvecCartesUtilisateur($user, $carte)) {
+        //     return new CartAddResult(false, 'Vous avez deja cette carte.');
+        // }
 
         foreach ($cart['cartes'] as $row) {
             if ($row['id'] === $carte->getId()) {
@@ -145,7 +145,7 @@ class CartService
     private function checkAdhesion(array &$cart): void
     {
         $user = $this->security->getUser();
-        $needsAdhesion = !($user instanceof User && $user->isAdherent());
+        $needsAdhesion = !($user instanceof User && $user->getAdhesion() !== null);
         if ($needsAdhesion) {
             if (!$cart['adhesion']) {
                 $cart['adhesion'] = true;

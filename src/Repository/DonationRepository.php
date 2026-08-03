@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Donation;
+use App\Enum\DonationStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpParser\Node\Expr\Cast\Array_;
@@ -41,6 +42,40 @@ class DonationRepository extends ServiceEntityRepository
                 \App\Enum\DonationStatus::PAID,
                 \App\Enum\DonationStatus::COMPLETED,
             ])
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Donation[]
+     */
+    public function findBetweenDates(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $to
+    ): array {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb
+            ->andWhere('d.status IN (:statuses)')
+            ->setParameter('statuses', [
+                DonationStatus::PAID,
+                DonationStatus::COMPLETED,
+            ]);
+
+        if ($from) {
+            $qb
+                ->andWhere('d.createdAt >= :from')
+                ->setParameter('from', $from);
+        }
+
+        if ($to) {
+            $qb
+                ->andWhere('d.createdAt <= :to')
+                ->setParameter('to', $to);
+        }
+
+        return $qb
+            ->orderBy('d.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

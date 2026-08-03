@@ -1,0 +1,26 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Créer utilisateur{% endblock %}
+
+{% block body %}
+<h1>Créer utilisateur</h1>
+
+
+
+{{ form_start(form) }}
+
+    {{ form_row(form.email) }}
+    {{ form_row(form.nom) }}
+    {{ form_row(form.prenom) }}
+    {{ form_row(form.roles) }}
+
+    <button class="btn btn-primary">
+        Créer l'utilisateur
+    </button>
+
+{{ form_end(form) }}
+<a href="{{ path('admin_user_index') }}" class="btn btn-secondary">
+    ← Retour à la liste
+</a>
+
+{% endblock %}

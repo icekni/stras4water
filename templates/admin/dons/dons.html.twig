@@ -50,7 +50,7 @@
                     <td>{{ don.moyenPaiement.value }}</td> 
                     <td>
                         {% if don.urlRecuFiscal %}
-                            <a href="{{ path('admin_donations_create', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ path('admin_donations_receipt', {id: don.id}) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 Voir le reçu
                             </a>
                             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resendModal"
@@ -73,7 +73,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if don.moyenPaiement == constant('App\\Enum\\MoyenPaiement::CARTE') and (don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED')) %}
+                        {% if don.moyenPaiement == constant('App\\Enum\\MoyenPaiement::STRIPE') and (don.status == constant('App\\Enum\\DonationStatus::PAID') or don.status == constant('App\\Enum\\DonationStatus::COMPLETED')) %}
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-danger dropdown-toggle" type="button" id="dropdownMenu{{ don.id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     Rembourser le don
