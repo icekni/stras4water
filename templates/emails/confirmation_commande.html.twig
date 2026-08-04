@@ -46,16 +46,16 @@
       <ul>
         {% for ab in abonnements %}
           <li>{{ ab.libelle }}</li>
-          {% if ab.discipline.nom = 'Bachata' %}
+          {% if ab.abonnement.discipline.nom == 'Bachata' %}
             {% set bachata = true %}
           {% endif %}
-          {% if ab.discipline.nom = 'Salsa' %}
+          {% if ab.abonnement.discipline.nom == 'Salsa' %}
             {% set salsa = true %}
           {% endif %}
-          {% if ab.discipline.nom = 'Anglais' %}
+          {% if ab.abonnement.discipline.nom == 'Anglais' %}
             {% set anglais = true %}
           {% endif %}
-          {% if ab.discipline.nom = 'Espagnol' %}
+          {% if ab.abonnement.discipline.nom == 'Espagnol' %}
             {% set espagnol = true %}
           {% endif %}
         {% endfor %}
@@ -67,18 +67,24 @@
       <ul>
         {% for carte in cartes %}
           <li>{{ carte.libelle }}</li>
-          {% if carte.discipline.nom = 'Bachata' %}
-            {% set bachata = true %}
-          {% endif %}
-          {% if carte.discipline.nom = 'Salsa' %}
-            {% set salsa = true %}
-          {% endif %}
-          {% if carte.discipline.nom = 'Anglais' %}
-            {% set anglais = true %}
-          {% endif %}
-          {% if carte.discipline.nom = 'Espagnol' %}
-            {% set espagnol = true %}
-          {% endif %}
+          {% for discipline in carte.carte.disciplines %}
+            {% if discipline.nom == 'Bachata' %}
+                {% set bachata = true %}
+            {% endif %}
+
+            {% if discipline.nom == 'Salsa' %}
+                {% set salsa = true %}
+            {% endif %}
+
+            {% if discipline.nom == 'Anglais' %}
+                {% set anglais = true %}
+            {% endif %}
+
+            {% if discipline.nom == 'Espagnol' %}
+                {% set espagnol = true %}
+            {% endif %}
+
+        {% endfor %}
         {% endfor %}
       </ul>
     {% endif %}
