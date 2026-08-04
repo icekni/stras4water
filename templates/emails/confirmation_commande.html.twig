@@ -37,11 +37,27 @@
       <p>Votre carte de membre est jointe à ce message au format PDF. Elle vous sera demandé en début de cours, vous pouvez la présenter directement depuis votre telephone, ou l'imprimer, au choix.</p>
     {% endif %}
 
+    {% set salsa = false %}
+    {% set bachata = false %}
+    {% set anglais = false %}
+    {% set espagnol = false %}
     {% if abonnements|length > 0 %}
       <h2>Abonnements souscrits</h2>
       <ul>
         {% for ab in abonnements %}
           <li>{{ ab.libelle }}</li>
+          {% if ab.discipline.nom = 'Bachata' %}
+            {% set bachata = true %}
+          {% endif %}
+          {% if ab.discipline.nom = 'Salsa' %}
+            {% set salsa = true %}
+          {% endif %}
+          {% if ab.discipline.nom = 'Anglais' %}
+            {% set anglais = true %}
+          {% endif %}
+          {% if ab.discipline.nom = 'Espagnol' %}
+            {% set espagnol = true %}
+          {% endif %}
         {% endfor %}
       </ul>
     {% endif %}
@@ -51,7 +67,66 @@
       <ul>
         {% for carte in cartes %}
           <li>{{ carte.libelle }}</li>
+          {% if carte.discipline.nom = 'Bachata' %}
+            {% set bachata = true %}
+          {% endif %}
+          {% if carte.discipline.nom = 'Salsa' %}
+            {% set salsa = true %}
+          {% endif %}
+          {% if carte.discipline.nom = 'Anglais' %}
+            {% set anglais = true %}
+          {% endif %}
+          {% if carte.discipline.nom = 'Espagnol' %}
+            {% set espagnol = true %}
+          {% endif %}
         {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if bachata or salsa or anglais or espagnol %}
+      <h2>Rejoignez nos groupes WhatsApp</h2>
+
+      <p>
+        Afin de rester informé des éventuels changements, des événements et des informations importantes,
+        nous vous invitons à rejoindre les groupes WhatsApp correspondant à vos activités.
+      </p>
+
+      <ul>
+        {% if bachata %}
+          <li>
+            <strong>Bachata :</strong>
+            <a href="https://chat.whatsapp.com/J2xFzEx0Zpv4wXJ96pX4Aj?s=cl&p=a&mlu=4">
+              Rejoindre le groupe
+            </a>
+          </li>
+        {% endif %}
+
+        {% if salsa %}
+          <li>
+            <strong>Salsa :</strong>
+            <a href="https://chat.whatsapp.com/J7jqlLAUxDS52IAKjHHxqi?s=cl&p=a&mlu=4">
+              Rejoindre le groupe
+            </a>
+          </li>
+        {% endif %}
+
+        {% if anglais %}
+          <li>
+            <strong>Anglais :</strong>
+            <a href="https://chat.whatsapp.com/ISFSPofTcVECDAs1BCsbDO?s=cl&p=a&mlu=4">
+              Rejoindre le groupe
+            </a>
+          </li>
+        {% endif %}
+
+        {% if espagnol %}
+          <li>
+            <strong>Espagnol :</strong>
+            <a href="https://chat.whatsapp.com/CxJrmC5dcysLRX9dbjDfHp?s=cl&p=a&mlu=4">
+              Rejoindre le groupe
+            </a>
+          </li>
+        {% endif %}
       </ul>
     {% endif %}
 
