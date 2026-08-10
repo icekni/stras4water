@@ -42,6 +42,7 @@ class CommandeDetailsBuilder
                 $details[] = [
                     'type' => 'Abonnement',
                     'libelle' => $abonnementSouscrit->getAbonnement()->getNom(),
+                    'discipline' => $abonnementSouscrit->getDiscipline()->getNom(),
                 ];
             }
         }
@@ -52,6 +53,7 @@ class CommandeDetailsBuilder
                 $details[] = [
                     'type' => 'Carte',
                     'libelle' => $carteSouscrite->getCarte()->getNom(),
+                    'discipline' => $carteSouscrite->getDisciplines(),
                 ];
             }
         }
