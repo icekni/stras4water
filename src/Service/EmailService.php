@@ -59,8 +59,48 @@ class EmailService {
         $this->mailer->send($email);
     }
 
-    public function sendConfirmationCommande(User $user, bool $withAdhesionCard, ?string $pdfCard = null, array $detailsCommande = []): void
-    {
+    public function sendConfirmationCommande(
+        User $user,
+        bool $withAdhesionCard,
+        ?string $pdfCard = null,
+        array $detailsCommande = []
+    ): void {
+        
+        $disciplinesWhatsapp = [];
+
+        foreach ($detailsCommande as $detail) {
+
+            // Abonnement
+            if ($detail['type'] === 'Abonnement') {
+
+                $discipline = $detail['discipline'];
+
+                if ($discipline->getWhatsappUrl()) {
+                    $disciplinesWhatsapp[$discipline->getId()] = $discipline;
+                }
+            }
+
+            // Carte
+            if ($detail['type'] === 'Carte') {
+
+                foreach ($user->getCarteSouscrites() as $carteSouscrite) {
+
+                    if ($carteSouscrite->getId() != $detail['id']) {
+                        continue;
+                    }
+
+                    foreach ($carteSouscrite->getCarte()->getDisciplines() as $discipline) {
+
+                        if ($discipline->getWhatsappUrl()) {
+                            $disciplinesWhatsapp[$discipline->getId()] = $discipline;
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
         $email = (new TemplatedEmail())
             ->from(new Address('contact@stras4water.org', 'Stras4Water'))
             ->to($user->getEmail())
@@ -70,12 +110,17 @@ class EmailService {
                 'user' => $user,
                 'withAdhesionCard' => $withAdhesionCard,
                 'details' => $detailsCommande,
+                'disciplinesWhatsapp' => array_values($disciplinesWhatsapp),
             ]);
 
         if ($withAdhesionCard && $pdfCard) {
-            $email->attachFromPath($pdfCard, 'carte-de-membre.pdf', 'application/pdf');
+            $email->attachFromPath(
+                $pdfCard,
+                'carte-de-membre.pdf',
+                'application/pdf'
+            );
         }
-        
+
         $this->mailer->send($email);
     }
 

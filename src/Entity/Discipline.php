@@ -20,6 +20,9 @@ class Discipline
     #[ORM\Column]
     private ?bool $isActif = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $WhatsappUrl = null;
+
     public function __construct()
     {        
         $this->isActif = true;
@@ -50,6 +53,18 @@ class Discipline
     public function setIsActif(bool $isActif): static
     {
         $this->isActif = $isActif;
+
+        return $this;
+    }
+
+    public function getWhatsappUrl(): ?string
+    {
+        return $this->WhatsappUrl;
+    }
+
+    public function setWhatsappUrl(?string $WhatsappUrl): static
+    {
+        $this->WhatsappUrl = $WhatsappUrl;
 
         return $this;
     }

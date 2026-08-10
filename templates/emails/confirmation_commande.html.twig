@@ -36,6 +36,7 @@
       </ul>
       <p>Votre carte de membre est jointe à ce message au format PDF. Elle vous sera demandé en début de cours, vous pouvez la présenter directement depuis votre telephone, ou l'imprimer, au choix.</p>
     {% endif %}
+    
 
     {% if abonnements|length > 0 %}
       <h2>Abonnements souscrits</h2>
@@ -54,6 +55,27 @@
         {% endfor %}
       </ul>
     {% endif %}
+
+    {% if disciplinesWhatsapp is not empty %}
+
+      <h2>Rejoignez nos groupes WhatsApp</h2>
+
+      <p>
+          Afin de rester informé des éventuels changements, des événements et des informations importantes,
+          nous vous invitons à rejoindre les groupes WhatsApp correspondant à vos activités.
+      </p>
+
+      <ul>
+        {% for discipline in disciplinesWhatsapp %}
+            <li>
+                <a href="{{ discipline.whatsappUrl }}">
+                    Rejoindre le groupe {{ discipline.nom }} : {{ discipline.whatsappUrl }}
+                </a>
+            </li>
+        {% endfor %}
+      </ul>
+
+      {% endif %}
 
     <p>Nous vous remercions pour votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire à <a href="mailto:contact@stras4water.org">contact@stras4water.org</a>.</p>
 
