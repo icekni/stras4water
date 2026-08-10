@@ -42,7 +42,7 @@ class CommandeDetailsBuilder
                 $details[] = [
                     'type' => 'Abonnement',
                     'libelle' => $abonnementSouscrit->getAbonnement()->getNom(),
-                    'discipline' => $abonnementSouscrit->getAbonnement()->getDiscipline()->getNom(),
+                    'discipline' => $abonnementSouscrit->getAbonnement()->getDiscipline(),
                 ];
             }
         }

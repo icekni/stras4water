@@ -59,67 +59,43 @@ class EmailService {
         $this->mailer->send($email);
     }
 
-    public function sendConfirmationCommande(User $user, bool $withAdhesionCard, ?string $pdfCard = null, array $detailsCommande = []): void
-    {
-        $groupesWhatsapp = [
-            'bachata' => false,
-            'salsa' => false,
-            'anglais' => false,
-            'espagnol' => false,
-        ];
+    public function sendConfirmationCommande(
+        User $user,
+        bool $withAdhesionCard,
+        ?string $pdfCard = null,
+        array $detailsCommande = []
+    ): void {
+        
+        $disciplinesWhatsapp = [];
 
         foreach ($detailsCommande as $detail) {
+
+            // Abonnement
             if ($detail['type'] === 'Abonnement') {
-                foreach ($user->getAbonnementSouscrits() as $abonnementSouscrit) {
-                    if ($abonnementSouscrit->getId() != $detail['id']) {
-                        continue;
-                    }
 
-                    $discipline = $abonnementSouscrit
-                        ->getAbonnement()
-                        ->getDiscipline()
-                        ->getNom();
+                $discipline = $detail['discipline'];
 
-                    switch ($discipline) {
-                        case 'Bachata':
-                            $groupesWhatsapp['bachata'] = true;
-                            break;
-                        case 'Salsa':
-                            $groupesWhatsapp['salsa'] = true;
-                            break;
-                        case 'Anglais':
-                            $groupesWhatsapp['anglais'] = true;
-                            break;
-                        case 'Espagnol':
-                            $groupesWhatsapp['espagnol'] = true;
-                            break;
-                    }
-                    break;
+                if ($discipline->getWhatsappUrl()) {
+                    $disciplinesWhatsapp[$discipline->getId()] = $discipline;
                 }
             }
 
+            // Carte
             if ($detail['type'] === 'Carte') {
+
                 foreach ($user->getCarteSouscrites() as $carteSouscrite) {
+
                     if ($carteSouscrite->getId() != $detail['id']) {
                         continue;
                     }
 
                     foreach ($carteSouscrite->getCarte()->getDisciplines() as $discipline) {
-                        switch ($discipline->getNom()) {
-                            case 'Bachata':
-                                $groupesWhatsapp['bachata'] = true;
-                                break;
-                            case 'Salsa':
-                                $groupesWhatsapp['salsa'] = true;
-                                break;
-                            case 'Anglais':
-                                $groupesWhatsapp['anglais'] = true;
-                                break;
-                            case 'Espagnol':
-                                $groupesWhatsapp['espagnol'] = true;
-                                break;
+
+                        if ($discipline->getWhatsappUrl()) {
+                            $disciplinesWhatsapp[$discipline->getId()] = $discipline;
                         }
                     }
+
                     break;
                 }
             }
@@ -134,13 +110,17 @@ class EmailService {
                 'user' => $user,
                 'withAdhesionCard' => $withAdhesionCard,
                 'details' => $detailsCommande,
-                'groupesWhatsapp' => $groupesWhatsapp,
+                'disciplinesWhatsapp' => array_values($disciplinesWhatsapp),
             ]);
 
         if ($withAdhesionCard && $pdfCard) {
-            $email->attachFromPath($pdfCard, 'carte-de-membre.pdf', 'application/pdf');
+            $email->attachFromPath(
+                $pdfCard,
+                'carte-de-membre.pdf',
+                'application/pdf'
+            );
         }
-        
+
         $this->mailer->send($email);
     }
 

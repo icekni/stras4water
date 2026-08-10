@@ -55,10 +55,7 @@
       </ul>
     {% endif %}
 
-    {% if groupesWhatsapp.bachata
-        or groupesWhatsapp.salsa
-        or groupesWhatsapp.anglais
-        or groupesWhatsapp.espagnol %}
+    {% if disciplinesWhatsapp is not empty %}
 
       <h2>Rejoignez nos groupes WhatsApp</h2>
 
@@ -68,21 +65,13 @@
       </p>
 
       <ul>
-          {% if groupesWhatsapp.bachata %}
-              <li><strong>Bachata :</strong> <a href="https://chat.whatsapp.com/J2xFzEx0Zpv4wXJ96pX4Aj?s=cl&p=a&mlu=4">Rejoindre le groupe</a></li>
-          {% endif %}
-
-          {% if groupesWhatsapp.salsa %}
-              <li><strong>Salsa :</strong> <a href="https://chat.whatsapp.com/J7jqlLAUxDS52IAKjHHxqi?s=cl&p=a&mlu=4">Rejoindre le groupe</a></li>
-          {% endif %}
-
-          {% if groupesWhatsapp.anglais %}
-              <li><strong>Anglais :</strong> <a href="https://chat.whatsapp.com/ISFSPofTcVECDAs1BCsbDO?s=cl&p=a&mlu=4">Rejoindre le groupe</a></li>
-          {% endif %}
-
-          {% if groupesWhatsapp.espagnol %}
-              <li><strong>Espagnol :</strong> <a href="https://chat.whatsapp.com/CxJrmC5dcysLRX9dbjDfHp?s=cl&p=a&mlu=4">Rejoindre le groupe</a></li>
-          {% endif %}
+        {% for discipline in disciplinesWhatsapp %}
+            <li>
+                <a href="{{ discipline.whatsappUrl }}">
+                    Rejoindre le groupe {{ discipline.nom }} : {{ discipline.whatsappUrl }}
+                </a>
+            </li>
+        {% endfor %}
       </ul>
 
       {% endif %}

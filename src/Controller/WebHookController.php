@@ -136,7 +136,7 @@ final class WebHookController extends AbstractController
 
                 $detailsCommande = $commandeDetailsBuilder->build($adhesion, $abonnementIds, $carteIds, $user, $this->getSaisonAdhesion());
                 $pdfCard = $adhesion ? $carteDeMembreGenerator->generate($user, $this->getSaisonAdhesion()) : null;
-                dd($detailsCommande);
+
                 $emailService->sendConfirmationCommande($user, $adhesion, $pdfCard, $detailsCommande);
 
             }
