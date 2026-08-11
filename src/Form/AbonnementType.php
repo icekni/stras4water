@@ -42,6 +42,9 @@ class AbonnementType extends AbstractType
                 'label' => 'Saison',
                 'placeholder' => 'Sélectionner une saison',
             ])
+            ->add('whatsappUrl', TextType::class, [
+                'label' => 'URL du groupe Whatsapp',
+            ])
         ;
     }
 

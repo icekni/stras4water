@@ -1,89 +1,206 @@
+```twig
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Confirmation de votre commande Stras4Water</title>
-  <style>
-    body { font-family: Arial, sans-serif; color: #333; background-color: #f6f9fc; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h1 { color: #2d87f0; font-size: 24px; }
-    h2 { font-size: 18px; color: #2d87f0; margin-top: 30px; }
-    ul { padding-left: 20px; }
-    li { margin-bottom: 5px; }
-    p { font-size: 16px; line-height: 1.5; }
-    .footer { font-size: 12px; color: #777; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Confirmation de votre commande Stras4Water</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f6f9fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2d87f0;
+            font-size: 24px;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: #2d87f0;
+            margin-top: 30px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: #2d87f0;
+        }
+
+        .whatsapp-button {
+            display: inline-block;
+            background-color: #25D366;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="container">
-    <div style="text-align:center; margin-bottom: 20px;">
-      <img src="https://www.stras4water.org/img/logo.png" alt="Stras4Water" style="max-width: 200px; height: auto;" />
+
+<div class="container">
+
+    <div style="text-align:center; margin-bottom:20px;">
+        <img
+            src="https://www.stras4water.org/img/logo.png"
+            alt="Stras4Water"
+            style="max-width:200px; height:auto;"
+        >
     </div>
 
     <h1>Confirmation de votre commande</h1>
-    <p>Bonjour {{ user.prenom }},</p>
+
+    <p>
+        Bonjour {{ user.prenom }},
+    </p>
 
     {% set adhesions = details|filter(d => d.type == 'Adhésion') %}
     {% set abonnements = details|filter(d => d.type == 'Abonnement') %}
     {% set cartes = details|filter(d => d.type == 'Carte') %}
 
+    {# ADHÉSION #}
     {% if adhesions|length > 0 %}
-      <h2>Adhésion</h2>
-      <ul>
-        {% for adhesion in adhesions %}
-          <li>{{ adhesion.libelle }}</li>
-        {% endfor %}
-      </ul>
-      <p>Votre carte de membre est jointe à ce message au format PDF. Elle vous sera demandé en début de cours, vous pouvez la présenter directement depuis votre telephone, ou l'imprimer, au choix.</p>
+
+        <h2>Adhésion</h2>
+
+        <ul>
+            {% for adhesion in adhesions %}
+                <li>{{ adhesion.libelle }}</li>
+            {% endfor %}
+        </ul>
+
+        <p>
+            Votre carte de membre est jointe à ce message au format PDF.
+            Elle vous sera demandée en début de cours.
+            Vous pouvez la présenter directement depuis votre téléphone
+            ou l’imprimer, au choix.
+        </p>
+
     {% endif %}
     
 
+
+    {# ABONNEMENTS #}
     {% if abonnements|length > 0 %}
-      <h2>Abonnements souscrits</h2>
-      <ul>
-        {% for ab in abonnements %}
-          <li>{{ ab.libelle }}</li>
-        {% endfor %}
-      </ul>
+
+        <h2>Abonnements souscrits</h2>
+
+        <ul>
+            {% for abonnement in abonnements %}
+                <li>{{ abonnement.libelle }}</li>
+            {% endfor %}
+        </ul>
+
     {% endif %}
 
+
+    {# CARTES #}
     {% if cartes|length > 0 %}
-      <h2>Cartes de cours</h2>
-      <ul>
-        {% for carte in cartes %}
-          <li>{{ carte.libelle }}</li>
-        {% endfor %}
-      </ul>
+
+        <h2>Cartes de cours</h2>
+
+        <ul>
+            {% for carte in cartes %}
+                <li>{{ carte.libelle }}</li>
+            {% endfor %}
+        </ul>
+
     {% endif %}
 
-    {% if disciplinesWhatsapp is not empty %}
 
-      <h2>Rejoignez nos groupes WhatsApp</h2>
+    {# GROUPES WHATSAPP #}
+    {% if groupesWhatsapp is not empty %}
 
-      <p>
-          Afin de rester informé des éventuels changements, des événements et des informations importantes,
-          nous vous invitons à rejoindre les groupes WhatsApp correspondant à vos activités.
-      </p>
+        <h2>Rejoignez vos groupes WhatsApp</h2>
 
-      <ul>
-        {% for discipline in disciplinesWhatsapp %}
-            <li>
-                <a href="{{ discipline.whatsappUrl }}">
-                    Rejoindre le groupe {{ discipline.nom }} : {{ discipline.whatsappUrl }}
-                </a>
-            </li>
-        {% endfor %}
-      </ul>
+        <p>
+            Afin de rester informé des éventuels changements,
+            des événements et des informations importantes,
+            nous vous invitons à rejoindre les groupes WhatsApp
+            correspondant à votre commande.
+        </p>
 
-      {% endif %}
+        <ul>
+            {% for groupe in groupesWhatsapp %}
 
-    <p>Nous vous remercions pour votre confiance. Si vous avez des questions, n’hésitez pas à nous écrire à <a href="mailto:contact@stras4water.org">contact@stras4water.org</a>.</p>
+                <li>
+                    <a
+                        href="{{ groupe.url }}"
+                        class="whatsapp-button"
+                        target="_blank"
+                    >
+                        Rejoindre {{ groupe.nom }}
+                    </a>
+                </li>
 
-    <p>Bien cordialement,<br>L’équipe Stras4Water</p>
+            {% endfor %}
+        </ul>
+
+    {% endif %}
+
+
+    <p>
+        Nous vous remercions pour votre confiance.
+        Si vous avez des questions, n’hésitez pas à nous écrire à
+        <a href="mailto:contact@stras4water.org">
+            contact@stras4water.org
+        </a>.
+    </p>
+
+    <p>
+        Bien cordialement,<br>
+        L’équipe Stras4Water
+    </p>
+
 
     <div class="footer">
-      <p>Vous recevez cet email car vous avez réalisé une commande sur notre site. Si vous n’êtes pas à l’origine de cette action, vous pouvez ignorer ce message.</p>
+
+        <p>
+            Vous recevez cet email car vous avez réalisé une commande
+            sur notre site. Si vous n’êtes pas à l’origine de cette action,
+            vous pouvez ignorer ce message.
+        </p>
+
     </div>
-  </div>
+
+</div>
+
 </body>
 </html>
+```

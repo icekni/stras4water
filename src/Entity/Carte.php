@@ -50,6 +50,9 @@ class Carte
     #[ORM\ManyToMany(targetEntity: Discipline::class)]
     private Collection $disciplines;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $whatsappUrl = null;
+
     public function __construct()
     {
         $this->carteSouscrites = new ArrayCollection();
@@ -171,5 +174,17 @@ class Carte
     public function getDisciplines(): Collection
     {
         return $this->disciplines;
+    }
+
+    public function getWhatsappUrl(): ?string
+    {
+        return $this->whatsappUrl;
+    }
+
+    public function setWhatsappUrl(?string $whatsappUrl): static
+    {
+        $this->whatsappUrl = $whatsappUrl;
+
+        return $this;
     }
 }

@@ -66,37 +66,31 @@ class EmailService {
         array $detailsCommande = []
     ): void {
         
-        $disciplinesWhatsapp = [];
+        $groupesWhatsapp = [];
 
         foreach ($detailsCommande as $detail) {
 
             // Abonnement
             if ($detail['type'] === 'Abonnement') {
+                $abonnement = $detail['abonnement'];
 
-                $discipline = $detail['discipline'];
-
-                if ($discipline->getWhatsappUrl()) {
-                    $disciplinesWhatsapp[$discipline->getId()] = $discipline;
+                if ($abonnement->getWhatsappUrl()) {
+                    $groupesWhatsapp[] = [
+                        'nom' => $abonnement->getNom(),
+                        'url' => $abonnement->getWhatsappUrl(),
+                    ];
                 }
             }
 
             // Carte
             if ($detail['type'] === 'Carte') {
+                $carte = $detail['carte'];
 
-                foreach ($user->getCarteSouscrites() as $carteSouscrite) {
-
-                    if ($carteSouscrite->getId() != $detail['id']) {
-                        continue;
-                    }
-
-                    foreach ($carteSouscrite->getCarte()->getDisciplines() as $discipline) {
-
-                        if ($discipline->getWhatsappUrl()) {
-                            $disciplinesWhatsapp[$discipline->getId()] = $discipline;
-                        }
-                    }
-
-                    break;
+                if ($carte->getWhatsappUrl()) {
+                    $groupesWhatsapp[] = [
+                        'nom' => $carte->getNom(),
+                        'url' => $carte->getWhatsappUrl(),
+                    ];
                 }
             }
         }
@@ -110,7 +104,7 @@ class EmailService {
                 'user' => $user,
                 'withAdhesionCard' => $withAdhesionCard,
                 'details' => $detailsCommande,
-                'disciplinesWhatsapp' => array_values($disciplinesWhatsapp),
+                'groupesWhatsapp' => array_values($groupesWhatsapp),
             ]);
 
         if ($withAdhesionCard && $pdfCard) {
