@@ -16,9 +16,6 @@ class DisciplineType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom de la discipline',
-            ])
-            ->add('whatsappUrl', TextType::class, [
-                'label' => 'URL du groupe WhatsApp',
             ]);
     }
 
