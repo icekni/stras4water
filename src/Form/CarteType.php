@@ -43,6 +43,9 @@ class CarteType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'label' => 'Disciplines concernées',
+            ])
+            ->add('whatsappUrl', TextType::class, [
+                'label' => 'URL du groupe Whatsapp',
             ]);
     }
 

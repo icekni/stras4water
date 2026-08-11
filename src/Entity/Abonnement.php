@@ -44,6 +44,9 @@ class Abonnement
     #[ORM\JoinColumn(nullable: false)]
     private ?Saison $saison = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $whatsappUrl = null;
+
     public function __construct()
     {
         $this->abonnementSouscrits = new ArrayCollection();
@@ -166,6 +169,18 @@ class Abonnement
     public function setSaison(?Saison $saison): static
     {
         $this->saison = $saison;
+
+        return $this;
+    }
+
+    public function getWhatsappUrl(): ?string
+    {
+        return $this->whatsappUrl;
+    }
+
+    public function setWhatsappUrl(?string $whatsappUrl): static
+    {
+        $this->whatsappUrl = $whatsappUrl;
 
         return $this;
     }

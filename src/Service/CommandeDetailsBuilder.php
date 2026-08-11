@@ -18,17 +18,24 @@ class CommandeDetailsBuilder
      * @param string[] $abonnementIds
      * @param string[] $carteIds
      * @param User $user
-     * @return array<int, array{type: string, libelle: string, duree: string}>
+     * @return array
      */
-    public function build(bool $adhesion, array $abonnementIds, array $carteIds, User $user, string $annee): array
-    {
+    public function build(
+        bool $adhesion,
+        array $abonnementIds,
+        array $carteIds,
+        User $user,
+        string $annee
+    ): array {
         $details = [];
 
         if ($adhesion) {
             $now = new \DateTimeImmutable();
             $annee = (int) $now->format('Y');
             $mois = (int) $now->format('m');
-            $saison = $mois >= 7 ? "$annee/" . ($annee + 1) : ($annee - 1) . "/$annee";
+            $saison = $mois >= 7
+                ? "$annee/" . ($annee + 1)
+                : ($annee - 1) . "/$annee";
 
             $details[] = [
                 'type' => 'Adhésion',
@@ -38,22 +45,28 @@ class CommandeDetailsBuilder
 
         foreach ($abonnementIds as $id) {
             $abonnementSouscrit = $this->abonnementSouscritRepository->find($id);
+
             if ($abonnementSouscrit && $abonnementSouscrit->getUser() === $user) {
+                $abonnement = $abonnementSouscrit->getAbonnement();
+
                 $details[] = [
                     'type' => 'Abonnement',
-                    'libelle' => $abonnementSouscrit->getAbonnement()->getNom(),
-                    'discipline' => $abonnementSouscrit->getAbonnement()->getDiscipline(),
+                    'libelle' => $abonnement->getNom(),
+                    'abonnement' => $abonnement,
                 ];
             }
         }
 
         foreach ($carteIds as $id) {
             $carteSouscrite = $this->carteSouscriteRepository->find($id);
+
             if ($carteSouscrite && $carteSouscrite->getUser() === $user) {
+                $carte = $carteSouscrite->getCarte();
+
                 $details[] = [
                     'type' => 'Carte',
-                    'libelle' => $carteSouscrite->getCarte()->getNom(),
-                    'discipline' => $carteSouscrite->getCarte()->getDisciplines(),
+                    'libelle' => $carte->getNom(),
+                    'carte' => $carte,
                 ];
             }
         }
