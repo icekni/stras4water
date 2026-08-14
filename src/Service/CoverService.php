@@ -81,7 +81,7 @@ class CoverService
         if (is_file($cacheFile)) {
 
             return
-                '/public/upload/covers/'
+                '/upload/covers/'
                 . $cacheKey
                 . '.jpg';
         }
