@@ -107,7 +107,12 @@ class CoverService
                         $artist,
                         $titleVariant
                     );
-
+dd([
+    'artist' => $artist,
+    'title' => $title,
+    'titleVariant' => $titleVariant,
+    'releaseIds' => $releaseIds,
+]);
 
                 foreach (
                     $releaseIds
