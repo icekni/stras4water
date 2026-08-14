@@ -1,0 +1,690 @@
+{# templates/display/live.html.twig #}
+{% set current = state.current ?? {} %}
+{% set previous = state.previous ?? {} %}
+{% set next = state.next ?? [] %}
+{% set events = state.events ?? [] %}
+{% set nextStyle = state.nextStyle ?? {} %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Stras4Water Live</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root {
+    --accent:#d64040;
+    --background:#350909;
+    --card:rgba(255,255,255,.08);
+    --text:white;
+    --muted:rgba(255,255,255,.65);
+}
+
+* {
+    box-sizing:border-box;
+}
+
+html,
+body {
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--text);
+    background:var(--background);
+}
+
+body {
+    transition:background-color 1s ease;
+}
+
+body.salsa {
+    --accent:#d64040;
+    --background:#350909;
+}
+
+body.bachata {
+    --accent:#9b59d8;
+    --background:#24102f;
+}
+
+body.kizomba {
+    --accent:#3b82f6;
+    --background:#081b38;
+}
+
+.cover-background {
+    position:fixed;
+    inset:-60px;
+
+    background-image:url('{{ current.cover|default(asset('images/default-cover.jpg')) }}');
+    background-size:cover;
+    background-position:center;
+
+    filter:blur(50px);
+    opacity:.18;
+    transform:scale(1.2);
+}
+
+.overlay {
+    position:fixed;
+    inset:0;
+
+    background:
+        linear-gradient(
+            rgba(0,0,0,.55),
+            rgba(0,0,0,.85)
+        );
+}
+
+.screen {
+    position:relative;
+    z-index:2;
+
+    height:100vh;
+
+    display:grid;
+
+    grid-template-rows:
+        60px
+        minmax(0,1fr)
+        70px
+        180px;
+
+    padding:20px;
+    gap:15px;
+
+    overflow:hidden;
+}
+
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo {
+    font-size:clamp(1rem,2vw,1.5rem);
+    font-weight:bold;
+    letter-spacing:3px;
+}
+
+.main {
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,20%)
+        minmax(0,60%)
+        minmax(0,20%);
+
+    gap:15px;
+
+    min-height:0;
+}
+
+.card {
+    min-width:0;
+
+    background:var(--card);
+
+    backdrop-filter:blur(15px);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    overflow:hidden;
+}
+
+.side-title {
+    color:var(--muted);
+
+    text-transform:uppercase;
+
+    font-size:.85rem;
+
+    margin-bottom:20px;
+}
+
+.small-style {
+    color:var(--accent);
+    font-weight:bold;
+}
+
+.small-title {
+    margin-top:8px;
+
+    font-size:clamp(1rem,1.3vw,1.3rem);
+
+    font-weight:bold;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+.small-artist {
+    color:var(--muted);
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+.current {
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:var(--card);
+
+    backdrop-filter:blur(20px);
+
+    border-radius:30px;
+}
+
+.cover {
+    width:clamp(150px,15vw,220px);
+
+    height:clamp(150px,15vw,220px);
+
+    object-fit:cover;
+
+    border-radius:20px;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.5);
+}
+
+.style {
+    margin-top:20px;
+
+    font-size:clamp(1.2rem,2vw,2rem);
+
+    font-weight:bold;
+
+    color:var(--accent);
+}
+
+.current-title-wrapper {
+    width:80%;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-align:center;
+}
+
+.current-title {
+    display:inline-block;
+
+    font-size:clamp(2rem,3vw,3rem);
+
+    font-weight:bold;
+}
+
+.current-title.scroll {
+    animation:
+        marquee 14s linear infinite;
+}
+
+@keyframes marquee {
+    0%,
+    20% {
+        transform:translateX(0);
+    }
+
+    80%,
+    100% {
+        transform:translateX(-50%);
+    }
+
+}
+
+.artist {
+    font-size:clamp(1rem,1.5vw,1.8rem);
+
+    opacity:.75;
+}
+
+.progress-container {
+    width:75%;
+
+    margin-top:25px;
+}
+
+.progress {
+    height:12px;
+
+    background:rgba(255,255,255,.2);
+
+    border-radius:20px;
+
+    overflow:hidden;
+}
+
+.progress-bar {
+    height:100%;
+
+    width:0%;
+
+    background:var(--accent);
+}
+
+.time {
+    text-align:center;
+
+    margin-top:8px;
+
+    color:var(--muted);
+}
+
+.next-style {
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-left:
+        8px solid var(--accent);
+
+    background:var(--card);
+
+    backdrop-filter:blur(15px);
+
+    border-radius:20px;
+
+    font-size:clamp(1rem,2vw,1.8rem);
+
+    font-weight:bold;
+}
+
+.bottom {
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,40%)
+        minmax(0,60%);
+
+    gap:15px;
+}
+
+.qr {
+    display:flex;
+
+    align-items:center;
+
+    gap:25px;
+}
+
+.qr img {
+    width:110px;
+
+    height:110px;
+
+    background:white;
+
+    padding:10px;
+
+    border-radius:10px;
+
+}
+/* EVENEMENTS */
+
+.events {
+    padding:15px 20px;
+}
+
+.events h2 {
+    margin:0 0 10px 0;
+
+    font-size:1.3rem;
+}
+
+.events-container {
+    height:120px;
+
+    overflow:hidden;
+}
+
+.events-list {
+    transition:transform 1s ease;
+}
+
+.events-list div {
+    margin-bottom:8px;
+
+    font-size:1.15rem;
+}
+
+.events-list.scrolling {
+    animation:
+        scrollEvents var(--scroll-duration) linear infinite;
+}
+@keyframes scrollEvents {
+    0%,
+    15% {
+        transform:translateY(0);
+    }
+
+    85%,
+    100% {
+        transform:translateY(var(--scroll-distance));
+    }
+
+}
+
+</style>
+</head>
+
+<body class="{{ current.style|default('salsa') }}">
+
+<div class="cover-background"></div>
+<div class="overlay"></div>
+<div class="screen">
+
+<div class="header">
+
+    <div class="logo">
+        <img src="{{ asset('img/logo.png') }}" alt="Logo Stras4Water" height="80">
+    </div>
+
+    <div>
+        🕒 21:43
+    </div>
+
+</div>
+
+<div class="main">
+<div class="card">
+
+    <div class="side-title">
+        ✓ Précédente
+    </div>
+
+    <div class="small-style">
+        {{ previous.icon|default('') }}
+        {{ previous.style|default('')|upper }}
+    </div>
+
+    <div class="small-title">
+        {{ previous.title|default('') }}
+    </div>
+
+    <div class="small-artist">
+        {{ previous.artist|default('') }}
+    </div>
+
+</div>
+
+<div class="current">
+{% set cover = current.cover ?? asset('images/default-cover.jpg') %}
+<img class="cover" src="{{ cover }}" alt="{{ current.title|default('') }}">
+
+<div class="style">
+    {{ current.icon|default('') }}
+    {{ current.style|default('')|upper }}
+</div>
+<div class="current-title-wrapper">
+
+    <div class="current-title">
+
+        {{ current.title|default('En attente de musique') }}
+
+    </div>
+
+</div>
+<div class="artist">
+
+    {{ current.artist|default('') }}
+
+</div>
+
+<div class="progress-container">
+
+    <div class="progress">
+
+        <div class="progress-bar"></div>
+
+    </div>
+
+    <div class="time">
+
+        <span id="elapsed"></span>
+
+        /
+
+        <span id="duration"></span>
+
+    </div>
+
+</div>
+</div>
+
+
+<div class="card">
+
+    <div class="side-title">
+        ⏭ Ensuite
+    </div>
+{% for song in next %}
+
+    <div class="small-style">
+        {{ song.icon }}
+        {{ song.style|upper }}
+    </div>
+
+    <div class="small-title">
+        {{ song.title }}
+    </div>
+
+    <div class="small-artist">
+        {{ song.artist }}
+    </div>
+
+    {% if not loop.last %}
+        <hr>
+    {% endif %}
+
+{% endfor %}
+
+</div>
+</div>
+
+
+<div class="next-style">
+
+    🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
+
+    &nbsp;
+
+    {{ nextStyle.icon|default('🟣') }}
+
+    {{ nextStyle.style|default('bachata')|upper }}
+
+    &nbsp;
+
+    (≈ {{ nextStyle.minutes|default(8) }} min)
+
+</div>
+
+
+<div class="bottom">
+<div class="card qr">
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}">
+
+<div>
+
+<h2>
+📱 Proposer une musique
+</h2>
+
+Gratuit avec votes
+
+<br>
+
+⚡ Prioritaire pour 2 €
+
+</div>
+
+</div>
+
+
+<div class="card events">
+
+<h2>
+📅 Prochains événements
+</h2>
+
+<div class="events-container">
+
+    <div class="events-list">
+
+        {% for event in events %}
+
+            <div>
+                {{ event }}
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+/* ---------------------------
+   Durée morceau
+---------------------------- */
+
+let elapsed = {{ current.elapsed|default(0) }};
+let duration = {{ current.duration|default(1) }};
+function formatTime(seconds){
+    let min =
+        Math.floor(seconds / 60);
+
+    let sec =
+        seconds % 60;
+
+    return min + ':' + String(sec).padStart(2,'0');
+
+}
+document.querySelector('#duration')
+    .innerText =
+    formatTime(duration);
+
+function updateProgress(){
+    elapsed++;
+
+    if(elapsed > duration){
+        elapsed = duration;
+    }
+
+    document.querySelector('.progress-bar')
+        .style.width =
+        ((elapsed / duration) * 100) + '%';
+    document.querySelector('#elapsed')
+        .innerText =
+        formatTime(elapsed);
+
+}
+
+setInterval(updateProgress,1000);
+
+/* ---------------------------
+   Titre défilant
+---------------------------- */
+
+function checkTitleOverflow(){
+    const title =
+        document.querySelector('.current-title');
+
+    const wrapper =
+        document.querySelector('.current-title-wrapper');
+
+    if(!title || !wrapper){
+        return;
+    }
+
+    if(title.scrollWidth > wrapper.clientWidth){
+        title.classList.add('scroll');
+
+    }
+
+}
+
+
+/* ---------------------------
+   Défilement événements
+---------------------------- */
+
+function checkEventsOverflow(){
+    const container =
+        document.querySelector('.events-container');
+
+    const list =
+        document.querySelector('.events-list');
+
+    if(!container || !list){
+        return;
+    }
+
+    if(list.scrollHeight <= container.clientHeight){
+        return;
+    }
+    const distance =
+        container.clientHeight - list.scrollHeight;
+
+    list.style.setProperty(
+        '--scroll-distance',
+        distance + 'px'
+    );
+
+    const duration =
+        Math.max(
+            15,
+            list.children.length * 3
+        );
+
+    list.style.setProperty(
+        '--scroll-duration',
+        duration + 's'
+    );
+
+    list.classList.add('scrolling');
+
+}
+
+window.addEventListener(
+    'load',
+    () => {
+        checkTitleOverflow();
+        checkEventsOverflow();
+    }
+);
+
+</script>
+
+</body>
+</html>

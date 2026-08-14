@@ -145,5 +145,4 @@ final class FrontController extends AbstractController
             'saisonEnCours' => $saisonEnCours
         ]);
     }
-
 }
