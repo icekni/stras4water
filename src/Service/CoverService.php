@@ -11,9 +11,6 @@ class CoverService
     private const MUSICBRAINZ_URL =
         'https://musicbrainz.org/ws/2/recording';
 
-    private const MUSICBRAINZ_RELEASE_URL =
-        'https://musicbrainz.org/ws/2/release';
-
     private const COVER_ART_URL =
         'https://coverartarchive.org/release';
 
@@ -29,12 +26,6 @@ class CoverService
         $this->projectDir = $kernel->getProjectDir();
     }
 
-    /**
-     * Retourne l'URL locale de la pochette.
-     *
-     * En cas d'échec :
-     * /images/default-cover.jpg
-     */
     public function getCover(
         string $artist,
         string $title
@@ -63,22 +54,18 @@ class CoverService
         /*
          * Cache local
          */
-        if (is_file($cacheFile) && filesize($cacheFile) > 0) {
+        if (
+            is_file($cacheFile)
+            &&
+            filesize($cacheFile) > 0
+        ) {
             return '/upload/covers/' . $cacheKey . '.jpg';
         }
 
         try {
 
             /*
-             * On génère plusieurs variantes du titre.
-             *
-             * Exemple :
-             *
-             * Vivir Mi Vida (Official Remix Version Extended Dance Floor)
-             *
-             * ->
-             * Vivir Mi Vida (Official Remix Version Extended Dance Floor)
-             * Vivir Mi Vida
+             * On essaie plusieurs versions du titre.
              */
             $titleVariants =
                 $this->buildTitleVariants($title);
@@ -96,84 +83,22 @@ class CoverService
                 }
 
                 /*
-                 * On récupère les informations des releases
-                 * afin de pouvoir les classer.
+                 * On classe les releases.
+                 *
+                 * Pour commencer, on garde simplement
+                 * l'ordre MusicBrainz mais on essaie
+                 * toutes les releases.
                  */
-                $releases = [];
+                $releaseIds =
+                    $this->sortReleaseIds(
+                        $releaseIds
+                    );
 
                 foreach ($releaseIds as $releaseId) {
 
-                    $release =
-                        $this->getReleaseInfo(
-                            $releaseId
-                        );
-
-                    if ($release === null) {
-                        continue;
-                    }
-
-                    /*
-                     * On ne garde que les releases
-                     * qui correspondent raisonnablement
-                     * à notre artiste.
-                     */
-                    if (
-                        !$this->releaseMatchesArtist(
-                            $release,
-                            $artist
-                        )
-                    ) {
-                        continue;
-                    }
-
-                    $score =
-                        $this->scoreRelease(
-                            $release,
-                            $artist,
-                            $titleVariant
-                        );
-
-                    $releases[] = [
-                        'id' => $releaseId,
-                        'score' => $score,
-                        'release' => $release,
-                    ];
-                }
-
-                if (empty($releases)) {
-                    continue;
-                }
-
-                /*
-                 * Meilleures releases en premier.
-                 */
-                usort(
-                    $releases,
-                    static function (
-                        array $a,
-                        array $b
-                    ): int {
-                        return
-                            $b['score']
-                            <=>
-                            $a['score'];
-                    }
-                );
-
-                /*
-                 * On essaie les meilleures releases.
-                 *
-                 * On ne se limite pas forcément à la première :
-                 * une bonne release peut ne pas avoir de pochette.
-                 */
-                foreach (
-                    array_slice($releases, 0, 6)
-                    as $candidate
-                ) {
-
                     $imageUrl =
                         $this->findCoverUrl(
-                            $candidate['id']
+                            $releaseId
                         );
 
                     if ($imageUrl === null) {
@@ -198,11 +123,11 @@ class CoverService
                 }
             }
 
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
 
             /*
              * Une erreur externe ne doit jamais
-             * empêcher l'écran Live de fonctionner.
+             * empêcher l'écran Live.
              */
         }
 
@@ -211,7 +136,7 @@ class CoverService
 
 
     /**
-     * Génère différentes variantes d'un titre DJ.
+     * Génère plusieurs variantes du titre.
      */
     private function buildTitleVariants(
         string $title
@@ -220,12 +145,14 @@ class CoverService
         $variants = [];
 
         /*
-         * Titre original.
+         * Titre complet.
          */
         $variants[] = $title;
 
         /*
-         * Supprime les informations entre parenthèses.
+         * Supprime les parenthèses.
+         *
+         * Exemple :
          *
          * Vivir Mi Vida
          * (Official Remix Version Extended Dance Floor)
@@ -251,8 +178,8 @@ class CoverService
         }
 
         /*
-         * Supprime également certaines indications
-         * courantes des fichiers DJ.
+         * Supprime certaines indications DJ
+         * placées après un tiret.
          */
         $withoutDjSuffix =
             preg_replace(
@@ -271,7 +198,7 @@ class CoverService
         }
 
         /*
-         * Supprime les doublons.
+         * Suppression des doublons.
          */
         $result = [];
 
@@ -299,7 +226,7 @@ class CoverService
 
     /**
      * Recherche les releases correspondant
-     * à un artiste et un titre.
+     * à l'artiste et au titre.
      */
     private function findReleaseIds(
         string $artist,
@@ -314,16 +241,20 @@ class CoverService
                     self::MUSICBRAINZ_URL,
                     [
                         'query' => [
+
                             'query' => sprintf(
                                 'artist:"%s" AND recording:"%s"',
                                 $artist,
                                 $title
                             ),
+
                             'fmt' => 'json',
+
                             'limit' => 10,
                         ],
 
                         'headers' => [
+
                             'User-Agent' =>
                                 self::USER_AGENT,
 
@@ -347,9 +278,7 @@ class CoverService
                 $response->toArray(false);
 
             if (
-                empty(
-                    $data['recordings']
-                )
+                empty($data['recordings'])
             ) {
                 return [];
             }
@@ -362,11 +291,11 @@ class CoverService
             ) {
 
                 $recordingTitle =
-                    $recording['title'] ?? '';
+                    $recording['title']
+                    ?? '';
 
                 /*
-                 * On accepte uniquement les titres
-                 * correspondant réellement à notre recherche.
+                 * Le titre doit correspondre.
                  */
                 if (
                     $this->normalize(
@@ -417,9 +346,7 @@ class CoverService
                 ) {
 
                     if (
-                        !empty(
-                            $release['id']
-                        )
+                        !empty($release['id'])
                     ) {
                         $releaseIds[] =
                             $release['id'];
@@ -441,245 +368,25 @@ class CoverService
 
 
     /**
-     * Récupère les informations détaillées
-     * d'une release MusicBrainz.
-     */
-    private function getReleaseInfo(
-        string $releaseId
-    ): ?array {
-
-        try {
-
-            $response =
-                $this->httpClient->request(
-                    'GET',
-                    self::MUSICBRAINZ_RELEASE_URL
-                    . '/'
-                    . $releaseId,
-                    [
-                        'query' => [
-                            'fmt' => 'json',
-                            'inc' => 'artist-credits',
-                        ],
-
-                        'headers' => [
-                            'User-Agent' =>
-                                self::USER_AGENT,
-
-                            'Accept' =>
-                                'application/json',
-                        ],
-
-                        'timeout' => 5,
-                    ]
-                );
-
-            if (
-                $response->getStatusCode()
-                !==
-                200
-            ) {
-                return null;
-            }
-
-            return
-                $response->toArray(false);
-
-        } catch (\Throwable) {
-
-            return null;
-        }
-    }
-
-
-    /**
-     * Vérifie que la release appartient bien
-     * à l'artiste recherché.
-     */
-    private function releaseMatchesArtist(
-        array $release,
-        string $artist
-    ): bool {
-
-        $target =
-            $this->normalize($artist);
-
-        foreach (
-            $release['artist-credit']
-            ?? []
-            as $artistCredit
-        ) {
-
-            $name =
-                $artistCredit['name']
-                ??
-                $artistCredit['artist']['name']
-                ??
-                '';
-
-            if (
-                $this->normalize($name)
-                ===
-                $target
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Donne un score à une release.
+     * Pour l'instant on garde l'ordre retourné
+     * par MusicBrainz.
      *
-     * Plus le score est élevé,
-     * plus elle est intéressante.
+     * Cette méthode est volontairement simple :
+     * on pourra ensuite ajouter un vrai scoring
+     * quand on aura identifié les releases problématiques.
      */
-    private function scoreRelease(
-        array $release,
-        string $artist,
-        string $title
-    ): int {
+    private function sortReleaseIds(
+        array $releaseIds
+    ): array {
 
-        $score = 0;
-
-        $releaseTitle =
-            $release['title'] ?? '';
-
-        /*
-         * Titre exactement identique.
-         */
-        if (
-            $this->normalize($releaseTitle)
-            ===
-            $this->normalize($title)
-        ) {
-            $score += 100;
-        }
-
-        /*
-         * Le titre recherché est contenu
-         * dans le titre de la release.
-         */
-        elseif (
-            str_contains(
-                $this->normalize($releaseTitle),
-                $this->normalize($title)
-            )
-        ) {
-            $score += 60;
-        }
-
-        /*
-         * Release officielle.
-         */
-        if (
-            strtolower(
-                $release['status'] ?? ''
-            )
-            ===
-            'official'
-        ) {
-            $score += 40;
-        }
-
-        /*
-         * Release sans statut étrange.
-         */
-        if (
-            empty($release['status'])
-        ) {
-            $score += 5;
-        }
-
-        /*
-         * Un album/single est généralement
-         * plus pertinent qu'une compilation.
-         *
-         * On regarde le release-group.
-         */
-        $primaryType =
-            strtolower(
-                $release['release-group']
-                ['primary-type']
-                ?? ''
-            );
-
-        if (
-            $primaryType === 'single'
-        ) {
-            $score += 35;
-        }
-
-        elseif (
-            $primaryType === 'album'
-        ) {
-            $score += 25;
-        }
-
-        elseif (
-            $primaryType === 'ep'
-        ) {
-            $score += 20;
-        }
-
-        elseif (
-            $primaryType === 'compilation'
-        ) {
-            $score -= 40;
-        }
-
-        /*
-         * Certaines releases de compilation/radio
-         * peuvent contenir ces termes.
-         */
-        $releaseText =
-            $this->normalize(
-                $releaseTitle
-                . ' '
-                . ($release['packaging'] ?? '')
-            );
-
-        foreach (
-            [
-                'radio',
-                'hits',
-                'best of',
-                'various artists',
-                'compilation',
-                'dance collection',
-            ]
-            as $badWord
-        ) {
-
-            if (
-                str_contains(
-                    $releaseText,
-                    $badWord
-                )
-            ) {
-                $score -= 30;
-            }
-        }
-
-        /*
-         * Une release récente n'est pas forcément
-         * meilleure, donc on ne donne volontairement
-         * pas de bonus énorme à la date.
-         */
-        if (
-            !empty($release['date'])
-        ) {
-            $score += 2;
-        }
-
-        return $score;
+        return array_values(
+            array_unique($releaseIds)
+        );
     }
 
 
     /**
-     * Cherche une vraie pochette avant.
+     * Cherche la meilleure image de la release.
      */
     private function findCoverUrl(
         string $releaseId
@@ -695,6 +402,7 @@ class CoverService
                     . $releaseId,
                     [
                         'headers' => [
+
                             'User-Agent' =>
                                 self::USER_AGENT,
 
@@ -724,12 +432,7 @@ class CoverService
             }
 
             /*
-             * Priorité :
-             *
-             * 1. front + approved + 500
-             * 2. front + 500
-             * 3. front
-             * 4. première image 500
+             * Priorité à une vraie pochette avant.
              */
             foreach (
                 $data['images']
@@ -739,54 +442,17 @@ class CoverService
                 if (
                     ($image['front'] ?? false)
                     &&
-                    ($image['approved'] ?? false)
-                    &&
                     !empty(
                         $image['thumbnails']['500']
                     )
                 ) {
                     return
                         $image['thumbnails']['500'];
-                }
-            }
-
-            foreach (
-                $data['images']
-                as $image
-            ) {
-
-                if (
-                    ($image['front'] ?? false)
-                    &&
-                    !empty(
-                        $image['thumbnails']['500']
-                    )
-                ) {
-                    return
-                        $image['thumbnails']['500'];
-                }
-            }
-
-            foreach (
-                $data['images']
-                as $image
-            ) {
-
-                if (
-                    ($image['front'] ?? false)
-                    &&
-                    !empty(
-                        $image['image']
-                    )
-                ) {
-                    return
-                        $image['image'];
                 }
             }
 
             /*
-             * Dernier recours :
-             * première image disponible.
+             * Sinon première image.
              */
             foreach (
                 $data['images']
@@ -803,9 +469,7 @@ class CoverService
                 }
 
                 if (
-                    !empty(
-                        $image['image']
-                    )
+                    !empty($image['image'])
                 ) {
                     return
                         $image['image'];
@@ -822,7 +486,7 @@ class CoverService
 
 
     /**
-     * Télécharge la pochette localement.
+     * Télécharge la pochette dans le cache local.
      */
     private function downloadCover(
         string $url,
@@ -837,6 +501,7 @@ class CoverService
                     $url,
                     [
                         'headers' => [
+
                             'User-Agent' =>
                                 self::USER_AGENT,
                         ],
@@ -867,13 +532,13 @@ class CoverService
 
         } catch (\Throwable) {
 
-            // On ignore les erreurs réseau.
+            // Rien : la cover par défaut sera utilisée.
         }
     }
 
 
     /**
-     * Répertoire de cache.
+     * Répertoire du cache.
      */
     private function getCacheDirectory(): string
     {
@@ -896,7 +561,7 @@ class CoverService
 
 
     /**
-     * Génère une clé stable pour le cache.
+     * Clé du cache.
      */
     private function getCacheKey(
         string $artist,
@@ -914,8 +579,7 @@ class CoverService
 
 
     /**
-     * Normalisation pour comparer
-     * les titres et artistes.
+     * Normalisation des chaînes.
      */
     private function normalize(
         string $value
