@@ -107,12 +107,15 @@ class CoverService
                         $artist,
                         $titleVariant
                     );
-dd([
+dump([
     'artist' => $artist,
     'title' => $title,
     'titleVariant' => $titleVariant,
     'releaseIds' => $releaseIds,
 ]);
+if (!empty($releaseIds)) {
+        dd('MATCH FOUND', $titleVariant, $releaseIds);
+    }
 
                 foreach (
                     $releaseIds
