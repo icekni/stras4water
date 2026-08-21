@@ -20,6 +20,10 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 1209600
+                path: /
             pattern: ^/
             user_checker: App\Security\UserChecker
             logout:
