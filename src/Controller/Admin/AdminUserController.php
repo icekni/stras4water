@@ -394,6 +394,43 @@ class AdminUserController extends AbstractController
         
         return $csvExporter->exportAdherents($users);
     }
+    
+    #[Route(
+        '/{id}/regenerate-card',
+        name: 'admin_user_regenerate_card',
+        methods: ['POST']
+    )]
+    public function regenerateCard(
+        User $user,
+        Request $request,
+        CarteDeMembreGenerator $carteDeMembreGenerator
+    ): Response {
+        if (
+            !$this->isCsrfTokenValid(
+                'regenerate_card_' . $user->getId(),
+                $request->request->get('_token')
+            )
+        ) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $carteDeMembreGenerator->generate(
+            $user,
+            $this->getSaisonAdhesion()
+        );
+
+        $this->addFlash(
+            'success',
+            'La carte de membre a été régénérée.'
+        );
+
+        return $this->redirectToRoute(
+            'admin_user_edit',
+            [
+                'id' => $user->getId(),
+            ]
+        );
+    }
 
     private function getSaisonAdhesion(): string
     {
@@ -401,7 +438,7 @@ class AdminUserController extends AbstractController
         $year = (int) $now->format('Y');
         $month = (int) $now->format('n'); // 1 à 12
 
-        if ($month >= 9) {
+        if ($month >= 7) {
             return $year . '/' . ($year + 1);
         } else {
             return ($year - 1) . '/' . $year;
