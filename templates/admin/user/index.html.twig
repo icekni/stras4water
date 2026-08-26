@@ -103,6 +103,24 @@
                                     📧 Carte de membre
                                 </button>
                             </form>
+                            <form method="post"
+                                action="{{ path('admin_user_regenerate_card', {
+                                    id: user.id
+                                }) }}"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-warning"
+                                >
+                                    🔄 Régénérer la carte de membre
+                                </button>
+                            </form>
                         </div>
                     {% endif %}
                 </td>
