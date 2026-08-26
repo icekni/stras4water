@@ -401,7 +401,7 @@ class AdminUserController extends AbstractController
         $year = (int) $now->format('Y');
         $month = (int) $now->format('n'); // 1 à 12
 
-        if ($month >= 9) {
+        if ($month >= 7) {
             return $year . '/' . ($year + 1);
         } else {
             return ($year - 1) . '/' . $year;
