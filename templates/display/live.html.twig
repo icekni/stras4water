@@ -495,7 +495,6 @@ body.kizomba {
     </div>
 
 {% for song in next %}
-
     <div class="small-style">
         {{ song.icon }}
         {{ song.style|upper }}
@@ -694,7 +693,11 @@ function updateDisplay(state)
 
     const current = state.current;
     const previous = state.previous || {};
-    const next = state.next || [];
+    const next =
+    (state.next || []).filter(function(song)
+    {
+        return String(song.title ?? '').trim() !== '';
+    });
     const nextStyle = state.nextStyle || {};
 
     const newTrackKey =

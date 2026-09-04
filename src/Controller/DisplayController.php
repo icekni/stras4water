@@ -66,4 +66,31 @@ class DisplayController extends AbstractController
             'success' => true
         ]);
     }
+
+    #[Route(
+        '/api/display/test-cover',
+        name: 'display_test_cover',
+        methods: ['GET']
+    )]
+    public function testCover(
+        CoverService $coverService
+    ): Response {
+        $artist = 'Romeo Santos';
+        $title = 'El Chaval de la Bachata';
+
+        $cover = $coverService->getCover(
+            $artist,
+            $title
+        );
+
+        return new Response(
+            '<pre>' .
+            htmlspecialchars(
+                "Artiste : {$artist}\n" .
+                "Titre   : {$title}\n" .
+                "Cover   : {$cover}"
+            ) .
+            '</pre>'
+        );
+    }
 }

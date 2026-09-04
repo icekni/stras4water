@@ -124,14 +124,13 @@ class CoverService
             }
 
         } catch (\Throwable) {
-
             /*
              * Une erreur externe ne doit jamais
              * empêcher l'écran Live.
              */
         }
 
-        return '/images/default-cover.jpg';
+        return '/img/default-cover.jpg';
     }
 
 
