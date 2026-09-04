@@ -59,7 +59,7 @@ body.kizomba {
     position:fixed;
     inset:-60px;
 
-    background-image:url('{{ current.cover|default(asset('images/default-cover.jpg')) }}');
+    background-image:url('{{ current.cover|default(asset('img/default-cover.png')) }}');
     background-size:cover;
     background-position:center;
 
@@ -432,7 +432,7 @@ body.kizomba {
 <div class="current">
 
 {% set hasCurrentTrack = current.title|default('')|trim != '' %}
-{% set cover = current.cover ?? asset('images/default-cover.jpg') %}
+{% set cover = current.cover ?? asset('img/default-cover.png') %}
 
 <img
     class="cover"
