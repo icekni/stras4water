@@ -400,7 +400,7 @@ body.kizomba {
         <img src="{{ asset('img/logo.png') }}" alt="Logo Stras4Water" height="80">
     </div>
 
-    <div>
+    <div id="clock">
         🕒 21:43
     </div>
 
@@ -431,28 +431,48 @@ body.kizomba {
 
 <div class="current">
 
+{% set hasCurrentTrack = current.title|default('')|trim != '' %}
 {% set cover = current.cover ?? asset('images/default-cover.jpg') %}
 
-<img class="cover" src="{{ cover }}" alt="{{ current.title|default('') }}">
+<img
+    class="cover"
+    src="{{ cover }}"
+    alt="{{ current.title|default('') }}"
+    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+>
 
-<div class="style">
+<div
+    class="style"
+    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+>
     {{ current.icon|default('') }}
     {{ current.style|default('')|upper }}
 </div>
 
 <div class="current-title-wrapper">
 
-    <div class="current-title">
-        {{ current.title|default('En attente de musique') }}
+    <div
+        class="current-title"
+        {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+    >
+        {% if hasCurrentTrack %}
+            {{ current.title }}
+        {% endif %}
     </div>
 
 </div>
 
-<div class="artist">
-    {{ current.artist|default('') }}
+<div
+    class="artist"
+    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+>
+    {% if hasCurrentTrack %}
+        {{ current.artist|default('') }}
+    {% endif %}
 </div>
 
 <div class="progress-container">
+
 
     <div class="progress">
         <div class="progress-bar"></div>
@@ -703,33 +723,81 @@ function updateDisplay(state)
     const currentCover =
         document.querySelector('.cover');
 
-    if (currentStyle) {
-        currentStyle.innerText =
-            String(current.icon ?? '') +
-            ' ' +
-            String(current.style ?? '').toUpperCase();
-    }
+    const hasCurrentTrack =
+        String(current.title ?? '').trim() !== '';
 
-    if (currentTitle) {
-        currentTitle.innerText =
-            current.title ?? 'En attente de musique';
+    if (hasCurrentTrack) {
 
-        if (trackChanged) {
-            currentTitle.classList.remove('scroll');
+        if (currentStyle) {
+            currentStyle.innerText =
+                String(current.icon ?? '') +
+                ' ' +
+                String(current.style ?? '').toUpperCase();
+
+            currentStyle.style.visibility =
+                'visible';
         }
-    }
 
-    if (currentArtist) {
-        currentArtist.innerText =
-            current.artist ?? '';
-    }
+        if (currentTitle) {
+            currentTitle.innerText =
+                current.title ?? '';
 
-    if (currentCover && current.cover) {
-        currentCover.src =
-            current.cover;
+            currentTitle.style.visibility =
+                'visible';
 
-        currentCover.alt =
-            current.title ?? '';
+            if (trackChanged) {
+                currentTitle.classList.remove('scroll');
+            }
+        }
+
+        if (currentArtist) {
+            currentArtist.innerText =
+                current.artist ?? '';
+
+            currentArtist.style.visibility =
+                'visible';
+        }
+
+        if (currentCover && current.cover) {
+            currentCover.src =
+                current.cover;
+
+            currentCover.alt =
+                current.title ?? '';
+
+            currentCover.style.visibility =
+                'visible';
+        }
+
+    } else {
+
+        /*
+        * Aucun morceau en cours
+        */
+
+        if (currentStyle) {
+            currentStyle.innerText = '';
+            currentStyle.style.visibility =
+                'hidden';
+        }
+
+        if (currentTitle) {
+            currentTitle.innerText = '';
+            currentTitle.classList.remove('scroll');
+            currentTitle.style.visibility =
+                'hidden';
+        }
+
+        if (currentArtist) {
+            currentArtist.innerText = '';
+            currentArtist.style.visibility =
+                'hidden';
+        }
+
+        if (currentCover) {
+            currentCover.style.visibility =
+                'hidden';
+        }
     }
 
     /*
@@ -1067,6 +1135,34 @@ window.addEventListener(
 
         reloadDisplay();
     }
+);
+
+function updateClock()
+{
+    const clock =
+        document.querySelector('#clock');
+
+    if (!clock) {
+        return;
+    }
+
+    const now = new Date();
+
+    const hours =
+        String(now.getHours()).padStart(2, '0');
+
+    const minutes =
+        String(now.getMinutes()).padStart(2, '0');
+
+    clock.innerText =
+        '🕒 ' + hours + ':' + minutes;
+}
+
+updateClock();
+
+setInterval(
+    updateClock,
+    1000
 );
 
 </script>
