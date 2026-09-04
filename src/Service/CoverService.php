@@ -34,7 +34,7 @@ class CoverService
         $title = trim($title);
 
         if ($artist === '' || $title === '') {
-            return '/images/default-cover.jpg';
+            return '/images/default-cover.png';
         }
 
         $cacheKey = $this->getCacheKey(
