@@ -130,7 +130,7 @@ class CoverService
              */
         }
 
-        return '/img/default-cover.jpg';
+        return '/img/default-cover.png';
     }
 
 
