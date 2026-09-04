@@ -251,7 +251,6 @@ body.kizomba {
     100% {
         transform:translateX(-50%);
     }
-
 }
 
 .artist {
@@ -341,9 +340,7 @@ body.kizomba {
     padding:10px;
 
     border-radius:10px;
-
 }
-/* EVENEMENTS */
 
 .events {
     padding:15px 20px;
@@ -375,6 +372,7 @@ body.kizomba {
     animation:
         scrollEvents var(--scroll-duration) linear infinite;
 }
+
 @keyframes scrollEvents {
     0%,
     15% {
@@ -385,7 +383,6 @@ body.kizomba {
     100% {
         transform:translateY(var(--scroll-distance));
     }
-
 }
 
 </style>
@@ -410,6 +407,7 @@ body.kizomba {
 </div>
 
 <div class="main">
+
 <div class="card">
 
     <div class="side-title">
@@ -432,55 +430,50 @@ body.kizomba {
 </div>
 
 <div class="current">
+
 {% set cover = current.cover ?? asset('images/default-cover.jpg') %}
+
 <img class="cover" src="{{ cover }}" alt="{{ current.title|default('') }}">
 
 <div class="style">
     {{ current.icon|default('') }}
     {{ current.style|default('')|upper }}
 </div>
+
 <div class="current-title-wrapper">
 
     <div class="current-title">
-
         {{ current.title|default('En attente de musique') }}
-
     </div>
 
 </div>
+
 <div class="artist">
-
     {{ current.artist|default('') }}
-
 </div>
 
 <div class="progress-container">
 
     <div class="progress">
-
         <div class="progress-bar"></div>
-
     </div>
 
     <div class="time">
-
         <span id="elapsed"></span>
-
         /
-
         <span id="duration"></span>
-
     </div>
 
 </div>
-</div>
 
+</div>
 
 <div class="card">
 
     <div class="side-title">
         ⏭ Ensuite
     </div>
+
 {% for song in next %}
 
     <div class="small-style">
@@ -503,8 +496,8 @@ body.kizomba {
 {% endfor %}
 
 </div>
-</div>
 
+</div>
 
 <div class="next-style">
 
@@ -522,46 +515,47 @@ body.kizomba {
 
 </div>
 
-
 <div class="bottom">
+
 <div class="card qr">
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}">
 
-<div>
+    <div>
 
-<h2>
-📱 Proposer une musique
-</h2>
+        <h2>
+            📱 Proposer une musique
+        </h2>
 
-Gratuit avec votes
+        Gratuit avec votes
 
-<br>
+        <br>
 
-⚡ Prioritaire pour 2 €
+        ⚡ Prioritaire pour 2 €
+
+    </div>
 
 </div>
-
-</div>
-
 
 <div class="card events">
 
-<h2>
-📅 Prochains événements
-</h2>
+    <h2>
+        📅 Prochains événements
+    </h2>
 
-<div class="events-container">
+    <div class="events-container">
 
-    <div class="events-list">
+        <div class="events-list">
 
-        {% for event in events %}
+            {% for event in events %}
 
-            <div>
-                {{ event }}
-            </div>
+                <div>
+                    {{ event }}
+                </div>
 
-        {% endfor %}
+            {% endfor %}
+
+        </div>
 
     </div>
 
@@ -570,98 +564,487 @@ Gratuit avec votes
 </div>
 
 </div>
-</div>
 
 <script>
 
-/* ---------------------------
-   Durée morceau
----------------------------- */
+let elapsed = Number({{ current.elapsed|default(0)|json_encode|raw }});
+let duration = Number({{ current.duration|default(1)|json_encode|raw }});
+let measuredAt = {{ current.measuredAt|default(null)|json_encode|raw }};
 
-let elapsed = {{ current.elapsed|default(0) }};
-let duration = {{ current.duration|default(1) }};
-function formatTime(seconds){
-    let min =
-        Math.floor(seconds / 60);
+let elapsedAtMeasurement = elapsed;
+let measuredTimestamp = null;
+let currentTrackKey = null;
 
-    let sec =
-        seconds % 60;
+if (measuredAt) {
+    measuredTimestamp = new Date(measuredAt).getTime();
 
-    return min + ':' + String(sec).padStart(2,'0');
-
+    if (Number.isNaN(measuredTimestamp)) {
+        measuredTimestamp = null;
+    }
 }
-document.querySelector('#duration')
-    .innerText =
-    formatTime(duration);
 
-function updateProgress(){
-    elapsed++;
+function formatTime(seconds)
+{
+    seconds = Math.max(
+        0,
+        Math.floor(Number(seconds) || 0)
+    );
 
-    if(elapsed > duration){
-        elapsed = duration;
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+
+    return min + ':' + String(sec).padStart(2, '0');
+}
+
+function getCurrentElapsed()
+{
+    if (measuredTimestamp !== null) {
+
+        const elapsedNow =
+            elapsedAtMeasurement +
+            (
+                Date.now() -
+                measuredTimestamp
+            ) / 1000;
+
+        return Math.min(
+            duration,
+            Math.max(0, elapsedNow)
+        );
     }
 
-    document.querySelector('.progress-bar')
-        .style.width =
-        ((elapsed / duration) * 100) + '%';
-    document.querySelector('#elapsed')
-        .innerText =
-        formatTime(elapsed);
-
+    return Math.min(
+        duration,
+        Math.max(0, elapsed)
+    );
 }
 
-setInterval(updateProgress,1000);
+function refreshProgress()
+{
+    const currentElapsed =
+        getCurrentElapsed();
 
-/* ---------------------------
-   Titre défilant
----------------------------- */
+    const progressBar =
+        document.querySelector('.progress-bar');
 
-function checkTitleOverflow(){
-    const title =
+    const elapsedElement =
+        document.querySelector('#elapsed');
+
+    const durationElement =
+        document.querySelector('#duration');
+
+    if (
+        !progressBar ||
+        !elapsedElement ||
+        !durationElement
+    ) {
+        return;
+    }
+
+    const percentage =
+        duration > 0
+            ? (currentElapsed / duration) * 100
+            : 0;
+
+    progressBar.style.width =
+        Math.min(
+            100,
+            Math.max(0, percentage)
+        ) + '%';
+
+    elapsedElement.innerText =
+        formatTime(currentElapsed);
+
+    durationElement.innerText =
+        formatTime(duration);
+}
+
+refreshProgress();
+
+setInterval(
+    refreshProgress,
+    250
+);
+
+function updateDisplay(state)
+{
+    if (!state || !state.current) {
+        return;
+    }
+
+    const current = state.current;
+    const previous = state.previous || {};
+    const next = state.next || [];
+    const nextStyle = state.nextStyle || {};
+
+    const newTrackKey =
+        String(current.artist ?? '') +
+        '|' +
+        String(current.title ?? '') +
+        '|' +
+        String(current.filePath ?? '');
+
+    const trackChanged =
+        newTrackKey !== currentTrackKey;
+
+    /*
+     * Mise à jour des informations du morceau en cours
+     */
+
+    const currentStyle =
+        document.querySelector('.style');
+
+    const currentTitle =
         document.querySelector('.current-title');
 
-    const wrapper =
-        document.querySelector('.current-title-wrapper');
+    const currentArtist =
+        document.querySelector('.artist');
 
-    if(!title || !wrapper){
-        return;
+    const currentCover =
+        document.querySelector('.cover');
+
+    if (currentStyle) {
+        currentStyle.innerText =
+            String(current.icon ?? '') +
+            ' ' +
+            String(current.style ?? '').toUpperCase();
     }
 
-    if(title.scrollWidth > wrapper.clientWidth){
-        title.classList.add('scroll');
+    if (currentTitle) {
+        currentTitle.innerText =
+            current.title ?? 'En attente de musique';
 
+        if (trackChanged) {
+            currentTitle.classList.remove('scroll');
+        }
     }
 
+    if (currentArtist) {
+        currentArtist.innerText =
+            current.artist ?? '';
+    }
+
+    if (currentCover && current.cover) {
+        currentCover.src =
+            current.cover;
+
+        currentCover.alt =
+            current.title ?? '';
+    }
+
+    /*
+     * Mise à jour du morceau précédent
+     */
+
+    const previousCard =
+        document.querySelector(
+            '.main > .card:first-child'
+        );
+
+    if (previousCard) {
+
+        const previousStyleElement =
+            previousCard.querySelector('.small-style');
+
+        const previousTitleElement =
+            previousCard.querySelector('.small-title');
+
+        const previousArtistElement =
+            previousCard.querySelector('.small-artist');
+
+        if (previousStyleElement) {
+            previousStyleElement.innerText =
+                String(previous.icon ?? '') +
+                ' ' +
+                String(previous.style ?? '').toUpperCase();
+        }
+
+        if (previousTitleElement) {
+            previousTitleElement.innerText =
+                previous.title ?? '';
+        }
+
+        if (previousArtistElement) {
+            previousArtistElement.innerText =
+                previous.artist ?? '';
+        }
+    }
+
+    /*
+     * Mise à jour des morceaux suivants
+     */
+
+    const nextCard =
+        document.querySelector(
+            '.main > .card:last-child'
+        );
+
+    if (nextCard) {
+
+        const sideTitle =
+            nextCard.querySelector('.side-title');
+
+        nextCard.innerHTML = '';
+
+        if (sideTitle) {
+            nextCard.appendChild(sideTitle);
+        } else {
+
+            const title =
+                document.createElement('div');
+
+            title.className =
+                'side-title';
+
+            title.innerText =
+                '⏭ Ensuite';
+
+            nextCard.appendChild(title);
+        }
+
+        next.forEach(function(song, index)
+        {
+            const style =
+                document.createElement('div');
+
+            style.className =
+                'small-style';
+
+            style.innerText =
+                String(song.icon ?? '') +
+                ' ' +
+                String(song.style ?? '').toUpperCase();
+
+            const title =
+                document.createElement('div');
+
+            title.className =
+                'small-title';
+
+            title.innerText =
+                song.title ?? '';
+
+            const artist =
+                document.createElement('div');
+
+            artist.className =
+                'small-artist';
+
+            artist.innerText =
+                song.artist ?? '';
+
+            nextCard.appendChild(style);
+            nextCard.appendChild(title);
+            nextCard.appendChild(artist);
+
+            if (index < next.length - 1) {
+
+                const separator =
+                    document.createElement('hr');
+
+                nextCard.appendChild(separator);
+            }
+        });
+    }
+
+    /*
+     * Mise à jour du bloc "Dans X morceaux"
+     */
+
+    const nextStyleElement =
+        document.querySelector('.next-style');
+
+    if (nextStyleElement) {
+
+        nextStyleElement.innerHTML =
+            '🕺 Dans ' +
+            String(nextStyle.count ?? 0) +
+            ' morceaux :' +
+            '&nbsp;' +
+            String(nextStyle.icon ?? '🟣') +
+            ' ' +
+            String(nextStyle.style ?? 'bachata').toUpperCase() +
+            '&nbsp;' +
+            '(≈ ' +
+            String(nextStyle.minutes ?? 0) +
+            ' min)';
+    }
+
+    /*
+     * Mise à jour de la synchronisation du morceau
+     *
+     * On ne recale le timer que lorsqu'on détecte
+     * un nouveau morceau.
+     */
+
+    if (trackChanged) {
+
+        currentTrackKey =
+            newTrackKey;
+
+        duration =
+            Number(
+                current.duration ?? 0
+            );
+
+        elapsed =
+            Number(
+                current.elapsed ?? 0
+            );
+
+        elapsedAtMeasurement =
+            elapsed;
+
+        measuredAt =
+            current.measuredAt ?? null;
+
+        measuredTimestamp = null;
+
+        if (measuredAt) {
+
+            measuredTimestamp =
+                new Date(measuredAt).getTime();
+
+            if (
+                Number.isNaN(
+                    measuredTimestamp
+                )
+            ) {
+                measuredTimestamp = null;
+            }
+        }
+
+        refreshProgress();
+    }
+
+    /*
+     * Vérification du titre défilant
+     */
+
+    setTimeout(
+        checkTitleOverflow,
+        50
+    );
 }
 
+async function reloadDisplay()
+{
+    try {
 
-/* ---------------------------
-   Défilement événements
----------------------------- */
+        const response =
+            await fetch(
+                '{{ path('display_state') }}?_=' +
+                Date.now(),
+                {
+                    cache: 'no-store'
+                }
+            );
 
-function checkEventsOverflow(){
+        if (!response.ok) {
+            console.warn(
+                'Erreur HTTP:',
+                response.status
+            );
+
+            return;
+        }
+
+        const state =
+            await response.json();
+
+        updateDisplay(state);
+
+    } catch (error) {
+
+        console.error(
+            'Erreur lors du chargement de l’état:',
+            error
+        );
+    }
+}
+
+const eventSource =
+    new EventSource(
+        'http://localhost:5000/events'
+    );
+
+eventSource.onmessage =
+    function(event)
+    {
+        console.log(
+            '📡 SSE message reçu:',
+            event.data
+        );
+
+        reloadDisplay();
+    };
+
+eventSource.onerror =
+    function(error)
+    {
+        console.warn(
+            '⚠️ Connexion SSE interrompue.',
+            error
+        );
+    };
+
+function checkTitleOverflow()
+{
+    const title =
+        document.querySelector(
+            '.current-title'
+        );
+
+    const wrapper =
+        document.querySelector(
+            '.current-title-wrapper'
+        );
+
+    if (!title || !wrapper) {
+        return;
+    }
+
+    if (
+        title.scrollWidth >
+        wrapper.clientWidth
+    ) {
+        title.classList.add('scroll');
+    }
+}
+
+function checkEventsOverflow()
+{
     const container =
-        document.querySelector('.events-container');
+        document.querySelector(
+            '.events-container'
+        );
 
     const list =
-        document.querySelector('.events-list');
+        document.querySelector(
+            '.events-list'
+        );
 
-    if(!container || !list){
+    if (!container || !list) {
         return;
     }
 
-    if(list.scrollHeight <= container.clientHeight){
+    if (
+        list.scrollHeight <=
+        container.clientHeight
+    ) {
         return;
     }
+
     const distance =
-        container.clientHeight - list.scrollHeight;
+        container.clientHeight -
+        list.scrollHeight;
 
     list.style.setProperty(
         '--scroll-distance',
         distance + 'px'
     );
 
-    const duration =
+    const scrollDuration =
         Math.max(
             15,
             list.children.length * 3
@@ -669,18 +1052,20 @@ function checkEventsOverflow(){
 
     list.style.setProperty(
         '--scroll-duration',
-        duration + 's'
+        scrollDuration + 's'
     );
 
     list.classList.add('scrolling');
-
 }
 
 window.addEventListener(
     'load',
-    () => {
+    function()
+    {
         checkTitleOverflow();
         checkEventsOverflow();
+
+        reloadDisplay();
     }
 );
 
