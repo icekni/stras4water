@@ -6,6 +6,7 @@
 {% set nextStyle = state.nextStyle ?? {} %}
 
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -253,11 +254,34 @@ body.kizomba {
     }
 }
 
+
+/*
+ * Artiste
+ */
+
+.artist-wrapper {
+    width:80%;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-align:center;
+}
+
 .artist {
+    display:inline-block;
+
     font-size:clamp(1rem,1.5vw,1.8rem);
 
     opacity:.75;
 }
+
+.artist.scroll {
+    animation:
+        marquee 14s linear infinite;
+}
+
 
 .progress-container {
     width:75%;
@@ -342,6 +366,29 @@ body.kizomba {
     border-radius:10px;
 }
 
+
+/*
+ * Lien mobile
+ */
+
+.music-request-link {
+    display:none;
+
+    margin-top:15px;
+
+    padding:12px 20px;
+
+    border-radius:12px;
+
+    background:var(--accent);
+
+    color:white;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}
+
 .events {
     padding:15px 20px;
 }
@@ -385,24 +432,250 @@ body.kizomba {
     }
 }
 
+
+/*
+ * MOBILE
+ *
+ * Aucun changement du layout desktop.
+ */
+
+@media (max-width:768px) {
+
+    html,
+    body {
+        width:100%;
+        height:auto;
+        min-height:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
+    }
+
+    .screen {
+        height:auto;
+        min-height:100vh;
+
+        display:flex;
+        flex-direction:column;
+
+        padding:12px;
+        gap:12px;
+
+        overflow:visible;
+    }
+
+
+    /*
+     * Header
+     */
+
+    .header {
+        min-height:50px;
+    }
+
+    .logo img {
+        height:50px;
+    }
+
+    #clock {
+        font-size:.9rem;
+    }
+
+
+    /*
+     * Main
+     */
+
+    .main {
+        display:flex;
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+
+    /*
+     * Ordre mobile
+     */
+
+    .main > .current {
+        order:1;
+    }
+
+    .main > .card:first-child {
+        order:2;
+    }
+
+    .main > .card:last-child {
+        order:3;
+    }
+
+
+    /*
+     * Current
+     */
+
+    .current {
+        min-height:430px;
+
+        padding:25px 15px;
+    }
+
+    .cover {
+        width:min(70vw,280px);
+        height:min(70vw,280px);
+    }
+
+    .style {
+        margin-top:15px;
+
+        font-size:1.3rem;
+    }
+
+    .current-title-wrapper {
+        width:100%;
+    }
+
+    .current-title {
+        font-size:clamp(
+            1.6rem,
+            7vw,
+            2.2rem
+        );
+    }
+
+    .artist-wrapper {
+        width:90%;
+    }
+
+    .artist {
+        font-size:1.1rem;
+    }
+
+    .progress-container {
+        width:90%;
+
+        margin-top:20px;
+    }
+
+
+    /*
+     * Cards
+     */
+
+    .card {
+        padding:16px;
+
+        border-radius:20px;
+    }
+
+    .side-title {
+        margin-bottom:12px;
+    }
+
+    .main > .card:first-child {
+        min-height:auto;
+    }
+
+
+    /*
+     * Next style
+     */
+
+    .next-style {
+        min-height:70px;
+
+        padding:15px;
+
+        text-align:center;
+
+        font-size:1.1rem;
+
+        border-left-width:5px;
+    }
+
+
+    /*
+     * Bottom
+     */
+
+    .bottom {
+        display:flex;
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+
+    /*
+     * Music request
+     */
+
+    .qr {
+        flex-direction:column;
+
+        text-align:center;
+
+        gap:15px;
+    }
+
+    .qr-image {
+        display:none;
+    }
+
+    .music-request-link {
+        display:inline-block;
+    }
+
+
+    /*
+     * Events
+     */
+
+    .events-container {
+        height:auto;
+
+        overflow:visible;
+    }
+
+    .events-list {
+        animation:none !important;
+
+        transform:none !important;
+    }
+
+    .events-list div {
+        font-size:1rem;
+    }
+}
+
 </style>
+
 </head>
 
 <body class="{{ current.style|default('salsa') }}">
 
 <div class="cover-background"></div>
+
 <div class="overlay"></div>
+
 <div class="screen">
 
 <div class="header">
 
-    <div class="logo">
-        <img src="{{ asset('img/logo.png') }}" alt="Logo Stras4Water" height="80">
-    </div>
+<div class="logo">
 
-    <div id="clock">
-        🕒 21:43
-    </div>
+    <img
+        src="{{ asset('img/logo.png') }}"
+        alt="Logo Stras4Water"
+        height="80"
+    >
+
+</div>
+
+<div id="clock">
+    🕒 21:43
+</div>
 
 </div>
 
@@ -410,79 +683,118 @@ body.kizomba {
 
 <div class="card">
 
-    <div class="side-title">
-        ✓ Précédente
-    </div>
+<div class="side-title">
+    ✓ Précédente
+</div>
 
-    <div class="small-style">
-        {{ previous.icon|default('') }}
-        {{ previous.style|default('')|upper }}
-    </div>
+<div class="small-style">
+    {{ previous.icon|default('') }}
+    {{ previous.style|default('')|upper }}
+</div>
 
-    <div class="small-title">
-        {{ previous.title|default('') }}
-    </div>
+<div class="small-title">
+    {{ previous.title|default('') }}
+</div>
 
-    <div class="small-artist">
-        {{ previous.artist|default('') }}
-    </div>
+<div class="small-artist">
+    {{ previous.artist|default('') }}
+</div>
 
 </div>
 
 <div class="current">
 
-{% set hasCurrentTrack = current.title|default('')|trim != '' %}
-{% set cover = current.cover ?? asset('img/default-cover.png') %}
+{% set hasCurrentTrack =
+current.title|default('')|trim != ''
+%}
+
+{% set cover =
+current.cover
+?? asset('img/default-cover.png')
+%}
 
 <img
-    class="cover"
-    src="{{ cover }}"
-    alt="{{ current.title|default('') }}"
-    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+class="cover"
+
+src="{{ cover }}"
+
+alt="{{ current.title|default('') }}"
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
 >
 
 <div
     class="style"
-    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
 >
-    {{ current.icon|default('') }}
-    {{ current.style|default('')|upper }}
+
+{{ current.icon|default('') }}
+
+{{ current.style|default('')|upper }}
+
 </div>
 
 <div class="current-title-wrapper">
 
-    <div
-        class="current-title"
-        {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
-    >
-        {% if hasCurrentTrack %}
-            {{ current.title }}
-        {% endif %}
-    </div>
+<div
+    class="current-title"
+
+    {% if not hasCurrentTrack %}
+        style="visibility:hidden"
+    {% endif %}
+>
+
+    {% if hasCurrentTrack %}
+        {{ current.title }}
+    {% endif %}
+
+</div>
 
 </div>
 
 <div
-    class="artist"
-    {% if not hasCurrentTrack %}style="visibility:hidden"{% endif %}
+    class="artist-wrapper"
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
 >
+
+<div class="artist">
+
     {% if hasCurrentTrack %}
         {{ current.artist|default('') }}
     {% endif %}
+
+</div>
+
 </div>
 
 <div class="progress-container">
 
+<div class="progress">
 
-    <div class="progress">
-        <div class="progress-bar"></div>
-    </div>
+    <div class="progress-bar"></div>
 
-    <div class="time">
-        <span id="elapsed"></span>
-        /
-        <span id="duration"></span>
-    </div>
+</div>
+
+<div class="time">
+
+    <span id="elapsed"></span>
+
+    /
+
+    <span id="duration"></span>
+
+</div>
 
 </div>
 
@@ -490,11 +802,14 @@ body.kizomba {
 
 <div class="card">
 
-    <div class="side-title">
-        ⏭ Ensuite
-    </div>
+<div class="side-title">
+    ⏭ Ensuite
+</div>
 
 {% for song in next %}
+
+{% if song.title|default('')|trim != '' %}
+
     <div class="small-style">
         {{ song.icon }}
         {{ song.style|upper }}
@@ -512,6 +827,8 @@ body.kizomba {
         <hr>
     {% endif %}
 
+{% endif %}
+
 {% endfor %}
 
 </div>
@@ -520,17 +837,17 @@ body.kizomba {
 
 <div class="next-style">
 
-    🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
+🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
 
-    &nbsp;
+&nbsp;
 
-    {{ nextStyle.icon|default('🟣') }}
+{{ nextStyle.icon|default('🟣') }}
 
-    {{ nextStyle.style|default('bachata')|upper }}
+{{ nextStyle.style|default('bachata')|upper }}
 
-    &nbsp;
+&nbsp;
 
-    (≈ {{ nextStyle.minutes|default(8) }} min)
+(≈ {{ nextStyle.minutes|default(8) }} min)
 
 </div>
 
@@ -538,45 +855,56 @@ body.kizomba {
 
 <div class="card qr">
 
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}">
+<img
+    class="qr-image"
+    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}"
+    alt="QR Code pour proposer une musique"
+>
 
-    <div>
+<div>
 
-        <h2>
-            📱 Proposer une musique
-        </h2>
+    <h2>
+        📱 Proposer une musique
+    </h2>
 
-        Gratuit avec votes
+    Gratuit avec votes
 
-        <br>
+    <br>
 
-        ⚡ Prioritaire pour 2 €
+    ⚡ Prioritaire pour 2 €
 
-    </div>
+    <a
+        class="music-request-link"
+        href="/proposer-musique"
+    >
+        🎵 Proposer une musique
+    </a>
+
+</div>
 
 </div>
 
 <div class="card events">
 
-    <h2>
-        📅 Prochains événements
-    </h2>
+<h2>
+    📅 Prochains événements
+</h2>
 
-    <div class="events-container">
+<div class="events-container">
 
-        <div class="events-list">
+    <div class="events-list">
 
-            {% for event in events %}
+        {% for event in events %}
 
-                <div>
-                    {{ event }}
-                </div>
+            <div>
+                {{ event }}
+            </div>
 
-            {% endfor %}
-
-        </div>
+        {% endfor %}
 
     </div>
+
+</div>
 
 </div>
 
@@ -586,57 +914,118 @@ body.kizomba {
 
 <script>
 
-let elapsed = Number({{ current.elapsed|default(0)|json_encode|raw }});
-let duration = Number({{ current.duration|default(1)|json_encode|raw }});
-let measuredAt = {{ current.measuredAt|default(null)|json_encode|raw }};
+let elapsed =
+    Number(
+        {{ current.elapsed|default(0)|json_encode|raw }}
+    );
 
-let elapsedAtMeasurement = elapsed;
-let measuredTimestamp = null;
-let currentTrackKey = null;
+let duration =
+    Number(
+        {{ current.duration|default(1)|json_encode|raw }}
+    );
+
+let measuredAt =
+    {{ current.measuredAt|default(null)|json_encode|raw }};
+
+let elapsedAtMeasurement =
+    elapsed;
+
+let measuredTimestamp =
+    null;
+
+let currentTrackKey =
+    null;
+
 
 if (measuredAt) {
-    measuredTimestamp = new Date(measuredAt).getTime();
 
-    if (Number.isNaN(measuredTimestamp)) {
-        measuredTimestamp = null;
+    measuredTimestamp =
+        new Date(
+            measuredAt
+        ).getTime();
+
+    if (
+        Number.isNaN(
+            measuredTimestamp
+        )
+    ) {
+        measuredTimestamp =
+            null;
     }
 }
 
+
 function formatTime(seconds)
 {
-    seconds = Math.max(
-        0,
-        Math.floor(Number(seconds) || 0)
+    seconds =
+        Math.max(
+            0,
+            Math.floor(
+                Number(seconds)
+                || 0
+            )
+        );
+
+    const min =
+        Math.floor(
+            seconds / 60
+        );
+
+    const sec =
+        seconds % 60;
+
+    return (
+        min
+        +
+        ':'
+        +
+        String(sec).padStart(
+            2,
+            '0'
+        )
     );
-
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-
-    return min + ':' + String(sec).padStart(2, '0');
 }
+
 
 function getCurrentElapsed()
 {
-    if (measuredTimestamp !== null) {
+    if (
+        measuredTimestamp
+        !==
+        null
+    ) {
 
         const elapsedNow =
-            elapsedAtMeasurement +
+            elapsedAtMeasurement
+            +
             (
-                Date.now() -
+                Date.now()
+                -
                 measuredTimestamp
-            ) / 1000;
+            )
+            /
+            1000;
 
         return Math.min(
             duration,
-            Math.max(0, elapsedNow)
+
+            Math.max(
+                0,
+                elapsedNow
+            )
         );
     }
 
     return Math.min(
         duration,
-        Math.max(0, elapsed)
+
+        Math.max(
+            0,
+            elapsed
+        )
     );
 }
+
 
 function refreshProgress()
 {
@@ -644,17 +1033,25 @@ function refreshProgress()
         getCurrentElapsed();
 
     const progressBar =
-        document.querySelector('.progress-bar');
+        document.querySelector(
+            '.progress-bar'
+        );
 
     const elapsedElement =
-        document.querySelector('#elapsed');
+        document.querySelector(
+            '#elapsed'
+        );
 
     const durationElement =
-        document.querySelector('#duration');
+        document.querySelector(
+            '#duration'
+        );
 
     if (
-        !progressBar ||
-        !elapsedElement ||
+        !progressBar
+        ||
+        !elapsedElement
+        ||
         !durationElement
     ) {
         return;
@@ -662,21 +1059,39 @@ function refreshProgress()
 
     const percentage =
         duration > 0
-            ? (currentElapsed / duration) * 100
-            : 0;
+            ?
+            (
+                currentElapsed
+                /
+                duration
+            )
+            *
+            100
+            :
+            0;
 
     progressBar.style.width =
         Math.min(
             100,
-            Math.max(0, percentage)
-        ) + '%';
+            Math.max(
+                0,
+                percentage
+            )
+        )
+        +
+        '%';
 
     elapsedElement.innerText =
-        formatTime(currentElapsed);
+        formatTime(
+            currentElapsed
+        );
 
     durationElement.innerText =
-        formatTime(duration);
+        formatTime(
+            duration
+        );
 }
+
 
 refreshProgress();
 
@@ -685,126 +1100,334 @@ setInterval(
     250
 );
 
-function updateDisplay(state)
+
+/*
+ * Défilement texte
+ */
+
+function checkTextOverflow(
+    elementSelector,
+    wrapperSelector
+)
 {
-    if (!state || !state.current) {
+    const element =
+        document.querySelector(
+            elementSelector
+        );
+
+    const wrapper =
+        document.querySelector(
+            wrapperSelector
+        );
+
+    if (
+        !element
+        ||
+        !wrapper
+    ) {
         return;
     }
 
-    const current = state.current;
-    const previous = state.previous || {};
+    element.classList.remove(
+        'scroll'
+    );
+
+    if (
+        element.scrollWidth
+        >
+        wrapper.clientWidth
+    ) {
+
+        element.classList.add(
+            'scroll'
+        );
+    }
+}
+
+
+function checkTitleOverflow()
+{
+    checkTextOverflow(
+        '.current-title',
+        '.current-title-wrapper'
+    );
+}
+
+
+function checkArtistOverflow()
+{
+    checkTextOverflow(
+        '.artist',
+        '.artist-wrapper'
+    );
+}
+
+
+function updateDisplay(state)
+{
+    if (
+        !state
+        ||
+        !state.current
+    ) {
+        return;
+    }
+
+    const current =
+        state.current;
+
+    const previous =
+        state.previous
+        ||
+        {};
+
     const next =
-    (state.next || []).filter(function(song)
-    {
-        return String(song.title ?? '').trim() !== '';
-    });
-    const nextStyle = state.nextStyle || {};
+        (
+            state.next
+            ||
+            []
+        )
+        .filter(
+            function(song)
+            {
+                return (
+                    String(
+                        song.title
+                        ??
+                        ''
+                    )
+                    .trim()
+                    !==
+                    ''
+                );
+            }
+        );
+
+    const nextStyle =
+        state.nextStyle
+        ||
+        {};
+
 
     const newTrackKey =
-        String(current.artist ?? '') +
-        '|' +
-        String(current.title ?? '') +
-        '|' +
-        String(current.filePath ?? '');
+        String(
+            current.artist
+            ??
+            ''
+        )
+        +
+        '|'
+        +
+        String(
+            current.title
+            ??
+            ''
+        )
+        +
+        '|'
+        +
+        String(
+            current.filePath
+            ??
+            ''
+        );
+
 
     const trackChanged =
-        newTrackKey !== currentTrackKey;
+        newTrackKey
+        !==
+        currentTrackKey;
+
 
     /*
-     * Mise à jour des informations du morceau en cours
+     * Morceau actuel
      */
 
     const currentStyle =
-        document.querySelector('.style');
+        document.querySelector(
+            '.style'
+        );
 
     const currentTitle =
-        document.querySelector('.current-title');
+        document.querySelector(
+            '.current-title'
+        );
 
     const currentArtist =
-        document.querySelector('.artist');
+        document.querySelector(
+            '.artist'
+        );
+
+    const currentArtistWrapper =
+        document.querySelector(
+            '.artist-wrapper'
+        );
 
     const currentCover =
-        document.querySelector('.cover');
+        document.querySelector(
+            '.cover'
+        );
+
 
     const hasCurrentTrack =
-        String(current.title ?? '').trim() !== '';
+        String(
+            current.title
+            ??
+            ''
+        )
+        .trim()
+        !==
+        '';
+
 
     if (hasCurrentTrack) {
 
         if (currentStyle) {
+
             currentStyle.innerText =
-                String(current.icon ?? '') +
-                ' ' +
-                String(current.style ?? '').toUpperCase();
+                String(
+                    current.icon
+                    ??
+                    ''
+                )
+                +
+                ' '
+                +
+                String(
+                    current.style
+                    ??
+                    ''
+                )
+                .toUpperCase();
 
             currentStyle.style.visibility =
                 'visible';
         }
 
+
         if (currentTitle) {
+
             currentTitle.innerText =
-                current.title ?? '';
+                current.title
+                ??
+                '';
 
             currentTitle.style.visibility =
                 'visible';
 
             if (trackChanged) {
-                currentTitle.classList.remove('scroll');
+
+                currentTitle.classList.remove(
+                    'scroll'
+                );
             }
         }
 
+
         if (currentArtist) {
+
             currentArtist.innerText =
-                current.artist ?? '';
+                current.artist
+                ??
+                '';
+
+            currentArtist.classList.remove(
+                'scroll'
+            );
 
             currentArtist.style.visibility =
                 'visible';
         }
 
-        if (currentCover && current.cover) {
+
+        if (currentArtistWrapper) {
+
+            currentArtistWrapper.style.visibility =
+                'visible';
+        }
+
+
+        if (
+            currentCover
+            &&
+            current.cover
+        ) {
+
             currentCover.src =
                 current.cover;
 
             currentCover.alt =
-                current.title ?? '';
+                current.title
+                ??
+                '';
 
             currentCover.style.visibility =
                 'visible';
         }
 
+
     } else {
 
         /*
-        * Aucun morceau en cours
-        */
+         * Aucun morceau
+         */
 
         if (currentStyle) {
-            currentStyle.innerText = '';
+
+            currentStyle.innerText =
+                '';
+
             currentStyle.style.visibility =
                 'hidden';
         }
 
+
         if (currentTitle) {
-            currentTitle.innerText = '';
-            currentTitle.classList.remove('scroll');
+
+            currentTitle.innerText =
+                '';
+
+            currentTitle.classList.remove(
+                'scroll'
+            );
+
             currentTitle.style.visibility =
                 'hidden';
         }
 
+
         if (currentArtist) {
-            currentArtist.innerText = '';
+
+            currentArtist.innerText =
+                '';
+
+            currentArtist.classList.remove(
+                'scroll'
+            );
+
             currentArtist.style.visibility =
                 'hidden';
         }
 
+
+        if (currentArtistWrapper) {
+
+            currentArtistWrapper.style.visibility =
+                'hidden';
+        }
+
+
         if (currentCover) {
+
             currentCover.style.visibility =
                 'hidden';
         }
+
     }
 
+
     /*
-     * Mise à jour du morceau précédent
+     * Morceau précédent
      */
 
     const previousCard =
@@ -812,37 +1435,67 @@ function updateDisplay(state)
             '.main > .card:first-child'
         );
 
+
     if (previousCard) {
 
         const previousStyleElement =
-            previousCard.querySelector('.small-style');
+            previousCard.querySelector(
+                '.small-style'
+            );
 
         const previousTitleElement =
-            previousCard.querySelector('.small-title');
+            previousCard.querySelector(
+                '.small-title'
+            );
 
         const previousArtistElement =
-            previousCard.querySelector('.small-artist');
+            previousCard.querySelector(
+                '.small-artist'
+            );
+
 
         if (previousStyleElement) {
+
             previousStyleElement.innerText =
-                String(previous.icon ?? '') +
-                ' ' +
-                String(previous.style ?? '').toUpperCase();
+                String(
+                    previous.icon
+                    ??
+                    ''
+                )
+                +
+                ' '
+                +
+                String(
+                    previous.style
+                    ??
+                    ''
+                )
+                .toUpperCase();
         }
+
 
         if (previousTitleElement) {
+
             previousTitleElement.innerText =
-                previous.title ?? '';
+                previous.title
+                ??
+                '';
         }
+
 
         if (previousArtistElement) {
+
             previousArtistElement.innerText =
-                previous.artist ?? '';
+                previous.artist
+                ??
+                '';
         }
+
     }
 
+
     /*
-     * Mise à jour des morceaux suivants
+     * Morceaux suivants
      */
 
     const nextCard =
@@ -850,19 +1503,31 @@ function updateDisplay(state)
             '.main > .card:last-child'
         );
 
+
     if (nextCard) {
 
         const sideTitle =
-            nextCard.querySelector('.side-title');
+            nextCard.querySelector(
+                '.side-title'
+            );
 
-        nextCard.innerHTML = '';
+
+        nextCard.innerHTML =
+            '';
+
 
         if (sideTitle) {
-            nextCard.appendChild(sideTitle);
+
+            nextCard.appendChild(
+                sideTitle
+            );
+
         } else {
 
             const title =
-                document.createElement('div');
+                document.createElement(
+                    'div'
+                );
 
             title.className =
                 'side-title';
@@ -870,82 +1535,165 @@ function updateDisplay(state)
             title.innerText =
                 '⏭ Ensuite';
 
-            nextCard.appendChild(title);
+            nextCard.appendChild(
+                title
+            );
         }
 
-        next.forEach(function(song, index)
-        {
-            const style =
-                document.createElement('div');
 
-            style.className =
-                'small-style';
+        next.forEach(
+            function(
+                song,
+                index
+            )
+            {
 
-            style.innerText =
-                String(song.icon ?? '') +
-                ' ' +
-                String(song.style ?? '').toUpperCase();
+                const style =
+                    document.createElement(
+                        'div'
+                    );
 
-            const title =
-                document.createElement('div');
+                style.className =
+                    'small-style';
 
-            title.className =
-                'small-title';
+                style.innerText =
+                    String(
+                        song.icon
+                        ??
+                        ''
+                    )
+                    +
+                    ' '
+                    +
+                    String(
+                        song.style
+                        ??
+                        ''
+                    )
+                    .toUpperCase();
 
-            title.innerText =
-                song.title ?? '';
 
-            const artist =
-                document.createElement('div');
+                const title =
+                    document.createElement(
+                        'div'
+                    );
 
-            artist.className =
-                'small-artist';
+                title.className =
+                    'small-title';
 
-            artist.innerText =
-                song.artist ?? '';
+                title.innerText =
+                    song.title
+                    ??
+                    '';
 
-            nextCard.appendChild(style);
-            nextCard.appendChild(title);
-            nextCard.appendChild(artist);
 
-            if (index < next.length - 1) {
+                const artist =
+                    document.createElement(
+                        'div'
+                    );
 
-                const separator =
-                    document.createElement('hr');
+                artist.className =
+                    'small-artist';
 
-                nextCard.appendChild(separator);
+                artist.innerText =
+                    song.artist
+                    ??
+                    '';
+
+
+                nextCard.appendChild(
+                    style
+                );
+
+                nextCard.appendChild(
+                    title
+                );
+
+                nextCard.appendChild(
+                    artist
+                );
+
+
+                if (
+                    index
+                    <
+                    next.length
+                    -
+                    1
+                ) {
+
+                    const separator =
+                        document.createElement(
+                            'hr'
+                        );
+
+                    nextCard.appendChild(
+                        separator
+                    );
+                }
+
             }
-        });
+        );
+
     }
 
+
     /*
-     * Mise à jour du bloc "Dans X morceaux"
+     * Prochain changement de style
      */
 
     const nextStyleElement =
-        document.querySelector('.next-style');
+        document.querySelector(
+            '.next-style'
+        );
+
 
     if (nextStyleElement) {
 
         nextStyleElement.innerHTML =
-            '🕺 Dans ' +
-            String(nextStyle.count ?? 0) +
-            ' morceaux :' +
-            '&nbsp;' +
-            String(nextStyle.icon ?? '🟣') +
-            ' ' +
-            String(nextStyle.style ?? 'bachata').toUpperCase() +
-            '&nbsp;' +
-            '(≈ ' +
-            String(nextStyle.minutes ?? 0) +
+            '🕺 Dans '
+            +
+            String(
+                nextStyle.count
+                ??
+                0
+            )
+            +
+            ' morceaux :'
+            +
+            '&nbsp;'
+            +
+            String(
+                nextStyle.icon
+                ??
+                '🟣'
+            )
+            +
+            ' '
+            +
+            String(
+                nextStyle.style
+                ??
+                'bachata'
+            )
+            .toUpperCase()
+            +
+            '&nbsp;'
+            +
+            '(≈ '
+            +
+            String(
+                nextStyle.minutes
+                ??
+                0
+            )
+            +
             ' min)';
     }
 
+
     /*
-     * Mise à jour de la synchronisation du morceau
-     *
-     * On ne recale le timer que lorsqu'on détecte
-     * un nouveau morceau.
+     * Synchronisation du timer
      */
 
     if (trackChanged) {
@@ -953,50 +1701,76 @@ function updateDisplay(state)
         currentTrackKey =
             newTrackKey;
 
+
         duration =
             Number(
-                current.duration ?? 0
+                current.duration
+                ??
+                0
             );
+
 
         elapsed =
             Number(
-                current.elapsed ?? 0
+                current.elapsed
+                ??
+                0
             );
+
 
         elapsedAtMeasurement =
             elapsed;
 
-        measuredAt =
-            current.measuredAt ?? null;
 
-        measuredTimestamp = null;
+        measuredAt =
+            current.measuredAt
+            ??
+            null;
+
+
+        measuredTimestamp =
+            null;
+
 
         if (measuredAt) {
 
             measuredTimestamp =
-                new Date(measuredAt).getTime();
+                new Date(
+                    measuredAt
+                ).getTime();
+
 
             if (
                 Number.isNaN(
                     measuredTimestamp
                 )
             ) {
-                measuredTimestamp = null;
+
+                measuredTimestamp =
+                    null;
             }
         }
 
+
         refreshProgress();
+
     }
 
+
     /*
-     * Vérification du titre défilant
+     * Vérification du titre et de l'artiste
      */
 
     setTimeout(
-        checkTitleOverflow,
+        function()
+        {
+            checkTitleOverflow();
+            checkArtistOverflow();
+        },
         50
     );
 }
+
 
 async function reloadDisplay()
 {
@@ -1004,14 +1778,18 @@ async function reloadDisplay()
 
         const response =
             await fetch(
-                '{{ path('display_state') }}?_=' +
+                '{{ path('display_state') }}?_='
+                +
                 Date.now(),
                 {
-                    cache: 'no-store'
+                    cache:
+                        'no-store'
                 }
             );
 
+
         if (!response.ok) {
+
             console.warn(
                 'Erreur HTTP:',
                 response.status
@@ -1020,10 +1798,15 @@ async function reloadDisplay()
             return;
         }
 
+
         const state =
             await response.json();
 
-        updateDisplay(state);
+
+        updateDisplay(
+            state
+        );
+
 
     } catch (error) {
 
@@ -1034,10 +1817,16 @@ async function reloadDisplay()
     }
 }
 
+
+/*
+ * SSE
+ */
+
 const eventSource =
     new EventSource(
         'http://localhost:5000/events'
     );
+
 
 eventSource.onmessage =
     function(event)
@@ -1050,6 +1839,7 @@ eventSource.onmessage =
         reloadDisplay();
     };
 
+
 eventSource.onerror =
     function(error)
     {
@@ -1059,29 +1849,10 @@ eventSource.onerror =
         );
     };
 
-function checkTitleOverflow()
-{
-    const title =
-        document.querySelector(
-            '.current-title'
-        );
 
-    const wrapper =
-        document.querySelector(
-            '.current-title-wrapper'
-        );
-
-    if (!title || !wrapper) {
-        return;
-    }
-
-    if (
-        title.scrollWidth >
-        wrapper.clientWidth
-    ) {
-        title.classList.add('scroll');
-    }
-}
+/*
+ * Événements
+ */
 
 function checkEventsOverflow()
 {
@@ -1095,77 +1866,137 @@ function checkEventsOverflow()
             '.events-list'
         );
 
-    if (!container || !list) {
+
+    if (
+        !container
+        ||
+        !list
+    ) {
         return;
     }
 
+
     if (
-        list.scrollHeight <=
+        list.scrollHeight
+        <=
         container.clientHeight
     ) {
         return;
     }
 
+
     const distance =
-        container.clientHeight -
+        container.clientHeight
+        -
         list.scrollHeight;
+
 
     list.style.setProperty(
         '--scroll-distance',
-        distance + 'px'
+        distance
+        +
+        'px'
     );
+
 
     const scrollDuration =
         Math.max(
             15,
-            list.children.length * 3
+            list.children.length
+            *
+            3
         );
+
 
     list.style.setProperty(
         '--scroll-duration',
-        scrollDuration + 's'
+        scrollDuration
+        +
+        's'
     );
 
-    list.classList.add('scrolling');
+
+    list.classList.add(
+        'scrolling'
+    );
 }
+
+
+/*
+ * Horloge
+ */
+
+function updateClock()
+{
+    const clock =
+        document.querySelector(
+            '#clock'
+        );
+
+
+    if (!clock) {
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+
+    const hours =
+        String(
+            now.getHours()
+        )
+        .padStart(
+            2,
+            '0'
+        );
+
+
+    const minutes =
+        String(
+            now.getMinutes()
+        )
+        .padStart(
+            2,
+            '0'
+        );
+
+
+    clock.innerText =
+        '🕒 '
+        +
+        hours
+        +
+        ':'
+        +
+        minutes;
+}
+
+
+updateClock();
+
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+/*
+ * Chargement initial
+ */
 
 window.addEventListener(
     'load',
     function()
     {
         checkTitleOverflow();
+        checkArtistOverflow();
         checkEventsOverflow();
 
         reloadDisplay();
     }
-);
-
-function updateClock()
-{
-    const clock =
-        document.querySelector('#clock');
-
-    if (!clock) {
-        return;
-    }
-
-    const now = new Date();
-
-    const hours =
-        String(now.getHours()).padStart(2, '0');
-
-    const minutes =
-        String(now.getMinutes()).padStart(2, '0');
-
-    clock.innerText =
-        '🕒 ' + hours + ':' + minutes;
-}
-
-updateClock();
-
-setInterval(
-    updateClock,
-    1000
 );
 
 </script>
