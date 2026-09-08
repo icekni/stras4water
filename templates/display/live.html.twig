@@ -1822,7 +1822,7 @@ async function reloadDisplay()
  * SSE
  */
 
-const eventSource =
+{# const eventSource =
     new EventSource(
         'http://localhost:5000/events'
     );
@@ -1837,8 +1837,11 @@ eventSource.onmessage =
         );
 
         reloadDisplay();
-    };
-
+    }; #}
+setInterval(
+    reloadDisplay,
+    1000
+);
 
 eventSource.onerror =
     function(error)
