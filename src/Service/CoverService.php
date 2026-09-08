@@ -34,7 +34,7 @@ class CoverService
         $title = trim($title);
 
         if ($artist === '' || $title === '') {
-            return '/images/default-cover.jpg';
+            return '/images/default-cover.png';
         }
 
         $cacheKey = $this->getCacheKey(
@@ -124,14 +124,13 @@ class CoverService
             }
 
         } catch (\Throwable) {
-
             /*
              * Une erreur externe ne doit jamais
              * empêcher l'écran Live.
              */
         }
 
-        return '/images/default-cover.jpg';
+        return '/img/default-cover.png';
     }
 
 

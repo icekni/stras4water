@@ -2,78 +2,113 @@
 
 namespace App\Service;
 
+use Symfony\Component\HttpKernel\KernelInterface;
+
 class DisplayStateProvider
 {
+    private string $stateFile;
+
     public function __construct(
-        private readonly MixxxService $mixxxService,
         private readonly CoverService $coverService,
+        KernelInterface $kernel,
     ) {
+        $this->stateFile =
+            $kernel->getProjectDir()
+            . '/var/display-state.json';
     }
+
 
     public function getState(): array
     {
-        /*
-         * Pour le moment :
-         * on essaie de récupérer Mixxx.
-         *
-         * Si Mixxx n'est pas disponible,
-         * on utilise les données de démonstration.
-         */
-        $mixxx = $this->mixxxService->getState();
-
-        if ($mixxx['current'] === null) {
+        if (!file_exists($this->stateFile)) {
             return $this->getDemoState();
         }
 
-        $current = $mixxx['current'];
+        $content = file_get_contents(
+            $this->stateFile
+        );
 
-        /*
-         * Pochette.
-         */
-        $current['cover'] =
-            $this->coverService->getCover(
-                $current['artist'] ?? '',
-                $current['title'] ?? ''
+        if ($content === false) {
+            return $this->getDemoState();
+        }
+
+        $state = json_decode(
+            $content,
+            true
+        );
+
+        if (!is_array($state)) {
+            return $this->getDemoState();
+        }
+
+        return $this->prepareState($state);
+    }
+
+
+    public function updateState(
+        array $state
+    ): void {
+        $directory = dirname(
+            $this->stateFile
+        );
+
+        if (!is_dir($directory)) {
+            mkdir(
+                $directory,
+                0775,
+                true
             );
+        }
 
-        /*
-         * On s'assure que les champs nécessaires
-         * à l'écran existent.
-         */
-        $current['style'] =
-            $current['style'] ?? 'salsa';
+        file_put_contents(
+            $this->stateFile,
+            json_encode(
+                $state,
+                JSON_PRETTY_PRINT
+                | JSON_UNESCAPED_UNICODE
+            ),
+            LOCK_EX
+        );
+    }
 
-        $current['icon'] =
-            $current['icon']
-            ?? $this->getStyleIcon(
-                $current['style']
-            );
+
+    private function prepareState(
+        array $state
+    ): array {
+        $current = $this->prepareSong(
+            $state['current'] ?? null
+        );
+
+        if ($current !== null) {
+            $current['cover'] =
+                $this->coverService->getCover(
+                    $current['artist'] ?? '',
+                    $current['title'] ?? ''
+                );
+        }
+
+        $previous = $this->prepareSong(
+            $state['previous'] ?? null
+        );
+
+        $next = array_map(
+            fn ($song) => $this->prepareSong($song),
+            $state['next'] ?? []
+        );
 
         return [
             'current' => $current,
 
-            'previous' =>
-                $this->prepareSong(
-                    $mixxx['previous']
-                ),
+            'previous' => $previous,
 
-            'next' =>
-                array_map(
-                    fn ($song) =>
-                        $this->prepareSong($song),
-                    $mixxx['next'] ?? []
-                ),
+            'next' => $next,
 
             'nextStyle' =>
                 $this->calculateNextStyle(
-                    $mixxx['next'] ?? []
+                    $next,
+                    $current
                 ),
 
-            /*
-             * Temporaire.
-             * Les événements passeront plus tard
-             * par la base de données.
-             */
             'events' => [
                 '09 août - SBK Wagon Souk',
                 '22 août - BachaKizz',
@@ -83,33 +118,94 @@ class DisplayStateProvider
     }
 
 
-    /**
-     * Prépare un morceau pour le Twig.
-     */
     private function prepareSong(
         ?array $song
     ): ?array {
-
         if ($song === null) {
             return null;
         }
 
+        $style = strtolower(
+            $song['style']
+            ?? $song['genre']
+            ?? 'salsa'
+        );
+
         $song['style'] =
-            $song['style'] ?? 'salsa';
+            $this->normalizeStyle($style);
 
         $song['icon'] =
-            $song['icon']
-            ?? $this->getStyleIcon(
+            $this->getStyleIcon(
                 $song['style']
             );
+
+        if (
+            isset($song['length'])
+            &&
+            !isset($song['duration'])
+        ) {
+            $song['duration'] =
+                $this->parseDuration(
+                    $song['length']
+                );
+        }
+
+        // Garantit des valeurs numériques pour le JavaScript
+        if (isset($song['duration'])) {
+            $song['duration'] =
+                (float) $song['duration'];
+        }
+
+        if (isset($song['elapsed'])) {
+            $song['elapsed'] =
+                (float) $song['elapsed'];
+        }
 
         return $song;
     }
 
 
-    /**
-     * Retourne l'icône correspondant au style.
-     */
+    private function normalizeStyle(
+        string $style
+    ): string {
+        $style = strtolower(
+            trim($style)
+        );
+
+        if (str_contains($style, 'bachata')) {
+            return 'bachata';
+        }
+
+        if (str_contains($style, 'kizomba')) {
+            return 'kizomba';
+        }
+
+        if (str_contains($style, 'salsa')) {
+            return 'salsa';
+        }
+
+        return 'salsa';
+    }
+
+
+    private function parseDuration(
+        string $length
+    ): int {
+        $parts = explode(
+            ':',
+            trim($length)
+        );
+
+        if (count($parts) !== 2) {
+            return 0;
+        }
+
+        return
+            ((int) $parts[0] * 60)
+            + (int) $parts[1];
+    }
+
+
     private function getStyleIcon(
         string $style
     ): string {
@@ -133,158 +229,106 @@ class DisplayStateProvider
     }
 
 
-    /**
-     * Détermine le prochain changement
-     * de style à partir de la queue Mixxx.
-     *
-     * Pour le moment, on regarde les morceaux
-     * suivants et on cherche le premier changement
-     * de style.
-     */
     private function calculateNextStyle(
-        array $next
+        array $next,
+        ?array $current
     ): array {
 
-        if (empty($next)) {
-
+        if ($current === null || empty($next)) {
             return [
-                'style' => 'salsa',
-                'icon' => '🟥',
+                'style' =>
+                    $current['style'] ?? 'salsa',
+
+                'icon' =>
+                    $this->getStyleIcon(
+                        $current['style'] ?? 'salsa'
+                    ),
+
                 'count' => 0,
                 'minutes' => 0,
             ];
         }
 
-        /*
-         * Style actuel de référence.
-         *
-         * On pourra améliorer ça ensuite en passant
-         * également le morceau actuel à la méthode.
-         */
-        $currentStyle =
-            $next[0]['style']
-            ?? 'salsa';
+        $currentStyle = $current['style'];
+        $minutes = 0;
 
-        foreach (
-            $next
-            as $index => $song
-        ) {
-
+        foreach ($next as $index => $song) {
             $style =
-                strtolower(
-                    $song['style']
-                    ?? ''
-                );
+                $song['style']
+                ?? 'salsa';
 
-            if (
-                $style === ''
-                ||
-                $style === $currentStyle
-            ) {
-                continue;
+            if ($style !== $currentStyle) {
+                return [
+                    'style' => $style,
+
+                    'icon' =>
+                        $this->getStyleIcon($style),
+
+                    'count' => $index + 1,
+
+                    'minutes' =>
+                        (int) round($minutes / 60),
+                ];
             }
 
-            /*
-             * Nombre de morceaux avant le changement.
-             */
-            $count =
-                $index + 1;
-
-            /*
-             * Estimation du temps.
-             */
-            $minutes = 0;
-
-            for (
-                $i = 0;
-                $i < $index;
-                $i++
-            ) {
-
-                $duration =
-                    $next[$i]['duration']
-                    ?? 0;
-
-                $minutes +=
-                    $duration / 60;
-            }
-
-            return [
-                'style' => $style,
-
-                'icon' =>
-                    $this->getStyleIcon(
-                        $style
-                    ),
-
-                'count' =>
-                    $count,
-
-                'minutes' =>
-                    (int) round($minutes),
-            ];
+            $minutes +=
+                $song['duration'] ?? 0;
         }
 
-        /*
-         * Aucun changement trouvé.
-         */
         return [
-            'style' =>
-                $currentStyle,
+            'style' => $currentStyle,
 
             'icon' =>
                 $this->getStyleIcon(
                     $currentStyle
                 ),
 
-            'count' =>
-                count($next),
+            'count' => count($next),
 
             'minutes' =>
-                0,
+                (int) round($minutes / 60),
         ];
     }
 
 
-    /**
-     * Données de démonstration.
-     *
-     * Elles permettent de continuer à développer
-     * l'écran même lorsque Mixxx n'est pas connecté.
-     */
     private function getDemoState(): array
     {
         return [
 
             'current' => [
 
-                'style' => 'salsa',
+                'style' =>
+                    'salsa',
 
-                'icon' => '🟥',
+                'icon' =>
+                    '🟥',
 
                 'artist' =>
                     'Marc Anthony',
 
                 'title' =>
-                    'Vivir Mi Vida (Official Remix Version Extended Dance Floor)',
+                    'Vivir Mi Vida',
 
                 'cover' =>
                     $this->coverService->getCover(
                         'Marc Anthony',
-                        'Vivir Mi Vida (Official Remix Version Extended Dance Floor)'
+                        'Vivir Mi Vida'
                     ),
 
-                'elapsed' => 221,
+                'elapsed' =>
+                    221,
 
-                'duration' => 302,
+                'duration' =>
+                    302,
             ],
-
 
             'previous' => [
 
-                'style' => 'bachata',
+                'style' =>
+                    'bachata',
 
-                'icon' => '🟣',
+                'icon' =>
+                    '🟣',
 
                 'artist' =>
                     'Prince Royce',
@@ -293,14 +337,14 @@ class DisplayStateProvider
                     'Darte un Beso',
             ],
 
-
             'next' => [
 
                 [
+                    'style' =>
+                        'kizomba',
 
-                    'style' => 'kizomba',
-
-                    'icon' => '🟦',
+                    'icon' =>
+                        '🟦',
 
                     'artist' =>
                         'C4 Pedro',
@@ -313,10 +357,11 @@ class DisplayStateProvider
                 ],
 
                 [
+                    'style' =>
+                        'bachata',
 
-                    'style' => 'bachata',
-
-                    'icon' => '🟣',
+                    'icon' =>
+                        '🟣',
 
                     'artist' =>
                         'Dani J',
@@ -329,25 +374,25 @@ class DisplayStateProvider
                 ],
             ],
 
-
             'nextStyle' => [
 
-                'style' => 'bachata',
+                'style' =>
+                    'bachata',
 
-                'icon' => '🟣',
+                'icon' =>
+                    '🟣',
 
-                'count' => 2,
+                'count' =>
+                    2,
 
-                'minutes' => 8,
+                'minutes' =>
+                    8,
             ],
-
 
             'events' => [
 
                 '09 août - SBK Wagon Souk',
-
                 '22 août - BachaKizz',
-
                 '23 août - Stage Kizomba',
             ],
         ];

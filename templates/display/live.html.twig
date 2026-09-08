@@ -6,6 +6,7 @@
 {% set nextStyle = state.nextStyle ?? {} %}
 
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -59,7 +60,7 @@ body.kizomba {
     position:fixed;
     inset:-60px;
 
-    background-image:url('{{ current.cover|default(asset('images/default-cover.jpg')) }}');
+    background-image:url('{{ current.cover|default(asset('img/default-cover.png')) }}');
     background-size:cover;
     background-position:center;
 
@@ -251,14 +252,36 @@ body.kizomba {
     100% {
         transform:translateX(-50%);
     }
+}
 
+
+/*
+ * Artiste
+ */
+
+.artist-wrapper {
+    width:80%;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-align:center;
 }
 
 .artist {
+    display:inline-block;
+
     font-size:clamp(1rem,1.5vw,1.8rem);
 
     opacity:.75;
 }
+
+.artist.scroll {
+    animation:
+        marquee 14s linear infinite;
+}
+
 
 .progress-container {
     width:75%;
@@ -341,9 +364,30 @@ body.kizomba {
     padding:10px;
 
     border-radius:10px;
-
 }
-/* EVENEMENTS */
+
+
+/*
+ * Lien mobile
+ */
+
+.music-request-link {
+    display:none;
+
+    margin-top:15px;
+
+    padding:12px 20px;
+
+    border-radius:12px;
+
+    background:var(--accent);
+
+    color:white;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}
 
 .events {
     padding:15px 20px;
@@ -375,6 +419,7 @@ body.kizomba {
     animation:
         scrollEvents var(--scroll-duration) linear infinite;
 }
+
 @keyframes scrollEvents {
     0%,
     15% {
@@ -385,103 +430,385 @@ body.kizomba {
     100% {
         transform:translateY(var(--scroll-distance));
     }
+}
 
+
+/*
+ * MOBILE
+ *
+ * Aucun changement du layout desktop.
+ */
+
+@media (max-width:768px) {
+
+    html,
+    body {
+        width:100%;
+        height:auto;
+        min-height:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
+    }
+
+    .screen {
+        height:auto;
+        min-height:100vh;
+
+        display:flex;
+        flex-direction:column;
+
+        padding:12px;
+        gap:12px;
+
+        overflow:visible;
+    }
+
+
+    /*
+     * Header
+     */
+
+    .header {
+        min-height:50px;
+    }
+
+    .logo img {
+        height:50px;
+    }
+
+    #clock {
+        font-size:.9rem;
+    }
+
+
+    /*
+     * Main
+     */
+
+    .main {
+        display:flex;
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+
+    /*
+     * Ordre mobile
+     */
+
+    .main > .current {
+        order:1;
+    }
+
+    .main > .card:first-child {
+        order:2;
+    }
+
+    .main > .card:last-child {
+        order:3;
+    }
+
+
+    /*
+     * Current
+     */
+
+    .current {
+        min-height:430px;
+
+        padding:25px 15px;
+    }
+
+    .cover {
+        width:min(70vw,280px);
+        height:min(70vw,280px);
+    }
+
+    .style {
+        margin-top:15px;
+
+        font-size:1.3rem;
+    }
+
+    .current-title-wrapper {
+        width:100%;
+    }
+
+    .current-title {
+        font-size:clamp(
+            1.6rem,
+            7vw,
+            2.2rem
+        );
+    }
+
+    .artist-wrapper {
+        width:90%;
+    }
+
+    .artist {
+        font-size:1.1rem;
+    }
+
+    .progress-container {
+        width:90%;
+
+        margin-top:20px;
+    }
+
+
+    /*
+     * Cards
+     */
+
+    .card {
+        padding:16px;
+
+        border-radius:20px;
+    }
+
+    .side-title {
+        margin-bottom:12px;
+    }
+
+    .main > .card:first-child {
+        min-height:auto;
+    }
+
+
+    /*
+     * Next style
+     */
+
+    .next-style {
+        min-height:70px;
+
+        padding:15px;
+
+        text-align:center;
+
+        font-size:1.1rem;
+
+        border-left-width:5px;
+    }
+
+
+    /*
+     * Bottom
+     */
+
+    .bottom {
+        display:flex;
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+
+    /*
+     * Music request
+     */
+
+    .qr {
+        flex-direction:column;
+
+        text-align:center;
+
+        gap:15px;
+    }
+
+    .qr-image {
+        display:none;
+    }
+
+    .music-request-link {
+        display:inline-block;
+    }
+
+
+    /*
+     * Events
+     */
+
+    .events-container {
+        height:auto;
+
+        overflow:visible;
+    }
+
+    .events-list {
+        animation:none !important;
+
+        transform:none !important;
+    }
+
+    .events-list div {
+        font-size:1rem;
+    }
 }
 
 </style>
+
 </head>
 
 <body class="{{ current.style|default('salsa') }}">
 
 <div class="cover-background"></div>
+
 <div class="overlay"></div>
+
 <div class="screen">
 
 <div class="header">
 
-    <div class="logo">
-        <img src="{{ asset('img/logo.png') }}" alt="Logo Stras4Water" height="80">
-    </div>
+<div class="logo">
 
-    <div>
-        🕒 21:43
-    </div>
+    <img
+        src="{{ asset('img/logo.png') }}"
+        alt="Logo Stras4Water"
+        height="80"
+    >
+
+</div>
+
+<div id="clock">
+    🕒 21:43
+</div>
 
 </div>
 
 <div class="main">
+
 <div class="card">
 
-    <div class="side-title">
-        ✓ Précédente
-    </div>
+<div class="side-title">
+    ✓ Précédente
+</div>
 
-    <div class="small-style">
-        {{ previous.icon|default('') }}
-        {{ previous.style|default('')|upper }}
-    </div>
+<div class="small-style">
+    {{ previous.icon|default('') }}
+    {{ previous.style|default('')|upper }}
+</div>
 
-    <div class="small-title">
-        {{ previous.title|default('') }}
-    </div>
+<div class="small-title">
+    {{ previous.title|default('') }}
+</div>
 
-    <div class="small-artist">
-        {{ previous.artist|default('') }}
-    </div>
+<div class="small-artist">
+    {{ previous.artist|default('') }}
+</div>
 
 </div>
 
 <div class="current">
-{% set cover = current.cover ?? asset('images/default-cover.jpg') %}
-<img class="cover" src="{{ cover }}" alt="{{ current.title|default('') }}">
 
-<div class="style">
-    {{ current.icon|default('') }}
-    {{ current.style|default('')|upper }}
+{% set hasCurrentTrack =
+current.title|default('')|trim != ''
+%}
+
+{% set cover =
+current.cover
+?? asset('img/default-cover.png')
+%}
+
+<img
+class="cover"
+
+src="{{ cover }}"
+
+alt="{{ current.title|default('') }}"
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
+>
+
+<div
+    class="style"
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
+>
+
+{{ current.icon|default('') }}
+
+{{ current.style|default('')|upper }}
+
 </div>
+
 <div class="current-title-wrapper">
 
-    <div class="current-title">
+<div
+    class="current-title"
 
-        {{ current.title|default('En attente de musique') }}
+    {% if not hasCurrentTrack %}
+        style="visibility:hidden"
+    {% endif %}
+>
 
-    </div>
+    {% if hasCurrentTrack %}
+        {{ current.title }}
+    {% endif %}
 
 </div>
+
+</div>
+
+<div
+    class="artist-wrapper"
+
+{% if not hasCurrentTrack %}
+    style="visibility:hidden"
+{% endif %}
+
+>
+
 <div class="artist">
 
-    {{ current.artist|default('') }}
+    {% if hasCurrentTrack %}
+        {{ current.artist|default('') }}
+    {% endif %}
+
+</div>
 
 </div>
 
 <div class="progress-container">
 
-    <div class="progress">
+<div class="progress">
 
-        <div class="progress-bar"></div>
-
-    </div>
-
-    <div class="time">
-
-        <span id="elapsed"></span>
-
-        /
-
-        <span id="duration"></span>
-
-    </div>
+    <div class="progress-bar"></div>
 
 </div>
+
+<div class="time">
+
+    <span id="elapsed"></span>
+
+    /
+
+    <span id="duration"></span>
+
 </div>
 
+</div>
+
+</div>
 
 <div class="card">
 
-    <div class="side-title">
-        ⏭ Ensuite
-    </div>
+<div class="side-title">
+    ⏭ Ensuite
+</div>
+
 {% for song in next %}
+
+{% if song.title|default('')|trim != '' %}
 
     <div class="small-style">
         {{ song.icon }}
@@ -500,55 +827,67 @@ body.kizomba {
         <hr>
     {% endif %}
 
+{% endif %}
+
 {% endfor %}
 
 </div>
-</div>
 
+</div>
 
 <div class="next-style">
 
-    🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
+🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
 
-    &nbsp;
+&nbsp;
 
-    {{ nextStyle.icon|default('🟣') }}
+{{ nextStyle.icon|default('🟣') }}
 
-    {{ nextStyle.style|default('bachata')|upper }}
+{{ nextStyle.style|default('bachata')|upper }}
 
-    &nbsp;
+&nbsp;
 
-    (≈ {{ nextStyle.minutes|default(8) }} min)
+(≈ {{ nextStyle.minutes|default(8) }} min)
 
 </div>
 
-
 <div class="bottom">
+
 <div class="card qr">
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}">
+<img
+    class="qr-image"
+    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}"
+    alt="QR Code pour proposer une musique"
+>
 
 <div>
 
-<h2>
-📱 Proposer une musique
-</h2>
+    <h2>
+        📱 Proposer une musique
+    </h2>
 
-Gratuit avec votes
+    Gratuit avec votes
 
-<br>
+    <br>
 
-⚡ Prioritaire pour 2 €
+    ⚡ Prioritaire pour 2 €
+
+    <a
+        class="music-request-link"
+        href="/proposer-musique"
+    >
+        🎵 Proposer une musique
+    </a>
 
 </div>
 
 </div>
-
 
 <div class="card events">
 
 <h2>
-📅 Prochains événements
+    📅 Prochains événements
 </h2>
 
 <div class="events-container">
@@ -570,117 +909,1093 @@ Gratuit avec votes
 </div>
 
 </div>
+
 </div>
 
 <script>
 
-/* ---------------------------
-   Durée morceau
----------------------------- */
+let elapsed =
+    Number(
+        {{ current.elapsed|default(0)|json_encode|raw }}
+    );
 
-let elapsed = {{ current.elapsed|default(0) }};
-let duration = {{ current.duration|default(1) }};
-function formatTime(seconds){
-    let min =
-        Math.floor(seconds / 60);
+let duration =
+    Number(
+        {{ current.duration|default(1)|json_encode|raw }}
+    );
 
-    let sec =
+let measuredAt =
+    {{ current.measuredAt|default(null)|json_encode|raw }};
+
+let elapsedAtMeasurement =
+    elapsed;
+
+let measuredTimestamp =
+    null;
+
+let currentTrackKey =
+    null;
+
+
+if (measuredAt) {
+
+    measuredTimestamp =
+        new Date(
+            measuredAt
+        ).getTime();
+
+    if (
+        Number.isNaN(
+            measuredTimestamp
+        )
+    ) {
+        measuredTimestamp =
+            null;
+    }
+}
+
+
+function formatTime(seconds)
+{
+    seconds =
+        Math.max(
+            0,
+            Math.floor(
+                Number(seconds)
+                || 0
+            )
+        );
+
+    const min =
+        Math.floor(
+            seconds / 60
+        );
+
+    const sec =
         seconds % 60;
 
-    return min + ':' + String(sec).padStart(2,'0');
-
+    return (
+        min
+        +
+        ':'
+        +
+        String(sec).padStart(
+            2,
+            '0'
+        )
+    );
 }
-document.querySelector('#duration')
-    .innerText =
-    formatTime(duration);
 
-function updateProgress(){
-    elapsed++;
 
-    if(elapsed > duration){
-        elapsed = duration;
+function getCurrentElapsed()
+{
+    if (
+        measuredTimestamp
+        !==
+        null
+    ) {
+
+        const elapsedNow =
+            elapsedAtMeasurement
+            +
+            (
+                Date.now()
+                -
+                measuredTimestamp
+            )
+            /
+            1000;
+
+        return Math.min(
+            duration,
+
+            Math.max(
+                0,
+                elapsedNow
+            )
+        );
     }
 
-    document.querySelector('.progress-bar')
-        .style.width =
-        ((elapsed / duration) * 100) + '%';
-    document.querySelector('#elapsed')
-        .innerText =
-        formatTime(elapsed);
+    return Math.min(
+        duration,
 
+        Math.max(
+            0,
+            elapsed
+        )
+    );
 }
 
-setInterval(updateProgress,1000);
 
-/* ---------------------------
-   Titre défilant
----------------------------- */
+function refreshProgress()
+{
+    const currentElapsed =
+        getCurrentElapsed();
 
-function checkTitleOverflow(){
-    const title =
-        document.querySelector('.current-title');
+    const progressBar =
+        document.querySelector(
+            '.progress-bar'
+        );
+
+    const elapsedElement =
+        document.querySelector(
+            '#elapsed'
+        );
+
+    const durationElement =
+        document.querySelector(
+            '#duration'
+        );
+
+    if (
+        !progressBar
+        ||
+        !elapsedElement
+        ||
+        !durationElement
+    ) {
+        return;
+    }
+
+    const percentage =
+        duration > 0
+            ?
+            (
+                currentElapsed
+                /
+                duration
+            )
+            *
+            100
+            :
+            0;
+
+    progressBar.style.width =
+        Math.min(
+            100,
+            Math.max(
+                0,
+                percentage
+            )
+        )
+        +
+        '%';
+
+    elapsedElement.innerText =
+        formatTime(
+            currentElapsed
+        );
+
+    durationElement.innerText =
+        formatTime(
+            duration
+        );
+}
+
+
+refreshProgress();
+
+setInterval(
+    refreshProgress,
+    250
+);
+
+
+/*
+ * Défilement texte
+ */
+
+function checkTextOverflow(
+    elementSelector,
+    wrapperSelector
+)
+{
+    const element =
+        document.querySelector(
+            elementSelector
+        );
 
     const wrapper =
-        document.querySelector('.current-title-wrapper');
+        document.querySelector(
+            wrapperSelector
+        );
 
-    if(!title || !wrapper){
+    if (
+        !element
+        ||
+        !wrapper
+    ) {
         return;
     }
 
-    if(title.scrollWidth > wrapper.clientWidth){
-        title.classList.add('scroll');
+    element.classList.remove(
+        'scroll'
+    );
 
+    if (
+        element.scrollWidth
+        >
+        wrapper.clientWidth
+    ) {
+
+        element.classList.add(
+            'scroll'
+        );
     }
-
 }
 
 
-/* ---------------------------
-   Défilement événements
----------------------------- */
+function checkTitleOverflow()
+{
+    checkTextOverflow(
+        '.current-title',
+        '.current-title-wrapper'
+    );
+}
 
-function checkEventsOverflow(){
+
+function checkArtistOverflow()
+{
+    checkTextOverflow(
+        '.artist',
+        '.artist-wrapper'
+    );
+}
+
+
+function updateDisplay(state)
+{
+    if (
+        !state
+        ||
+        !state.current
+    ) {
+        return;
+    }
+
+    const current =
+        state.current;
+
+    const previous =
+        state.previous
+        ||
+        {};
+
+    const next =
+        (
+            state.next
+            ||
+            []
+        )
+        .filter(
+            function(song)
+            {
+                return (
+                    String(
+                        song.title
+                        ??
+                        ''
+                    )
+                    .trim()
+                    !==
+                    ''
+                );
+            }
+        );
+
+    const nextStyle =
+        state.nextStyle
+        ||
+        {};
+
+
+    const newTrackKey =
+        String(
+            current.artist
+            ??
+            ''
+        )
+        +
+        '|'
+        +
+        String(
+            current.title
+            ??
+            ''
+        )
+        +
+        '|'
+        +
+        String(
+            current.filePath
+            ??
+            ''
+        );
+
+
+    const trackChanged =
+        newTrackKey
+        !==
+        currentTrackKey;
+
+
+    /*
+     * Morceau actuel
+     */
+
+    const currentStyle =
+        document.querySelector(
+            '.style'
+        );
+
+    const currentTitle =
+        document.querySelector(
+            '.current-title'
+        );
+
+    const currentArtist =
+        document.querySelector(
+            '.artist'
+        );
+
+    const currentArtistWrapper =
+        document.querySelector(
+            '.artist-wrapper'
+        );
+
+    const currentCover =
+        document.querySelector(
+            '.cover'
+        );
+
+
+    const hasCurrentTrack =
+        String(
+            current.title
+            ??
+            ''
+        )
+        .trim()
+        !==
+        '';
+
+
+    if (hasCurrentTrack) {
+
+        if (currentStyle) {
+
+            currentStyle.innerText =
+                String(
+                    current.icon
+                    ??
+                    ''
+                )
+                +
+                ' '
+                +
+                String(
+                    current.style
+                    ??
+                    ''
+                )
+                .toUpperCase();
+
+            currentStyle.style.visibility =
+                'visible';
+        }
+
+
+        if (currentTitle) {
+
+            currentTitle.innerText =
+                current.title
+                ??
+                '';
+
+            currentTitle.style.visibility =
+                'visible';
+
+            if (trackChanged) {
+
+                currentTitle.classList.remove(
+                    'scroll'
+                );
+            }
+        }
+
+
+        if (currentArtist) {
+
+            currentArtist.innerText =
+                current.artist
+                ??
+                '';
+
+            currentArtist.classList.remove(
+                'scroll'
+            );
+
+            currentArtist.style.visibility =
+                'visible';
+        }
+
+
+        if (currentArtistWrapper) {
+
+            currentArtistWrapper.style.visibility =
+                'visible';
+        }
+
+
+        if (
+            currentCover
+            &&
+            current.cover
+        ) {
+
+            currentCover.src =
+                current.cover;
+
+            currentCover.alt =
+                current.title
+                ??
+                '';
+
+            currentCover.style.visibility =
+                'visible';
+        }
+
+
+    } else {
+
+        /*
+         * Aucun morceau
+         */
+
+        if (currentStyle) {
+
+            currentStyle.innerText =
+                '';
+
+            currentStyle.style.visibility =
+                'hidden';
+        }
+
+
+        if (currentTitle) {
+
+            currentTitle.innerText =
+                '';
+
+            currentTitle.classList.remove(
+                'scroll'
+            );
+
+            currentTitle.style.visibility =
+                'hidden';
+        }
+
+
+        if (currentArtist) {
+
+            currentArtist.innerText =
+                '';
+
+            currentArtist.classList.remove(
+                'scroll'
+            );
+
+            currentArtist.style.visibility =
+                'hidden';
+        }
+
+
+        if (currentArtistWrapper) {
+
+            currentArtistWrapper.style.visibility =
+                'hidden';
+        }
+
+
+        if (currentCover) {
+
+            currentCover.style.visibility =
+                'hidden';
+        }
+
+    }
+
+
+    /*
+     * Morceau précédent
+     */
+
+    const previousCard =
+        document.querySelector(
+            '.main > .card:first-child'
+        );
+
+
+    if (previousCard) {
+
+        const previousStyleElement =
+            previousCard.querySelector(
+                '.small-style'
+            );
+
+        const previousTitleElement =
+            previousCard.querySelector(
+                '.small-title'
+            );
+
+        const previousArtistElement =
+            previousCard.querySelector(
+                '.small-artist'
+            );
+
+
+        if (previousStyleElement) {
+
+            previousStyleElement.innerText =
+                String(
+                    previous.icon
+                    ??
+                    ''
+                )
+                +
+                ' '
+                +
+                String(
+                    previous.style
+                    ??
+                    ''
+                )
+                .toUpperCase();
+        }
+
+
+        if (previousTitleElement) {
+
+            previousTitleElement.innerText =
+                previous.title
+                ??
+                '';
+        }
+
+
+        if (previousArtistElement) {
+
+            previousArtistElement.innerText =
+                previous.artist
+                ??
+                '';
+        }
+
+    }
+
+
+    /*
+     * Morceaux suivants
+     */
+
+    const nextCard =
+        document.querySelector(
+            '.main > .card:last-child'
+        );
+
+
+    if (nextCard) {
+
+        const sideTitle =
+            nextCard.querySelector(
+                '.side-title'
+            );
+
+
+        nextCard.innerHTML =
+            '';
+
+
+        if (sideTitle) {
+
+            nextCard.appendChild(
+                sideTitle
+            );
+
+        } else {
+
+            const title =
+                document.createElement(
+                    'div'
+                );
+
+            title.className =
+                'side-title';
+
+            title.innerText =
+                '⏭ Ensuite';
+
+            nextCard.appendChild(
+                title
+            );
+        }
+
+
+        next.forEach(
+            function(
+                song,
+                index
+            )
+            {
+
+                const style =
+                    document.createElement(
+                        'div'
+                    );
+
+                style.className =
+                    'small-style';
+
+                style.innerText =
+                    String(
+                        song.icon
+                        ??
+                        ''
+                    )
+                    +
+                    ' '
+                    +
+                    String(
+                        song.style
+                        ??
+                        ''
+                    )
+                    .toUpperCase();
+
+
+                const title =
+                    document.createElement(
+                        'div'
+                    );
+
+                title.className =
+                    'small-title';
+
+                title.innerText =
+                    song.title
+                    ??
+                    '';
+
+
+                const artist =
+                    document.createElement(
+                        'div'
+                    );
+
+                artist.className =
+                    'small-artist';
+
+                artist.innerText =
+                    song.artist
+                    ??
+                    '';
+
+
+                nextCard.appendChild(
+                    style
+                );
+
+                nextCard.appendChild(
+                    title
+                );
+
+                nextCard.appendChild(
+                    artist
+                );
+
+
+                if (
+                    index
+                    <
+                    next.length
+                    -
+                    1
+                ) {
+
+                    const separator =
+                        document.createElement(
+                            'hr'
+                        );
+
+                    nextCard.appendChild(
+                        separator
+                    );
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Prochain changement de style
+     */
+
+    const nextStyleElement =
+        document.querySelector(
+            '.next-style'
+        );
+
+
+    if (nextStyleElement) {
+
+        nextStyleElement.innerHTML =
+            '🕺 Dans '
+            +
+            String(
+                nextStyle.count
+                ??
+                0
+            )
+            +
+            ' morceaux :'
+            +
+            '&nbsp;'
+            +
+            String(
+                nextStyle.icon
+                ??
+                '🟣'
+            )
+            +
+            ' '
+            +
+            String(
+                nextStyle.style
+                ??
+                'bachata'
+            )
+            .toUpperCase()
+            +
+            '&nbsp;'
+            +
+            '(≈ '
+            +
+            String(
+                nextStyle.minutes
+                ??
+                0
+            )
+            +
+            ' min)';
+    }
+
+
+    /*
+     * Synchronisation du timer
+     */
+
+    if (trackChanged) {
+
+        currentTrackKey =
+            newTrackKey;
+
+
+        duration =
+            Number(
+                current.duration
+                ??
+                0
+            );
+
+
+        elapsed =
+            Number(
+                current.elapsed
+                ??
+                0
+            );
+
+
+        elapsedAtMeasurement =
+            elapsed;
+
+
+        measuredAt =
+            current.measuredAt
+            ??
+            null;
+
+
+        measuredTimestamp =
+            null;
+
+
+        if (measuredAt) {
+
+            measuredTimestamp =
+                new Date(
+                    measuredAt
+                ).getTime();
+
+
+            if (
+                Number.isNaN(
+                    measuredTimestamp
+                )
+            ) {
+
+                measuredTimestamp =
+                    null;
+            }
+        }
+
+
+        refreshProgress();
+
+    }
+
+
+    /*
+     * Vérification du titre et de l'artiste
+     */
+
+    setTimeout(
+        function()
+        {
+            checkTitleOverflow();
+            checkArtistOverflow();
+        },
+        50
+    );
+}
+
+
+async function reloadDisplay()
+{
+    try {
+
+        const response =
+            await fetch(
+                '{{ path('display_state') }}?_='
+                +
+                Date.now(),
+                {
+                    cache:
+                        'no-store'
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.warn(
+                'Erreur HTTP:',
+                response.status
+            );
+
+            return;
+        }
+
+
+        const state =
+            await response.json();
+
+
+        updateDisplay(
+            state
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            'Erreur lors du chargement de l’état:',
+            error
+        );
+    }
+}
+
+
+/*
+ * SSE
+ */
+
+const eventSource =
+    new EventSource(
+        'http://localhost:5000/events'
+    );
+
+
+eventSource.onmessage =
+    function(event)
+    {
+        console.log(
+            '📡 SSE message reçu:',
+            event.data
+        );
+
+        reloadDisplay();
+    };
+
+
+eventSource.onerror =
+    function(error)
+    {
+        console.warn(
+            '⚠️ Connexion SSE interrompue.',
+            error
+        );
+    };
+
+
+/*
+ * Événements
+ */
+
+function checkEventsOverflow()
+{
     const container =
-        document.querySelector('.events-container');
+        document.querySelector(
+            '.events-container'
+        );
 
     const list =
-        document.querySelector('.events-list');
+        document.querySelector(
+            '.events-list'
+        );
 
-    if(!container || !list){
+
+    if (
+        !container
+        ||
+        !list
+    ) {
         return;
     }
 
-    if(list.scrollHeight <= container.clientHeight){
+
+    if (
+        list.scrollHeight
+        <=
+        container.clientHeight
+    ) {
         return;
     }
+
+
     const distance =
-        container.clientHeight - list.scrollHeight;
+        container.clientHeight
+        -
+        list.scrollHeight;
+
 
     list.style.setProperty(
         '--scroll-distance',
-        distance + 'px'
+        distance
+        +
+        'px'
     );
 
-    const duration =
+
+    const scrollDuration =
         Math.max(
             15,
-            list.children.length * 3
+            list.children.length
+            *
+            3
         );
+
 
     list.style.setProperty(
         '--scroll-duration',
-        duration + 's'
+        scrollDuration
+        +
+        's'
     );
 
-    list.classList.add('scrolling');
 
+    list.classList.add(
+        'scrolling'
+    );
 }
+
+
+/*
+ * Horloge
+ */
+
+function updateClock()
+{
+    const clock =
+        document.querySelector(
+            '#clock'
+        );
+
+
+    if (!clock) {
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+
+    const hours =
+        String(
+            now.getHours()
+        )
+        .padStart(
+            2,
+            '0'
+        );
+
+
+    const minutes =
+        String(
+            now.getMinutes()
+        )
+        .padStart(
+            2,
+            '0'
+        );
+
+
+    clock.innerText =
+        '🕒 '
+        +
+        hours
+        +
+        ':'
+        +
+        minutes;
+}
+
+
+updateClock();
+
+
+setInterval(
+    updateClock,
+    1000
+);
+
+
+/*
+ * Chargement initial
+ */
 
 window.addEventListener(
     'load',
-    () => {
+    function()
+    {
         checkTitleOverflow();
+        checkArtistOverflow();
         checkEventsOverflow();
+
+        reloadDisplay();
     }
 );
 

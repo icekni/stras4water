@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Dto\ComptabiliteLigne;
 use App\Enum\MoyenPaiement;
+use App\Enum\Statut;
 use App\Repository\AbonnementSouscritRepository;
 use App\Repository\AdhesionRepository;
 use App\Repository\CarteSouscriteRepository;
@@ -49,14 +50,16 @@ class ComptabiliteService
         );
 
         foreach ($abonnements as $abonnement) {
-            $lignes[] = new ComptabiliteLigne(
-                date: $abonnement->getCreatedAt(),
-                type: 'Abonnement',
-                libelle: $abonnement->getAbonnement()->getNom(),                
-                typeTarif: $abonnement->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
-                discipline: $abonnement->getAbonnement()->getDiscipline()?->getNom(),
-                moyenPaiement: $abonnement->getMoyenPaiement(),
-            );
+            if ($abonnement->getStatut() != statut::CREATED) {
+                $lignes[] = new ComptabiliteLigne(
+                    date: $abonnement->getCreatedAt(),
+                    type: 'Abonnement',
+                    libelle: $abonnement->getAbonnement()->getNom(),                
+                    typeTarif: $abonnement->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
+                    discipline: $abonnement->getAbonnement()->getDiscipline()?->getNom(),
+                    moyenPaiement: $abonnement->getMoyenPaiement(),
+                );
+            }
         }
 
 
@@ -65,19 +68,21 @@ class ComptabiliteService
         );
 
         foreach ($cartes as $carte) {
-            $lignes[] = new ComptabiliteLigne(
-                date: $carte->getCreatedAt(),
-                type: 'Carte',
-                libelle: $carte->getCarte()->getNom(),
-                typeTarif: $carte->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
-                discipline: implode(
-                    ', ',
-                    $carte->getCarte()->getDisciplines()
-                        ->map(fn ($d) => $d->getNom())
-                        ->toArray()
-                ),
-                moyenPaiement: $carte->getMoyenPaiement(),
-            );
+            if ($carte->getStatut() != statut::CREATED) {
+                $lignes[] = new ComptabiliteLigne(
+                    date: $carte->getCreatedAt(),
+                    type: 'Carte',
+                    libelle: $carte->getCarte()->getNom(),
+                    typeTarif: $carte->isTarifReduit() ? "Tarif réduit" : "Plein tarif",
+                    discipline: implode(
+                        ', ',
+                        $carte->getCarte()->getDisciplines()
+                            ->map(fn ($d) => $d->getNom())
+                            ->toArray()
+                    ),
+                    moyenPaiement: $carte->getMoyenPaiement(),
+                );
+            }
         }
 
         // foreach ($this->donationRepository->findBetweenDates($from, $to) as $donation) {
