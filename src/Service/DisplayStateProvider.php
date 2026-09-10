@@ -110,9 +110,10 @@ class DisplayStateProvider
                 ),
 
             'events' => [
-                '09 août - SBK Wagon Souk',
-                '22 août - BachaKizz',
-                '23 août - Stage Kizomba',
+                '15 septembre - Portes ouvertes Salsa (débutant/intermédiaire) - Kaleidoscoop',
+                '16 septembre - Portes ouvertes Bachata et Salsa - Salle Saint Joseph',
+                '17 septembre - Portes ouvertes Cours d\anglais et espagnol - Maison des associations',
+                '26 septembre - Soirée Bachata/Salsa - Salle Saint Joseph',
             ],
         ];
     }
@@ -390,10 +391,10 @@ class DisplayStateProvider
             ],
 
             'events' => [
-
-                '09 août - SBK Wagon Souk',
-                '22 août - BachaKizz',
-                '23 août - Stage Kizomba',
+                '15 septembre - Portes ouvertes Salsa (débutant/intermédiaire) - Kaleidoscoop',
+                '16 septembre - Portes ouvertes Bachata et Salsa - Salle Saint Joseph',
+                '17 septembre - Portes ouvertes Cours d\anglais et espagnol - Maison des associations',
+                '26 septembre - Soirée Bachata/Salsa - Salle Saint Joseph',
             ],
         ];
     }
