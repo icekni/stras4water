@@ -1,0 +1,209 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Événements{% endblock %}
+
+{% block body %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Événements</h1>
+
+    <a href="{{ path('admin_event_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i>
+        Nouvel événement
+    </a>
+</div>
+
+<h2>À venir</h2>
+
+{% if upcomingEvents is not empty %}
+
+    <!-- Desktop -->
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Événement</th>
+                    <th>Type</th>
+                    <th>Lieu</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for event in upcomingEvents %}
+                <tr>
+                    <td>
+                        {{ event.startAt|date('d/m/Y') }}
+                        <br>
+                        {{ event.startAt|date('H:i') }}
+                    </td>
+
+                    <td>
+                        <a href="{{ path('admin_event_show', {id: event.id}) }}">
+                            {{ event.nom }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ event.type.name }}
+                    </td>
+
+                    <td>
+                        {{ event.location ?? '-' }}
+                    </td>
+
+                    <td>
+                        <a href="{{ path('admin_event_edit', {id: event.id}) }}"
+                            class="btn btn-sm btn-outline-primary"
+                        >
+                            <i class="bi bi-pencil"></i>
+                        </a>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <form
+                                method="post"
+                                action="{{ path('admin_event_delete', {id: event.id}) }}"
+                                class="d-inline"
+                                onsubmit="return confirm('Voulez-vous vraiment supprimer cet événement ? Cette action est irréversible.');"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('delete_event_' ~ event.id) }}"
+                                >
+
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                    Supprimer
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile -->
+    <div class="d-block d-md-none">
+        {% for event in upcomingEvents %}
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        <a href="{{ path('admin_event_show', {id: event.id}) }}">
+                            {{ event.nom }}
+                        </a>
+                    </h5>
+
+                    <p class="mb-1">
+                        <strong>Date :</strong>
+                        {{ event.startAt|date('d/m/Y à H:i') }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Type :</strong>
+                        {{ event.type.name }}
+                    </p>
+
+                    {% if event.location %}
+                        <p class="mb-2">
+                            <strong>Lieu :</strong>
+                            {{ event.location }}
+                        </p>
+                    {% endif %}
+
+                    <div class="d-flex gap-1">
+                        <a
+                            href="#"
+                            class="btn btn-sm btn-warning flex-grow-1"
+                        >
+                            Modifier
+                        </a>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            disabled
+                        >
+                            Supprimer
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+
+    <p class="text-muted">
+        Aucun événement à venir.
+    </p>
+
+{% endif %}
+
+
+{% if pastEvents is not empty %}
+
+    <hr class="my-4">
+
+    <details>
+        <summary class="h4" style="cursor: pointer;">
+            Événements passés
+        </summary>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Événement</th>
+                        <th>Type</th>
+                        <th>Lieu</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for event in pastEvents %}
+                    <tr>
+                        <td>
+                            {{ event.startAt|date('d/m/Y') }}
+                            <br>
+                            {{ event.startAt|date('H:i') }}
+                        </td>
+
+                        <td>
+                            <a href="{{ path('admin_event_show', {id: event.id}) }}">
+                                {{ event.nom }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ event.type.name }}
+                        </td>
+
+                        <td>
+                            {{ event.location ?? '-' }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if pastEvents|length >= 10 %}
+            <div class="text-center mt-3">
+                <a href="#" class="btn btn-outline-secondary">
+                    Afficher plus
+                </a>
+            </div>
+        {% endif %}
+
+    </details>
+
+{% endif %}
+
+{% endblock %}
