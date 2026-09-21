@@ -3,6 +3,9 @@
 namespace App\Service;
 
 use Symfony\Component\HttpKernel\KernelInterface;
+use App\Repository\EventRepository;
+use App\Entity\Event;
+use App\Entity\EventLink;
 
 class DisplayStateProvider
 {
@@ -10,6 +13,8 @@ class DisplayStateProvider
 
     public function __construct(
         private readonly CoverService $coverService,
+        private readonly EventRepository $eventRepository,
+        private readonly QrCodeGenerator $qrCodeGenerator,
         KernelInterface $kernel,
     ) {
         $this->stateFile =
@@ -109,12 +114,7 @@ class DisplayStateProvider
                     $current
                 ),
 
-            'events' => [
-                '15 septembre - Portes ouvertes Salsa (débutant/intermédiaire) - Kaleidoscoop',
-                '16 septembre - Portes ouvertes Bachata et Salsa - Salle Saint Joseph',
-                '17 septembre - Portes ouvertes Cours d\'anglais et espagnol - Maison des associations',
-                '26 septembre - Soirée Bachata/Salsa - Salle Saint Joseph',
-            ],
+            'events' => $this->prepareEvents(),
         ];
     }
 
@@ -291,6 +291,32 @@ class DisplayStateProvider
         ];
     }
 
+    private function prepareEvents(): array
+    {
+        $events = $this->eventRepository->findUpcoming();
+
+        return array_map(
+            function (Event $event): array {
+                return [
+                    'id' => $event->getId(),
+                    'nom' => $event->getNom(),
+                    'date' => $event->getStartAt()->format('d/m/Y'),
+                    'heure' => $event->getStartAt()->format('H:i'),
+                    'location' => $event->getLocation(),
+                    'links' => array_map(
+                        function (EventLink $link): array {
+                            return [
+                                'nom' => $link->getNom(),
+                                'qrCode' => $this->qrCodeGenerator->generateEventLink($link),
+                            ];
+                        },
+                        $event->getLinks()->toArray()
+                    ),
+                ];
+            },
+            $events
+        );
+    }
 
     private function getDemoState(): array
     {
