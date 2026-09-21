@@ -155,4 +155,19 @@ class EmailService {
 
         $this->mailer->send($email);
     }
+
+    public function sendPasswordReset(User $user, string $url): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address('contact@stras4water.org', 'Stras4Water'))
+            ->to($user->getEmail())
+            ->subject('Réinitialisation de votre mot de passe Stras4Water')
+            ->htmlTemplate('emails/password_reset.html.twig')
+            ->context([
+                'user' => $user,
+                'url' => $url,
+            ]);
+
+        $this->mailer->send($email);
+    }
 }
