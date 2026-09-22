@@ -81,16 +81,17 @@
                                                 {{ musicRequest.artiste }}
                                             </div>
                                         </div>
+                                        {% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::PENDING') %}
+                                            <div class="text-end text-nowrap">
+                                                <strong>
+                                                    {{ musicRequest.votes }}
+                                                </strong>
 
-                                        <div class="text-end text-nowrap">
-                                            <strong>
-                                                {{ musicRequest.votes }}
-                                            </strong>
-
-                                            <div class="small text-muted">
-                                                vote{% if musicRequest.votes != 1 %}s{% endif %}
+                                                <div class="small text-muted">
+                                                    vote{% if musicRequest.votes != 1 %}s{% endif %}
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
 
                                     </div>
 
