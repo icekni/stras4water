@@ -1,5 +1,6 @@
 {# templates/display/live.html.twig #}
 
+{% set musicRequest = state.musicRequest ?? {} %}
 {% set current = state.current ?? {} %}
 {% set previous = state.previous ?? {} %}
 {% set next = state.next ?? [] %}
@@ -520,8 +521,9 @@ body.kizomba {
 .bottom {
     display:grid;
 
-    grid-template-columns:
-        minmax(0,1fr);
+    grid-template-columns:        
+        minmax(0,40%)
+        minmax(0,60%);
 
     gap:15px;
 
@@ -1280,7 +1282,6 @@ body.kizomba {
              PROPOSER UNE MUSIQUE
              ================================================== -->
 
-        {#
         <div class="card qr">
 
             <img
@@ -1291,23 +1292,24 @@ body.kizomba {
                 alt="QR Code pour proposer une musique"
             >
 
-
             <div>
 
                 <h2>
                     📱 Proposer une musique
                 </h2>
 
-                Gratuit avec votes
+                👍 {{ musicRequest.votesRequired|default(10) }} votes
+                → gratuit
 
                 <br>
 
-                ⚡ Prioritaire pour 2 €
+                ⚡ {{ musicRequest.price|default(2) }} €
+                → sans attendre les votes
 
                 <a
                     class="music-request-link"
 
-                    href="/proposer-musique"
+                    href="{{ path('music_request') }}"
                 >
                     🎵 Proposer une musique
                 </a>
@@ -1315,7 +1317,6 @@ body.kizomba {
             </div>
 
         </div>
-        #}
 
 
         <!-- ==================================================

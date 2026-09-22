@@ -115,6 +115,15 @@ class DisplayStateProvider
                 ),
 
             'events' => $this->prepareEvents(),
+
+
+            'musicRequest' => [
+                'votesRequired' =>
+                    (int) ($_ENV['MUSIC_REQUEST_VOTES_REQUIRED'] ?? 10),
+
+                'price' =>
+                    (float) ($_ENV['MUSIC_REQUEST_PAID_AMOUNT'] ?? 2),
+            ],
         ];
     }
 
@@ -417,10 +426,45 @@ class DisplayStateProvider
             ],
 
             'events' => [
-                '15 septembre - Portes ouvertes Salsa (débutant/intermédiaire) - Kaleidoscoop',
-                '16 septembre - Portes ouvertes Bachata et Salsa - Salle Saint Joseph',
-                '17 septembre - Portes ouvertes Cours d\'anglais et espagnol - Maison des associations',
-                '26 septembre - Soirée Bachata/Salsa - Salle Saint Joseph',
+                [
+                    'id' => 1,
+                    'nom' =>
+                        'Portes ouvertes Salsa',
+                    'date' =>
+                        '15/09/2026',
+                    'heure' =>
+                        '19:30',
+                    'location' =>
+                        'Kaleidoscoop',
+                    'links' => [],
+                ],
+
+                [
+                    'id' => 2,
+                    'nom' =>
+                        'Portes ouvertes Bachata et Salsa',
+                    'date' =>
+                        '16/09/2026',
+                    'heure' =>
+                        '19:30',
+                    'location' =>
+                        'Salle Saint Joseph',
+                    'links' => [],
+                ],
+
+                [
+                    'id' => 3,
+                    'nom' =>
+                        'Soirée Bachata / Salsa',
+                    'date' =>
+                        '26/09/2026',
+                    'heure' =>
+                        '20:00',
+                    'location' =>
+                        'Salle Saint Joseph',
+                    'links' => [],
+                ],
+
             ],
         ];
     }
