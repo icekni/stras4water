@@ -95,73 +95,83 @@
                                     </div>
 
 
-                                    {# Progression vers les X votes #}
+                                    {% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::VALIDATED') %}
 
-                                    <div class="mt-3">
-
-                                        <div class="progress" style="height: 8px;">
-                                            <div
-                                                class="progress-bar"
-                                                role="progressbar"
-                                                style="width: {{ min(100, musicRequest.votes * 10) }}%;"
-                                                aria-valuenow="{{ musicRequest.votes }}"
-                                                aria-valuemin="0"
-                                                aria-valuemax="10"
-                                            ></div>
+                                        <div class="alert alert-success text-center mt-3 mb-0">
+                                            <strong>✅ Morceau validé !</strong>
                                         </div>
 
-                                        <div class="small text-muted mt-1">
-                                            {{ musicRequest.votes }}/{{ nbVotesRequis }} votes
+                                    {% else %}
+
+                                        {# Progression vers les X votes #}
+
+                                        <div class="mt-3">
+
+                                            <div class="progress" style="height: 8px;">
+                                                <div
+                                                    class="progress-bar"
+                                                    role="progressbar"
+                                                    style="width: {{ min(100, (musicRequest.votes / nbVotesRequis) * 100) }}%;"
+                                                    aria-valuenow="{{ musicRequest.votes }}"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="{{ nbVotesRequis }}"
+                                                ></div>
+                                            </div>
+
+                                            <div class="small text-muted mt-1">
+                                                {{ musicRequest.votes }}/{{ nbVotesRequis }} votes
+                                            </div>
+
                                         </div>
 
-                                    </div>
 
+                                        {# Actions #}
 
-                                    {# Actions #}
+                                        <div class="d-flex flex-wrap gap-2 mt-3">
 
-                                    <div class="d-flex flex-wrap gap-2 mt-3">
-
-                                        <form
-                                            method="post"
-                                            action="{{ path('music_request_vote', {
-                                                id: musicRequest.id
-                                            }) }}"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="_token"
-                                                value="{{ csrf_token('music_request_vote_' ~ musicRequest.id) }}"
+                                            <form
+                                                method="post"
+                                                action="{{ path('music_request_vote', {
+                                                    id: musicRequest.id
+                                                }) }}"
                                             >
+                                                <input
+                                                    type="hidden"
+                                                    name="_token"
+                                                    value="{{ csrf_token('music_request_vote_' ~ musicRequest.id) }}"
+                                                >
 
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline-primary"
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-primary"
+                                                >
+                                                    👍 Voter
+                                                </button>
+                                            </form>
+
+                                            <form
+                                                method="post"
+                                                action="{{ path('music_request_pay', {
+                                                    id: musicRequest.id
+                                                }) }}"
                                             >
-                                                👍 Voter
-                                            </button>
-                                        </form>
+                                                <input
+                                                    type="hidden"
+                                                    name="_token"
+                                                    value="{{ csrf_token('music_request_pay_' ~ musicRequest.id) }}"
+                                                >
 
-                                        <form
-                                            method="post"
-                                            action="{{ path('music_request_pay', {
-                                                id: musicRequest.id
-                                            }) }}"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="_token"
-                                                value="{{ csrf_token('music_request_pay_' ~ musicRequest.id) }}"
-                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-success"
+                                                >
+                                                    💶 Valider sans attendre : {{ price }} €
+                                                </button>
+                                            </form>
 
-                                            <button
-                                                type="submit"
-                                                class="btn btn-outline-success"
-                                            >
-                                                💶 Valider sans attendre : {{ price }} €
-                                            </button>
-                                        </form>
+                                        </div>
 
-                                    </div>
+                                    {% endif %}
 
                                 </div>
 

@@ -307,7 +307,10 @@ final class MusicRequestController extends AbstractController
         }
 
         $musicRequests = $musicRequestRepository->findBy(
-            ['status' => MusicRequestStatus::PENDING],
+            ['status' => [
+                MusicRequestStatus::PENDING,
+                MusicRequestStatus::VALIDATED,
+            ]],
             ['votes' => 'DESC', 'createdAt' => 'ASC']
         );
 
