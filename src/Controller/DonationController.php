@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Psr\Log\LoggerInterface;
 
 final class DonationController extends AbstractController
 {
@@ -102,7 +103,7 @@ final class DonationController extends AbstractController
     }
 
     #[Route('/fillFiscalData/{token}', name: 'fillFiscalData')]
-    public function fillFiscalData(string $token, Request $request, DonationRepository $donationRepository, EntityManagerInterface $em, RecuFiscalService $recuFiscalService): Response
+    public function fillFiscalData(string $token, Request $request, DonationRepository $donationRepository, EntityManagerInterface $em, RecuFiscalService $recuFiscalService, LoggerInterface $logger): Response
     {
         $user = $this->getUser();
         $formData = [];
@@ -130,6 +131,19 @@ final class DonationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $fiscalData = $request->request->all()['fiscal_data'] ?? [];
+            error_log(
+                sprintf(
+                    "[FiscalData] donation=%d POST.numero_rue=%s FORM.numero_rue=%s FORM.rue=%s\n",
+                    $donation->getId(),
+                    var_export($fiscalData['numero_rue'] ?? null, true),
+                    var_export($form->get('numero_rue')->getData(), true),
+                    var_export($form->get('rue')->getData(), true)
+                ),
+                3,
+                $this->getParameter('kernel.logs_dir') . '/fiscal_debug.log'
+            );
 
             $anneeEnCours = new DateTimeImmutable();
             $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donation->getId()));
