@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Psr\Log\LoggerInterface;
 
 final class DonationController extends AbstractController
 {
@@ -103,7 +102,7 @@ final class DonationController extends AbstractController
     }
 
     #[Route('/fillFiscalData/{token}', name: 'fillFiscalData')]
-    public function fillFiscalData(string $token, Request $request, DonationRepository $donationRepository, EntityManagerInterface $em, RecuFiscalService $recuFiscalService, LoggerInterface $logger): Response
+    public function fillFiscalData(string $token, Request $request, DonationRepository $donationRepository, EntityManagerInterface $em, RecuFiscalService $recuFiscalService): Response
     {
         $user = $this->getUser();
         $formData = [];
