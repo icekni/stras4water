@@ -15,7 +15,6 @@ use App\Service\CarteDeMembreGenerator;
 use App\Service\CommandeDetailsBuilder;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
