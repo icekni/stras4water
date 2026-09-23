@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Entity\MusicRequestVote;
@@ -320,5 +321,62 @@ final class MusicRequestController extends AbstractController
             'nbVotesRequis' => $this->votesRequired,
             'price' => (int) round($this->paidAmount)
         ]);
+    }
+
+    #[Route(
+        '/api/music-requests/bridge',
+        name: 'music_request_bridge',
+        methods: ['GET']
+    )]
+    public function bridge(
+        MusicRequestRepository $musicRequestRepository
+    ): JsonResponse {
+        $musicRequests =
+            $musicRequestRepository->findForBridge();
+
+        return $this->json(
+            array_map(
+                static function (
+                    MusicRequest $musicRequest
+                ): array {
+                    return [
+                        'id' =>
+                            $musicRequest->getId(),
+
+                        'titre' =>
+                            $musicRequest->getTitre(),
+
+                        'artiste' =>
+                            $musicRequest->getArtiste(),
+
+                        'votes' =>
+                            $musicRequest->getVotes(),
+
+                        'status' =>
+                            $musicRequest->getStatus()->value,
+
+                        'validationType' =>
+                            $musicRequest
+                                ->getValidationType()
+                                ?->value,
+
+                        'createdAt' =>
+                            $musicRequest
+                                ->getCreatedAt()
+                                ?->format(
+                                    \DateTimeInterface::ATOM
+                                ),
+
+                        'validatedAt' =>
+                            $musicRequest
+                                ->getValidatedAt()
+                                ?->format(
+                                    \DateTimeInterface::ATOM
+                                ),
+                    ];
+                },
+                $musicRequests
+            )
+        );
     }
 }

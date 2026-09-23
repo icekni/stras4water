@@ -166,19 +166,6 @@
             document.getElementById('detailedFields').classList.remove('d-none');
         });
 
-        const form = document.querySelector('form[name="donation"]');
-        const modal = document.getElementById('helloAssoModal');
-        const payButton = document.querySelector('.HaPayButton');
-
-        payButton.addEventListener('click', () => {
-        if (form.checkValidity()) {
-            const myModal = new bootstrap.Modal(document.getElementById('helloAssoModal'));
-            myModal.show();
-        } else {
-            event.preventDefault();
-            form.reportValidity();
-        }
-        });
     </script>
 </div>
 {% endblock %}

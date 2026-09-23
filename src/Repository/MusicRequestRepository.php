@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\MusicRequest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Enum\MusicRequestStatus;
 
 /**
  * @extends ServiceEntityRepository<MusicRequest>
@@ -14,6 +15,39 @@ class MusicRequestRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MusicRequest::class);
+    }
+
+    public function findForBridge(): array
+    {
+        $since = new \DateTimeImmutable('-1 day');
+
+        return $this->createQueryBuilder('mr')
+            ->andWhere(
+                '('
+                . 'mr.status = :pending'
+                . ' AND mr.createdAt >= :since'
+                . ')'
+                . ' OR '
+                . '('
+                . 'mr.status = :validated'
+                . ' AND mr.validatedAt >= :since'
+                . ')'
+            )
+            ->setParameter(
+                'pending',
+                MusicRequestStatus::PENDING
+            )
+            ->setParameter(
+                'validated',
+                MusicRequestStatus::VALIDATED
+            )
+            ->setParameter(
+                'since',
+                $since
+            )
+            ->orderBy('mr.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**
