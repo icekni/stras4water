@@ -23,12 +23,22 @@ class RecuFiscalService
         string $nom, 
         string $prenom, 
         string $numeroRue, 
-        string $rue, 
+        ?string $rue, 
         string $codePostal, 
         string $ville, 
         string $pays
     ): Donation
     {
+
+        error_log(
+            sprintf(
+                '[RecuFiscalService] donation=%d numero_rue=%s rue=%s',
+                $donation->getId(),
+                var_export($numeroRue, true),
+                var_export($rue, true)
+            )
+        );
+
         $pdf = new Fpdi();
         $pagecount = $pdf->setSourceFile('recusFiscaux/modele-vierge.pdf');
 
@@ -135,7 +145,7 @@ class RecuFiscalService
         $pdf->SetXY(124, 83.8); 
         $pdf->Cell(69, 6.3, mb_convert_encoding($prenom, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(17, 94.5); 
-        $pdf->Cell(20, 6.3, mb_convert_encoding($numeroRue, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
+        $pdf->Cell(20, 6.3, mb_convert_encoding($numeroRue ?? '', 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(47, 94.5); 
         $pdf->Cell(145, 6.3, mb_convert_encoding($rue, 'Windows-1252', 'UTF-8'), 0, 0, 'L');
         $pdf->SetXY(34, 99.5); 

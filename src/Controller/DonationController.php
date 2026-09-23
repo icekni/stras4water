@@ -131,6 +131,19 @@ final class DonationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $fiscalData = $request->request->all()['fiscal_data'] ?? [];
+            error_log(
+                sprintf(
+                    "[FiscalData] donation=%d POST.numero_rue=%s FORM.numero_rue=%s FORM.rue=%s\n",
+                    $donation->getId(),
+                    var_export($fiscalData['numero_rue'] ?? null, true),
+                    var_export($form->get('numero_rue')->getData(), true),
+                    var_export($form->get('rue')->getData(), true)
+                ),
+                3,
+                $this->getParameter('kernel.logs_dir') . '/fiscal_debug.log'
+            );
+
             $anneeEnCours = new DateTimeImmutable();
             $donation->setNumeroOrdreRF('RF' . $anneeEnCours->format('Y') . '-' . sprintf('%06d', $donation->getId()));
             $donation = $recuFiscalService->generate($donation,
