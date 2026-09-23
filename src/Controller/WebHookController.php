@@ -15,12 +15,14 @@ use App\Service\CarteDeMembreGenerator;
 use App\Service\CommandeDetailsBuilder;
 use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\Enum\MusicRequestStatus;
+use App\Enum\MusicRequestValidationType;
+use App\Repository\MusicRequestRepository;
 
 final class WebHookController extends AbstractController
 {
@@ -35,6 +37,7 @@ final class WebHookController extends AbstractController
         CarteSouscriteRepository $carteRepository,
         EmailService $emailService,
         CarteDeMembreGenerator $carteDeMembreGenerator,
+        MusicRequestRepository $musicRequestRepository,
         CommandeDetailsBuilder $commandeDetailsBuilder
     ): Response
     {
@@ -54,6 +57,7 @@ final class WebHookController extends AbstractController
                 $stripe = new \Stripe\StripeClient($_ENV['STRIPE_SECRET_KEY']);
                 $paymentIntent = $stripe->paymentIntents->retrieve($session->payment_intent);
                 
+                $musicRequestId = $paymentIntent->metadata->music_request_id ?? null;
                 $donId = $paymentIntent->metadata->don_id ?? null;
                 $userId = $paymentIntent->metadata->user_id ?? null;
                 $adhesion = $paymentIntent->metadata->adhesion === "true";
@@ -64,7 +68,32 @@ final class WebHookController extends AbstractController
                 return new Response('No payment intent', 400);
             }
             
-            if ($donId) {
+            if ($musicRequestId) {
+                $musicRequest = $musicRequestRepository->find($musicRequestId);
+                    $donation = $donId
+                        ? $donationRepository->find($donId)
+                        : null;
+
+                    if (!$musicRequest || !$donation) {
+                        return new Response('Music request or donation not found', 400);
+                    }
+
+                    // Évite de traiter deux fois le même webhook
+                    if ($donation->getStatus() === DonationStatus::COMPLETED) {
+                        return new Response('OK', 200);
+                    }
+
+                    $donation->setCheckoutId($session->payment_intent);
+                    $donation->setStatus(DonationStatus::COMPLETED);
+
+                    if ($musicRequest->getStatus() === MusicRequestStatus::PENDING) {
+                        $musicRequest->setStatus(MusicRequestStatus::VALIDATED);
+                        $musicRequest->setValidationType(
+                            MusicRequestValidationType::PAID
+                        );
+                        $musicRequest->setValidatedAt(new \DateTimeImmutable());
+                    }
+            } elseif ($donId) {
                 $donation = $donationRepository->find($donId);
                 $donation->setCheckoutId($session->payment_intent);
 

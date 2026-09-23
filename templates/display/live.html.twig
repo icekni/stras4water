@@ -1,4 +1,6 @@
 {# templates/display/live.html.twig #}
+
+{% set musicRequest = state.musicRequest ?? {} %}
 {% set current = state.current ?? {} %}
 {% set previous = state.previous ?? {} %}
 {% set next = state.next ?? [] %}
@@ -8,19 +10,42 @@
 <!DOCTYPE html>
 
 <html lang="fr">
+
 <head>
+
 <meta charset="UTF-8">
+
 <title>Stras4Water Live</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
 
 <style>
+
+/*
+ * ============================================================
+ * VARIABLES
+ * ============================================================
+ */
+
 :root {
     --accent:#d64040;
     --background:#350909;
+
     --card:rgba(255,255,255,.08);
+
     --text:white;
     --muted:rgba(255,255,255,.65);
 }
+
+
+/*
+ * ============================================================
+ * GLOBAL
+ * ============================================================
+ */
 
 * {
     box-sizing:border-box;
@@ -30,16 +55,32 @@ html,
 body {
     width:100%;
     height:100%;
+
     margin:0;
+
     overflow:hidden;
-    font-family:Arial, Helvetica, sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     color:var(--text);
+
     background:var(--background);
 }
 
 body {
-    transition:background-color 1s ease;
+    transition:
+        background-color 1s ease;
 }
+
+
+/*
+ * ============================================================
+ * STYLES PAR DISCIPLINE
+ * ============================================================
+ */
 
 body.salsa {
     --accent:#d64040;
@@ -56,21 +97,35 @@ body.kizomba {
     --background:#081b38;
 }
 
+
+/*
+ * ============================================================
+ * BACKGROUND
+ * ============================================================
+ */
+
 .cover-background {
     position:fixed;
+
     inset:-60px;
 
-    background-image:url('{{ current.cover|default(asset('img/default-cover.png')) }}');
+    background-image:
+        url('{{ current.cover|default(asset('img/default-cover.png')) }}');
+
     background-size:cover;
+
     background-position:center;
 
     filter:blur(50px);
+
     opacity:.18;
+
     transform:scale(1.2);
 }
 
 .overlay {
     position:fixed;
+
     inset:0;
 
     background:
@@ -80,8 +135,16 @@ body.kizomba {
         );
 }
 
+
+/*
+ * ============================================================
+ * SCREEN
+ * ============================================================
+ */
+
 .screen {
     position:relative;
+
     z-index:2;
 
     height:100vh;
@@ -95,22 +158,55 @@ body.kizomba {
         180px;
 
     padding:20px;
+
     gap:15px;
 
     overflow:hidden;
 }
 
+
+/*
+ * ============================================================
+ * HEADER
+ * ============================================================
+ */
+
 .header {
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
 }
 
 .logo {
-    font-size:clamp(1rem,2vw,1.5rem);
+    font-size:clamp(
+        1rem,
+        2vw,
+        1.5rem
+    );
+
     font-weight:bold;
+
     letter-spacing:3px;
 }
+
+.logo img {
+    max-height:80px;
+
+    width:auto;
+}
+
+#clock {
+    font-size:1rem;
+}
+
+
+/*
+ * ============================================================
+ * MAIN
+ * ============================================================
+ */
 
 .main {
     display:grid;
@@ -124,6 +220,13 @@ body.kizomba {
 
     min-height:0;
 }
+
+
+/*
+ * ============================================================
+ * CARDS
+ * ============================================================
+ */
 
 .card {
     min-width:0;
@@ -139,6 +242,13 @@ body.kizomba {
     overflow:hidden;
 }
 
+
+/*
+ * ============================================================
+ * SIDE SONGS
+ * ============================================================
+ */
+
 .side-title {
     color:var(--muted);
 
@@ -151,13 +261,18 @@ body.kizomba {
 
 .small-style {
     color:var(--accent);
+
     font-weight:bold;
 }
 
 .small-title {
     margin-top:8px;
 
-    font-size:clamp(1rem,1.3vw,1.3rem);
+    font-size:clamp(
+        1rem,
+        1.3vw,
+        1.3rem
+    );
 
     font-weight:bold;
 
@@ -178,6 +293,13 @@ body.kizomba {
     text-overflow:ellipsis;
 }
 
+
+/*
+ * ============================================================
+ * CURRENT SONG
+ * ============================================================
+ */
+
 .current {
     min-width:0;
 
@@ -197,9 +319,17 @@ body.kizomba {
 }
 
 .cover {
-    width:clamp(150px,15vw,220px);
+    width:clamp(
+        150px,
+        15vw,
+        220px
+    );
 
-    height:clamp(150px,15vw,220px);
+    height:clamp(
+        150px,
+        15vw,
+        220px
+    );
 
     object-fit:cover;
 
@@ -212,12 +342,23 @@ body.kizomba {
 .style {
     margin-top:20px;
 
-    font-size:clamp(1.2rem,2vw,2rem);
+    font-size:clamp(
+        1.2rem,
+        2vw,
+        2rem
+    );
 
     font-weight:bold;
 
     color:var(--accent);
 }
+
+
+/*
+ * ============================================================
+ * CURRENT TITLE
+ * ============================================================
+ */
 
 .current-title-wrapper {
     width:80%;
@@ -232,7 +373,11 @@ body.kizomba {
 .current-title {
     display:inline-block;
 
-    font-size:clamp(2rem,3vw,3rem);
+    font-size:clamp(
+        2rem,
+        3vw,
+        3rem
+    );
 
     font-weight:bold;
 }
@@ -243,6 +388,7 @@ body.kizomba {
 }
 
 @keyframes marquee {
+
     0%,
     20% {
         transform:translateX(0);
@@ -256,7 +402,9 @@ body.kizomba {
 
 
 /*
- * Artiste
+ * ============================================================
+ * ARTIST
+ * ============================================================
  */
 
 .artist-wrapper {
@@ -272,7 +420,11 @@ body.kizomba {
 .artist {
     display:inline-block;
 
-    font-size:clamp(1rem,1.5vw,1.8rem);
+    font-size:clamp(
+        1rem,
+        1.5vw,
+        1.8rem
+    );
 
     opacity:.75;
 }
@@ -282,6 +434,12 @@ body.kizomba {
         marquee 14s linear infinite;
 }
 
+
+/*
+ * ============================================================
+ * PROGRESS
+ * ============================================================
+ */
 
 .progress-container {
     width:75%;
@@ -315,6 +473,13 @@ body.kizomba {
     color:var(--muted);
 }
 
+
+/*
+ * ============================================================
+ * NEXT STYLE
+ * ============================================================
+ */
+
 .next-style {
     display:flex;
 
@@ -331,20 +496,46 @@ body.kizomba {
 
     border-radius:20px;
 
-    font-size:clamp(1rem,2vw,1.8rem);
+    font-size:clamp(
+        1rem,
+        2vw,
+        1.8rem
+    );
 
     font-weight:bold;
 }
 
-.bottom {
-    {# display:grid; #}
 
-    grid-template-columns:
+/*
+ * ============================================================
+ * BOTTOM
+ *
+ * 40% à gauche :
+ * suggestion de musique
+ *
+ * 60% à droite :
+ * événements
+ * ============================================================
+ */
+
+.bottom {
+    display:grid;
+
+    grid-template-columns:        
         minmax(0,40%)
         minmax(0,60%);
 
     gap:15px;
+
+    min-height:0;
 }
+
+
+/*
+ * ============================================================
+ * MUSIC REQUEST
+ * ============================================================
+ */
 
 .qr {
     display:flex;
@@ -366,11 +557,6 @@ body.kizomba {
     border-radius:10px;
 }
 
-
-/*
- * Lien mobile
- */
-
 .music-request-link {
     display:none;
 
@@ -389,54 +575,173 @@ body.kizomba {
     font-weight:bold;
 }
 
+
+/*
+ * ============================================================
+ * EVENTS
+ * ============================================================
+ *
+ * La carte prend toute la largeur disponible
+ * dans les 60% réservés aux événements.
+ *
+ * Un seul événement est affiché à la fois.
+ */
+
 .events {
-    padding:15px 20px;
-}
+    width:100%;
 
-.events h2 {
-    margin:0 0 10px 0;
+    height:100%;
 
-    font-size:1.3rem;
+    padding:20px 25px;
 }
 
 .events-container {
-    height:120px;
+    width:100%;
+
+    height:100%;
+
+    min-height:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 
     overflow:hidden;
 }
 
-.events-list {
-    transition:transform 1s ease;
+.event-slide {
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        auto;
+
+    align-items:center;
+
+    gap:30px;
+
+    opacity:1;
+
+    transform:translateY(0);
+
+    transition:
+        opacity .8s ease,
+        transform .8s ease;
 }
 
-.events-list div {
+.event-slide.hidden {
+    opacity:0;
+
+    transform:translateY(15px);
+}
+
+.event-info {
+    min-width:0;
+
+    overflow:hidden;
+}
+
+.event-date {
+    color:var(--accent);
+
+    font-size:clamp(
+        1rem,
+        1.4vw,
+        1.3rem
+    );
+
+    font-weight:bold;
+
+    margin-bottom:6px;
+}
+
+.event-name {
+    font-size:clamp(
+        1.4rem,
+        2vw,
+        2.1rem
+    );
+
+    font-weight:bold;
+
+    line-height:1.15;
+
     margin-bottom:8px;
-
-    font-size:1.15rem;
 }
 
-.events-list.scrolling {
-    animation:
-        scrollEvents var(--scroll-duration) linear infinite;
+.event-location {
+    color:var(--muted);
+
+    font-size:clamp(
+        1rem,
+        1.3vw,
+        1.2rem
+    );
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
-@keyframes scrollEvents {
-    0%,
-    15% {
-        transform:translateY(0);
-    }
+.event-links {
+    display:flex;
 
-    85%,
-    100% {
-        transform:translateY(var(--scroll-distance));
-    }
+    align-items:flex-start;
+
+    justify-content:flex-end;
+
+    gap:20px;
+
+    flex-shrink:0;
+}
+
+.event-link {
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:flex-start;
+
+    gap:5px;
+
+    min-width:90px;
+
+    color:var(--text);
+
+    font-size:.85rem;
+
+    text-align:center;
+}
+
+.event-link img {
+    display:block;
+
+    width:95px;
+
+    height:95px;
+
+    padding:5px;
+
+    background:white;
+
+    border-radius:8px;
+
+    object-fit:contain;
 }
 
 
 /*
+ * ============================================================
  * MOBILE
- *
- * Aucun changement du layout desktop.
+ * ============================================================
  */
 
 @media (max-width:768px) {
@@ -444,21 +749,28 @@ body.kizomba {
     html,
     body {
         width:100%;
+
         height:auto;
+
         min-height:100%;
 
         overflow-x:hidden;
+
         overflow-y:auto;
     }
 
+
     .screen {
         height:auto;
+
         min-height:100vh;
 
         display:flex;
+
         flex-direction:column;
 
         padding:12px;
+
         gap:12px;
 
         overflow:visible;
@@ -466,7 +778,7 @@ body.kizomba {
 
 
     /*
-     * Header
+     * HEADER
      */
 
     .header {
@@ -483,11 +795,12 @@ body.kizomba {
 
 
     /*
-     * Main
+     * MAIN
      */
 
     .main {
         display:flex;
+
         flex-direction:column;
 
         gap:12px;
@@ -495,7 +808,7 @@ body.kizomba {
 
 
     /*
-     * Ordre mobile
+     * ORDRE MOBILE
      */
 
     .main > .current {
@@ -512,7 +825,7 @@ body.kizomba {
 
 
     /*
-     * Current
+     * CURRENT
      */
 
     .current {
@@ -522,8 +835,15 @@ body.kizomba {
     }
 
     .cover {
-        width:min(70vw,280px);
-        height:min(70vw,280px);
+        width:min(
+            70vw,
+            280px
+        );
+
+        height:min(
+            70vw,
+            280px
+        );
     }
 
     .style {
@@ -560,7 +880,7 @@ body.kizomba {
 
 
     /*
-     * Cards
+     * CARDS
      */
 
     .card {
@@ -579,7 +899,7 @@ body.kizomba {
 
 
     /*
-     * Next style
+     * NEXT STYLE
      */
 
     .next-style {
@@ -596,11 +916,12 @@ body.kizomba {
 
 
     /*
-     * Bottom
+     * BOTTOM
      */
 
     .bottom {
         display:flex;
+
         flex-direction:column;
 
         gap:12px;
@@ -608,7 +929,7 @@ body.kizomba {
 
 
     /*
-     * Music request
+     * MUSIC REQUEST
      */
 
     .qr {
@@ -629,290 +950,402 @@ body.kizomba {
 
 
     /*
-     * Events
+     * EVENTS
      */
 
-    .events-container {
+    .events {
+        width:100%;
+
         height:auto;
 
-        overflow:visible;
+        padding:16px;
     }
 
-    .events-list {
-        animation:none !important;
+    .events-container {
+        min-height:220px;
 
-        transform:none !important;
+        height:auto;
     }
 
-    .events-list div {
+    .event-slide {
+        grid-template-columns:1fr;
+
+        gap:15px;
+
+        text-align:center;
+    }
+
+    .event-date {
         font-size:1rem;
     }
+
+    .event-name {
+        font-size:1.4rem;
+    }
+
+    .event-location {
+        font-size:1rem;
+    }
+
+    .event-links {
+        gap:15px;
+
+        justify-content:center;
+    }
+
+    .event-link img {
+        width:85px;
+
+        height:85px;
+    }
+
 }
+
+
+/*
+ * ============================================================
+ * JAVASCRIPT
+ * ============================================================
+ */
 
 </style>
 
 </head>
 
+
 <body class="{{ current.style|default('salsa') }}">
+
 
 <div class="cover-background"></div>
 
 <div class="overlay"></div>
 
+
 <div class="screen">
 
-<div class="header">
 
-<div class="logo">
+    <!-- ======================================================
+         HEADER
+         ====================================================== -->
 
-    <img
-        src="{{ asset('img/logo.png') }}"
-        alt="Logo Stras4Water"
-        height="80"
-    >
+    <div class="header">
 
-</div>
+        <div class="logo">
 
-<div id="clock">
-    🕒 21:43
-</div>
+            <img
+                src="{{ asset('img/logo.png') }}"
+                alt="Logo Stras4Water"
+                height="80"
+            >
 
-</div>
+        </div>
 
-<div class="main">
 
-<div class="card">
+        <div id="clock">
+            🕒 21:43
+        </div>
 
-<div class="side-title">
-    ✓ Précédente
-</div>
-
-<div class="small-style">
-    {{ previous.icon|default('') }}
-    {{ previous.style|default('')|upper }}
-</div>
-
-<div class="small-title">
-    {{ previous.title|default('') }}
-</div>
-
-<div class="small-artist">
-    {{ previous.artist|default('') }}
-</div>
-
-</div>
-
-<div class="current">
-
-{% set hasCurrentTrack =
-current.title|default('')|trim != ''
-%}
-
-{% set cover =
-current.cover
-?? asset('img/default-cover.png')
-%}
-
-<img
-class="cover"
-
-src="{{ cover }}"
-
-alt="{{ current.title|default('') }}"
-
-{% if not hasCurrentTrack %}
-    style="visibility:hidden"
-{% endif %}
-
->
-
-<div
-    class="style"
-
-{% if not hasCurrentTrack %}
-    style="visibility:hidden"
-{% endif %}
-
->
-
-{{ current.icon|default('') }}
-
-{{ current.style|default('')|upper }}
-
-</div>
-
-<div class="current-title-wrapper">
-
-<div
-    class="current-title"
-
-    {% if not hasCurrentTrack %}
-        style="visibility:hidden"
-    {% endif %}
->
-
-    {% if hasCurrentTrack %}
-        {{ current.title }}
-    {% endif %}
-
-</div>
-
-</div>
-
-<div
-    class="artist-wrapper"
-
-{% if not hasCurrentTrack %}
-    style="visibility:hidden"
-{% endif %}
-
->
-
-<div class="artist">
-
-    {% if hasCurrentTrack %}
-        {{ current.artist|default('') }}
-    {% endif %}
-
-</div>
-
-</div>
-
-<div class="progress-container">
-
-<div class="progress">
-
-    <div class="progress-bar"></div>
-
-</div>
-
-<div class="time">
-
-    <span id="elapsed"></span>
-
-    /
-
-    <span id="duration"></span>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="side-title">
-    ⏭ Ensuite
-</div>
-
-{% for song in next %}
-
-{% if song.title|default('')|trim != '' %}
-
-    <div class="small-style">
-        {{ song.icon }}
-        {{ song.style|upper }}
     </div>
 
-    <div class="small-title">
-        {{ song.title }}
-    </div>
 
-    <div class="small-artist">
-        {{ song.artist }}
-    </div>
+    <!-- ======================================================
+         MAIN
+         ====================================================== -->
 
-    {% if not loop.last %}
-        <hr>
-    {% endif %}
+    <div class="main">
 
-{% endif %}
 
-{% endfor %}
+        <!-- PREVIOUS -->
 
-</div>
+        <div class="card">
 
-</div>
-
-<div class="next-style">
-
-🕺 Dans {{ nextStyle.count|default(2) }} morceaux :
-
-&nbsp;
-
-{{ nextStyle.icon|default('🟣') }}
-
-{{ nextStyle.style|default('bachata')|upper }}
-
-&nbsp;
-
-(≈ {{ nextStyle.minutes|default(8) }} min)
-
-</div>
-
-<div class="bottom">
-
-{# <div class="card qr">
-
-<img
-    class="qr-image"
-    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}"
-    alt="QR Code pour proposer une musique"
->
-
-<div>
-
-    <h2>
-        📱 Proposer une musique
-    </h2>
-
-    Gratuit avec votes
-
-    <br>
-
-    ⚡ Prioritaire pour 2 €
-
-    <a
-        class="music-request-link"
-        href="/proposer-musique"
-    >
-        🎵 Proposer une musique
-    </a>
-
-</div>
-
-</div> #}
-
-<div class="card events">
-
-<h2>
-    📅 Prochains événements
-</h2>
-
-<div class="events-container">
-
-    <div class="events-list">
-
-        {% for event in events %}
-
-            <div>
-                {{ event }}
+            <div class="side-title">
+                ✓ Précédente
             </div>
 
-        {% endfor %}
+            <div class="small-style">
+
+                {{ previous.icon|default('') }}
+
+                {{ previous.style|default('')|upper }}
+
+            </div>
+
+            <div class="small-title">
+
+                {{ previous.title|default('') }}
+
+            </div>
+
+            <div class="small-artist">
+
+                {{ previous.artist|default('') }}
+
+            </div>
+
+        </div>
+
+
+        <!-- CURRENT -->
+
+        <div class="current">
+
+            {% set hasCurrentTrack =
+                current.title|default('')|trim != ''
+            %}
+
+            {% set cover =
+                current.cover
+                ?? asset('img/default-cover.png')
+            %}
+
+
+            <img
+                class="cover"
+
+                src="{{ cover }}"
+
+                alt="{{ current.title|default('') }}"
+
+                {% if not hasCurrentTrack %}
+                    style="visibility:hidden"
+                {% endif %}
+            >
+
+
+            <div
+                class="style"
+
+                {% if not hasCurrentTrack %}
+                    style="visibility:hidden"
+                {% endif %}
+            >
+
+                {{ current.icon|default('') }}
+
+                {{ current.style|default('')|upper }}
+
+            </div>
+
+
+            <div class="current-title-wrapper">
+
+                <div
+                    class="current-title"
+
+                    {% if not hasCurrentTrack %}
+                        style="visibility:hidden"
+                    {% endif %}
+                >
+
+                    {% if hasCurrentTrack %}
+                        {{ current.title }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="artist-wrapper"
+
+                {% if not hasCurrentTrack %}
+                    style="visibility:hidden"
+                {% endif %}
+            >
+
+                <div class="artist">
+
+                    {% if hasCurrentTrack %}
+                        {{ current.artist|default('') }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="progress-container">
+
+                <div class="progress">
+
+                    <div class="progress-bar"></div>
+
+                </div>
+
+
+                <div class="time">
+
+                    <span id="elapsed"></span>
+
+                    /
+
+                    <span id="duration"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NEXT -->
+
+        <div class="card">
+
+            <div class="side-title">
+                ⏭ Ensuite
+            </div>
+
+
+            {% for song in next %}
+
+                {% if song.title|default('')|trim != '' %}
+
+                    <div class="small-style">
+
+                        {{ song.icon }}
+
+                        {{ song.style|upper }}
+
+                    </div>
+
+
+                    <div class="small-title">
+
+                        {{ song.title }}
+
+                    </div>
+
+
+                    <div class="small-artist">
+
+                        {{ song.artist }}
+
+                    </div>
+
+
+                    {% if not loop.last %}
+
+                        <hr>
+
+                    {% endif %}
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         NEXT STYLE
+         ====================================================== -->
+
+    <div class="next-style">
+
+        🕺 Dans
+
+        {{ nextStyle.count|default(2) }}
+
+        morceaux :
+
+        &nbsp;
+
+        {{ nextStyle.icon|default('🟣') }}
+
+        {{ nextStyle.style|default('bachata')|upper }}
+
+        &nbsp;
+
+        (≈
+
+        {{ nextStyle.minutes|default(8) }}
+
+        min)
+
+    </div>
+
+
+    <!-- ======================================================
+         BOTTOM
+         ====================================================== -->
+
+    <div class="bottom">
+
+
+        <!-- ==================================================
+             FUTUR BLOC :
+             PROPOSER UNE MUSIQUE
+             ================================================== -->
+
+        <div class="card qr">
+
+            <img
+                class="qr-image"
+
+                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ absolute_url('/proposer-musique') }}"
+
+                alt="QR Code pour proposer une musique"
+            >
+
+            <div>
+
+                <h2>
+                    📱 Proposer une musique
+                </h2>
+
+                👍 {{ musicRequest.votesRequired|default(10) }} votes
+                → gratuit
+
+                <br>
+
+                ⚡ {{ musicRequest.price|default(2) }} €
+                → sans attendre les votes
+
+                <a
+                    class="music-request-link"
+
+                    href="{{ path('music_request') }}"
+                >
+                    🎵 Proposer une musique
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             EVENTS
+             ================================================== -->
+
+        <div class="card events">
+
+            <div class="events-container">
+
+                <div class="event-slide"></div>
+
+            </div>
+
+        </div>
 
     </div>
 
 </div>
 
-</div>
-
-</div>
-
-</div>
 
 <script>
+
+
+/*
+ * ============================================================
+ * TIMER
+ * ============================================================
+ */
 
 let elapsed =
     Number(
@@ -944,11 +1377,13 @@ if (measuredAt) {
             measuredAt
         ).getTime();
 
+
     if (
         Number.isNaN(
             measuredTimestamp
         )
     ) {
+
         measuredTimestamp =
             null;
     }
@@ -962,17 +1397,21 @@ function formatTime(seconds)
             0,
             Math.floor(
                 Number(seconds)
-                || 0
+                ||
+                0
             )
         );
+
 
     const min =
         Math.floor(
             seconds / 60
         );
 
+
     const sec =
         seconds % 60;
+
 
     return (
         min
@@ -1006,6 +1445,7 @@ function getCurrentElapsed()
             /
             1000;
 
+
         return Math.min(
             duration,
 
@@ -1015,6 +1455,7 @@ function getCurrentElapsed()
             )
         );
     }
+
 
     return Math.min(
         duration,
@@ -1032,20 +1473,24 @@ function refreshProgress()
     const currentElapsed =
         getCurrentElapsed();
 
+
     const progressBar =
         document.querySelector(
             '.progress-bar'
         );
+
 
     const elapsedElement =
         document.querySelector(
             '#elapsed'
         );
 
+
     const durationElement =
         document.querySelector(
             '#duration'
         );
+
 
     if (
         !progressBar
@@ -1056,6 +1501,7 @@ function refreshProgress()
     ) {
         return;
     }
+
 
     const percentage =
         duration > 0
@@ -1070,6 +1516,7 @@ function refreshProgress()
             :
             0;
 
+
     progressBar.style.width =
         Math.min(
             100,
@@ -1081,10 +1528,12 @@ function refreshProgress()
         +
         '%';
 
+
     elapsedElement.innerText =
         formatTime(
             currentElapsed
         );
+
 
     durationElement.innerText =
         formatTime(
@@ -1095,6 +1544,7 @@ function refreshProgress()
 
 refreshProgress();
 
+
 setInterval(
     refreshProgress,
     250
@@ -1102,7 +1552,9 @@ setInterval(
 
 
 /*
- * Défilement texte
+ * ============================================================
+ * DÉFILEMENT TEXTE
+ * ============================================================
  */
 
 function checkTextOverflow(
@@ -1115,10 +1567,12 @@ function checkTextOverflow(
             elementSelector
         );
 
+
     const wrapper =
         document.querySelector(
             wrapperSelector
         );
+
 
     if (
         !element
@@ -1128,9 +1582,11 @@ function checkTextOverflow(
         return;
     }
 
+
     element.classList.remove(
         'scroll'
     );
+
 
     if (
         element.scrollWidth
@@ -1163,6 +1619,332 @@ function checkArtistOverflow()
 }
 
 
+/*
+ * ============================================================
+ * ÉVÉNEMENTS
+ * ============================================================
+ */
+
+let liveEvents = [];
+
+let currentEventIndex = 0;
+
+let eventCarouselTimer = null;
+
+
+function escapeHtml(value)
+{
+    const div =
+        document.createElement(
+            'div'
+        );
+
+
+    div.textContent =
+        String(
+            value ?? ''
+        );
+
+
+    return div.innerHTML;
+}
+
+
+function renderEvent(event)
+{
+    const slide =
+        document.querySelector(
+            '.event-slide'
+        );
+
+
+    if (!slide) {
+        return;
+    }
+
+
+    if (!event) {
+
+        slide.innerHTML =
+            '';
+
+        return;
+    }
+
+
+    const links =
+        event.links
+        ??
+        [];
+
+
+    let linksHtml =
+        '';
+
+
+    if (links.length > 0) {
+
+        linksHtml =
+            '<div class="event-links">'
+            +
+
+            links.map(
+                function(link)
+                {
+                    return (
+
+                        '<div class="event-link">'
+
+                        +
+
+                        '<img src="'
+                        +
+                        escapeHtml(
+                            link.qrCode
+                        )
+                        +
+                        '" alt="QR Code '
+                        +
+                        escapeHtml(
+                            link.nom
+                        )
+                        +
+                        '">'
+
+                        +
+
+                        '<span>'
+                        +
+                        escapeHtml(
+                            link.nom
+                        )
+                        +
+                        '</span>'
+
+                        +
+
+                        '</div>'
+                    );
+                }
+            ).join('')
+
+            +
+
+            '</div>';
+    }
+
+
+    slide.innerHTML =
+
+        '<div class="event-info">'
+
+        +
+
+        '<div class="event-date">'
+
+        +
+
+        escapeHtml(
+            event.date
+            ??
+            ''
+        )
+
+        +
+
+        ' · '
+
+        +
+
+        escapeHtml(
+            event.heure
+            ??
+            ''
+        )
+
+        +
+
+        '</div>'
+
+        +
+
+        '<div class="event-name">'
+
+        +
+
+        escapeHtml(
+            event.nom
+            ??
+            ''
+        )
+
+        +
+
+        '</div>'
+
+        +
+
+        (
+            event.location
+            ?
+
+            '<div class="event-location">'
+            +
+            '📍 '
+            +
+            escapeHtml(
+                event.location
+            )
+            +
+            '</div>'
+
+            :
+
+            ''
+        )
+
+        +
+
+        '</div>'
+
+        +
+
+        linksHtml;
+}
+
+
+function showEvent(index)
+{
+    const slide =
+        document.querySelector(
+            '.event-slide'
+        );
+
+
+    if (
+        !slide
+        ||
+        liveEvents.length === 0
+    ) {
+        return;
+    }
+
+
+    currentEventIndex =
+        index %
+        liveEvents.length;
+
+
+    slide.classList.add(
+        'hidden'
+    );
+
+
+    setTimeout(
+        function()
+        {
+            renderEvent(
+                liveEvents[
+                    currentEventIndex
+                ]
+            );
+
+
+            slide.classList.remove(
+                'hidden'
+            );
+
+        },
+        800
+    );
+}
+
+
+function updateEvents(events)
+{
+    const newEvents =
+        Array.isArray(events)
+            ?
+            events
+            :
+            [];
+
+
+    const changed =
+        JSON.stringify(
+            newEvents
+        )
+        !==
+        JSON.stringify(
+            liveEvents
+        );
+
+
+    if (!changed) {
+        return;
+    }
+
+
+    liveEvents =
+        newEvents;
+
+
+    currentEventIndex =
+        0;
+
+
+    if (eventCarouselTimer) {
+
+        clearInterval(
+            eventCarouselTimer
+        );
+
+        eventCarouselTimer =
+            null;
+    }
+
+
+    if (liveEvents.length === 0) {
+
+        renderEvent(
+            null
+        );
+
+        return;
+    }
+
+
+    showEvent(
+        0
+    );
+
+
+    if (
+        liveEvents.length > 1
+    ) {
+
+        eventCarouselTimer =
+            setInterval(
+                function()
+                {
+                    showEvent(
+                        currentEventIndex
+                        +
+                        1
+                    );
+                },
+                5000
+            );
+    }
+}
+
+
+/*
+ * ============================================================
+ * UPDATE DISPLAY
+ * ============================================================
+ */
+
 function updateDisplay(state)
 {
     if (
@@ -1173,13 +1955,16 @@ function updateDisplay(state)
         return;
     }
 
+
     const current =
         state.current;
+
 
     const previous =
         state.previous
         ||
         {};
+
 
     const next =
         (
@@ -1203,11 +1988,27 @@ function updateDisplay(state)
             }
         );
 
+
     const nextStyle =
         state.nextStyle
         ||
         {};
 
+
+    /*
+     * ÉVÉNEMENTS
+     */
+
+    updateEvents(
+        state.events
+        ??
+        []
+    );
+
+
+    /*
+     * IDENTIFICATION DU MORCEAU
+     */
 
     const newTrackKey =
         String(
@@ -1240,7 +2041,7 @@ function updateDisplay(state)
 
 
     /*
-     * Morceau actuel
+     * MORCEAU ACTUEL
      */
 
     const currentStyle =
@@ -1248,20 +2049,24 @@ function updateDisplay(state)
             '.style'
         );
 
+
     const currentTitle =
         document.querySelector(
             '.current-title'
         );
+
 
     const currentArtist =
         document.querySelector(
             '.artist'
         );
 
+
     const currentArtistWrapper =
         document.querySelector(
             '.artist-wrapper'
         );
+
 
     const currentCover =
         document.querySelector(
@@ -1300,6 +2105,7 @@ function updateDisplay(state)
                 )
                 .toUpperCase();
 
+
             currentStyle.style.visibility =
                 'visible';
         }
@@ -1312,8 +2118,10 @@ function updateDisplay(state)
                 ??
                 '';
 
+
             currentTitle.style.visibility =
                 'visible';
+
 
             if (trackChanged) {
 
@@ -1331,9 +2139,11 @@ function updateDisplay(state)
                 ??
                 '';
 
+
             currentArtist.classList.remove(
                 'scroll'
             );
+
 
             currentArtist.style.visibility =
                 'visible';
@@ -1356,10 +2166,12 @@ function updateDisplay(state)
             currentCover.src =
                 current.cover;
 
+
             currentCover.alt =
                 current.title
                 ??
                 '';
+
 
             currentCover.style.visibility =
                 'visible';
@@ -1369,7 +2181,7 @@ function updateDisplay(state)
     } else {
 
         /*
-         * Aucun morceau
+         * AUCUN MORCEAU
          */
 
         if (currentStyle) {
@@ -1427,7 +2239,7 @@ function updateDisplay(state)
 
 
     /*
-     * Morceau précédent
+     * MORCEAU PRÉCÉDENT
      */
 
     const previousCard =
@@ -1443,10 +2255,12 @@ function updateDisplay(state)
                 '.small-style'
             );
 
+
         const previousTitleElement =
             previousCard.querySelector(
                 '.small-title'
             );
+
 
         const previousArtistElement =
             previousCard.querySelector(
@@ -1495,7 +2309,7 @@ function updateDisplay(state)
 
 
     /*
-     * Morceaux suivants
+     * MORCEAUX SUIVANTS
      */
 
     const nextCard =
@@ -1529,11 +2343,14 @@ function updateDisplay(state)
                     'div'
                 );
 
+
             title.className =
                 'side-title';
 
+
             title.innerText =
                 '⏭ Ensuite';
+
 
             nextCard.appendChild(
                 title
@@ -1553,8 +2370,10 @@ function updateDisplay(state)
                         'div'
                     );
 
+
                 style.className =
                     'small-style';
+
 
                 style.innerText =
                     String(
@@ -1578,8 +2397,10 @@ function updateDisplay(state)
                         'div'
                     );
 
+
                 title.className =
                     'small-title';
+
 
                 title.innerText =
                     song.title
@@ -1592,8 +2413,10 @@ function updateDisplay(state)
                         'div'
                     );
 
+
                 artist.className =
                     'small-artist';
+
 
                 artist.innerText =
                     song.artist
@@ -1605,9 +2428,11 @@ function updateDisplay(state)
                     style
                 );
 
+
                 nextCard.appendChild(
                     title
                 );
+
 
                 nextCard.appendChild(
                     artist
@@ -1627,6 +2452,7 @@ function updateDisplay(state)
                             'hr'
                         );
 
+
                     nextCard.appendChild(
                         separator
                     );
@@ -1639,7 +2465,7 @@ function updateDisplay(state)
 
 
     /*
-     * Prochain changement de style
+     * PROCHAIN CHANGEMENT DE STYLE
      */
 
     const nextStyleElement =
@@ -1693,7 +2519,7 @@ function updateDisplay(state)
 
 
     /*
-     * Synchronisation du timer
+     * SYNCHRONISATION DU TIMER
      */
 
     if (trackChanged) {
@@ -1758,19 +2584,27 @@ function updateDisplay(state)
 
 
     /*
-     * Vérification du titre et de l'artiste
+     * VÉRIFICATION DU TITRE ET DE L'ARTISTE
      */
 
     setTimeout(
         function()
         {
             checkTitleOverflow();
+
             checkArtistOverflow();
+
         },
         50
     );
 }
 
+
+/*
+ * ============================================================
+ * RECHARGEMENT DU STATE
+ * ============================================================
+ */
 
 async function reloadDisplay()
 {
@@ -1819,114 +2653,21 @@ async function reloadDisplay()
 
 
 /*
- * SSE
+ * ============================================================
+ * POLLING
+ * ============================================================
  */
 
-{# const eventSource =
-    new EventSource(
-        'http://localhost:5000/events'
-    );
-
-
-eventSource.onmessage =
-    function(event)
-    {
-        console.log(
-            '📡 SSE message reçu:',
-            event.data
-        );
-
-        reloadDisplay();
-    }; #}
 setInterval(
     reloadDisplay,
     1000
 );
 
-eventSource.onerror =
-    function(error)
-    {
-        console.warn(
-            '⚠️ Connexion SSE interrompue.',
-            error
-        );
-    };
-
 
 /*
- * Événements
- */
-
-function checkEventsOverflow()
-{
-    const container =
-        document.querySelector(
-            '.events-container'
-        );
-
-    const list =
-        document.querySelector(
-            '.events-list'
-        );
-
-
-    if (
-        !container
-        ||
-        !list
-    ) {
-        return;
-    }
-
-
-    if (
-        list.scrollHeight
-        <=
-        container.clientHeight
-    ) {
-        return;
-    }
-
-
-    const distance =
-        container.clientHeight
-        -
-        list.scrollHeight;
-
-
-    list.style.setProperty(
-        '--scroll-distance',
-        distance
-        +
-        'px'
-    );
-
-
-    const scrollDuration =
-        Math.max(
-            15,
-            list.children.length
-            *
-            3
-        );
-
-
-    list.style.setProperty(
-        '--scroll-duration',
-        scrollDuration
-        +
-        's'
-    );
-
-
-    list.classList.add(
-        'scrolling'
-    );
-}
-
-
-/*
- * Horloge
+ * ============================================================
+ * HORLOGE
+ * ============================================================
  */
 
 function updateClock()
@@ -1987,7 +2728,9 @@ setInterval(
 
 
 /*
- * Chargement initial
+ * ============================================================
+ * CHARGEMENT INITIAL
+ * ============================================================
  */
 
 window.addEventListener(
@@ -1995,8 +2738,8 @@ window.addEventListener(
     function()
     {
         checkTitleOverflow();
+
         checkArtistOverflow();
-        checkEventsOverflow();
 
         reloadDisplay();
     }
@@ -2005,4 +2748,5 @@ window.addEventListener(
 </script>
 
 </body>
+
 </html>

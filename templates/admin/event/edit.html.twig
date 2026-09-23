@@ -1,0 +1,344 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Modifier l'événement{% endblock %}
+
+{% block body %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Modifier l'événement</h1>
+
+    <a href="{{ path('admin_event_show', {id: event.id}) }}" class="btn btn-secondary">
+        Retour
+    </a>
+</div>
+
+{{ form_start(form) }}
+
+<div class="card">
+    <div class="card-body">
+
+        {{ form_row(form.nom) }}
+
+        {{ form_row(form.description) }}
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        {{ form_label(form.type) }}
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#newTypeModal"
+                        >
+                            <i class="bi bi-plus-lg"></i>
+                            Nouveau type
+                        </button>
+                    </div>
+
+                    {{ form_widget(form.type) }}
+                    {{ form_errors(form.type) }}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                {{ form_row(form.location) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.startAt) }}
+            </div>
+
+            <div class="col-md-6">
+                {{ form_row(form.endAt) }}
+            </div>
+        </div>
+
+        {{ form_row(form.adress) }}
+
+        {{ form_row(form.image) }}
+
+        <hr class="my-4">
+
+        <h2>Workshops</h2>
+
+        <div
+            id="workshops"
+            data-prototype="{{ form_widget(form.workshops.vars.prototype)|e('html_attr') }}"
+        >
+            {% for workshop in form.workshops %}
+                <div class="workshop-item border rounded p-3 mb-3">
+                    {{ form_row(workshop) }}
+
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-workshop">
+                        <i class="bi bi-trash"></i>
+                        Supprimer
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add-workshop" class="btn btn-outline-primary">
+            <i class="bi bi-plus"></i>
+            Ajouter un workshop
+        </button>
+
+
+        <hr class="my-4">
+
+        <h2>Liens</h2>
+
+        <div
+            id="links"
+            data-prototype="{{ form_widget(form.links.vars.prototype)|e('html_attr') }}"
+        >
+            {% for link in form.links %}
+                <div class="link-item border rounded p-3 mb-3">
+                    {{ form_row(link) }}
+
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-link">
+                        <i class="bi bi-trash"></i>
+                        Supprimer
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add-link" class="btn btn-outline-primary">
+            <i class="bi bi-plus"></i>
+            Ajouter un lien
+        </button>
+
+    </div>
+</div>
+
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary">
+        Enregistrer
+    </button>
+
+    <a
+        href="{{ path('admin_event_show', {id: event.id}) }}"
+        class="btn btn-secondary"
+    >
+        Annuler
+    </a>
+</div>
+
+{{ form_end(form) }}
+
+{# Modal nouveau type #}
+<div
+    class="modal fade"
+    id="newTypeModal"
+    tabindex="-1"
+    aria-labelledby="newTypeModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="newTypeModalLabel">
+                    Nouveau type d'événement
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fermer"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form id="newTypeForm">
+
+                    <div class="mb-3">
+                        <label for="newTypeName" class="form-label">
+                            Nom du type
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="newTypeName"
+                            name="name"
+                            placeholder="Ex. Soirée, Stage, Festival..."
+                            required
+                        >
+                    </div>
+
+                    <div
+                        id="newTypeError"
+                        class="alert alert-danger d-none"
+                    ></div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    form="newTypeForm"
+                    class="btn btn-primary"
+                    id="newTypeSubmit"
+                >
+                    Créer
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.getElementById('newTypeForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const input = document.getElementById('newTypeName');
+    const error = document.getElementById('newTypeError');
+    const submitButton = document.getElementById('newTypeSubmit');
+    const typeSelect = document.getElementById('{{ form.type.vars.id }}');
+
+    error.classList.add('d-none');
+    error.textContent = '';
+
+    if (!input.value.trim()) {
+        error.textContent = 'Le nom du type est obligatoire.';
+        error.classList.remove('d-none');
+        return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Création...';
+
+    try {
+        const response = await fetch('{{ path('admin_event_type_new') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                name: input.value.trim()
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Impossible de créer le type.');
+        }
+
+        const option = new Option(
+            data.name,
+            data.id,
+            true,
+            true
+        );
+
+        typeSelect.add(option);
+
+        const modalElement = document.getElementById('newTypeModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+
+        form.reset();
+
+    } catch (e) {
+        error.textContent = e.message;
+        error.classList.remove('d-none');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Créer';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    function setupCollection(containerId, buttonId, itemClass, removeClass) {
+        const container = document.getElementById(containerId);
+        const addButton = document.getElementById(buttonId);
+
+        let index = container.children.length;
+
+        addButton.addEventListener('click', function () {
+            const prototype = container.dataset.prototype;
+            const html = prototype.replace(/__name__/g, index);
+
+            const item = document.createElement('div');
+            item.className = itemClass + ' border rounded p-3 mb-3';
+
+            item.innerHTML = html + `
+                <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm ${removeClass}"
+                >
+                    <i class="bi bi-trash"></i>
+                    Supprimer
+                </button>
+            `;
+
+            container.appendChild(item);
+            index++;
+        });
+
+        container.addEventListener('click', function (event) {
+            const button = event.target.closest('.' + removeClass);
+
+            if (!button) {
+                return;
+            }
+
+            const item = button.closest('.' + itemClass);
+
+            // Élément déjà enregistré
+            const deleteInput = item.querySelector('input[type="checkbox"][name$="[DELETE]"]');
+
+            if (deleteInput) {
+                deleteInput.checked = true;
+                item.style.display = 'none';
+                return;
+            }
+
+            // Nouvel élément non encore enregistré
+            item.remove();
+        });
+    }
+
+    setupCollection(
+        'workshops',
+        'add-workshop',
+        'workshop-item',
+        'remove-workshop'
+    );
+
+    setupCollection(
+        'links',
+        'add-link',
+        'link-item',
+        'remove-link'
+    );
+
+});
+</script>
+{% endblock %}

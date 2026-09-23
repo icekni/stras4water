@@ -4,11 +4,10 @@ namespace App\Service;
 
 use App\Entity\Lien;
 use App\Entity\User;
+use App\Entity\EventLink;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Label\Font\OpenSans;
-use Endroid\QrCode\Label\LabelAlignment;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -73,5 +72,27 @@ class QrCodeGenerator {
         $result->saveToFile($path);
 
         return 'qrcodes/' . $lien->getToken() . '.png';
+    }
+
+    public function generateEventLink(EventLink $link): string
+    {
+        $builder = new Builder(
+            writer: new PngWriter(),
+            writerOptions: [],
+            validateResult: false,
+            data: $link->getUrl(),
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+        );
+
+        $result = $builder->build();
+
+        $path = $this->targetDirectory . 'event_link_' . $link->getId() . '.png';
+        $result->saveToFile($path);
+
+        return 'qrcodes/event_link_' . $link->getId() . '.png';
     }
 }
