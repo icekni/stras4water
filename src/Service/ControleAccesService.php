@@ -10,6 +10,7 @@ class ControleAccesService
 {
     public function controler(User $user, GroupeControle $groupe): array
     {
+        $tarifReduitAValider = false;
         $abonnements = [];
         $cartes = [];
 
@@ -47,6 +48,30 @@ class ControleAccesService
             ];
         }
 
+        foreach ($abonnements as $abonnement) {
+            if ($abonnement['tarifReduitAValider']) {
+                $tarifReduitAValider = true;
+            }
+
+            if ($abonnement['validation']->isValid) {
+                $accesAutorise = true;
+                break;
+            }
+        }
+
+        if (!$accesAutorise) {
+            foreach ($cartes as $carte) {
+                if ($carte['tarifReduitAValider']) {
+                    $tarifReduitAValider = true;
+                }
+
+                if ($carte['validation']->isValid) {
+                    $accesAutorise = true;
+                    break;
+                }
+            }
+        }
+
         $accesAutorise = false;
 
         foreach ($abonnements as $abonnement) {
@@ -67,6 +92,7 @@ class ControleAccesService
 
         return [
             'accesAutorise' => $accesAutorise,
+            'tarifReduitAValider' => $tarifReduitAValider,
             'abonnements' => $abonnements,
             'cartes' => $cartes,
         ];

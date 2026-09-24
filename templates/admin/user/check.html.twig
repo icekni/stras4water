@@ -21,7 +21,22 @@
                 {{ groupe.nom }}
             </p>
 
+            {% set tarifReduitAValider = false %}
+
+            {% for item in controle.abonnements %}
+                {% if item.tarifReduitAValider %}
+                    {% set tarifReduitAValider = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% for item in controle.cartes %}
+                {% if item.tarifReduitAValider %}
+                    {% set tarifReduitAValider = true %}
+                {% endif %}
+            {% endfor %}
+
             {% if controle.accesAutorise %}
+
                 <div class="alert alert-success">
                     <h2 class="h4 mb-2">✅ Accès autorisé</h2>
                     <p class="mb-0">
@@ -29,7 +44,20 @@
                         permettant l'accès à ce groupe.
                     </p>
                 </div>
+
+            {% elseif tarifReduitAValider %}
+
+                <div class="alert alert-warning">
+                    <h2 class="h4 mb-2">⚠️ Justificatif de tarif réduit à vérifier</h2>
+                    <p class="mb-0">
+                        L'utilisateur possède un abonnement ou une carte correspondant
+                        à ce groupe, mais le justificatif de tarif réduit n'a pas encore
+                        été vérifié.
+                    </p>
+                </div>
+
             {% else %}
+
                 <div class="alert alert-danger">
                     <h2 class="h4 mb-2">❌ Accès non autorisé</h2>
                     <p class="mb-0">
@@ -37,6 +65,7 @@
                         à ce groupe.
                     </p>
                 </div>
+
             {% endif %}
 
             {# ------------------------------------------------
