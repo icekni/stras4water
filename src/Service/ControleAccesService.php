@@ -2,17 +2,18 @@
 
 namespace App\Service;
 
+use App\Dto\ValidationResult;
 use App\Entity\GroupeControle;
 use App\Entity\User;
-use App\Dto\ValidationResult;
 
 class ControleAccesService
 {
     public function controler(User $user, GroupeControle $groupe): array
     {
-        $tarifReduitAValider = false;
         $abonnements = [];
         $cartes = [];
+        $tarifReduitAValider = false;
+        $accesAutorise = false;
 
         foreach ($user->getAbonnementSouscrits() as $abonnementSouscrit) {
             $abonnement = $abonnementSouscrit->getAbonnement();
@@ -65,24 +66,6 @@ class ControleAccesService
                     $tarifReduitAValider = true;
                 }
 
-                if ($carte['validation']->isValid) {
-                    $accesAutorise = true;
-                    break;
-                }
-            }
-        }
-
-        $accesAutorise = false;
-
-        foreach ($abonnements as $abonnement) {
-            if ($abonnement['validation']->isValid) {
-                $accesAutorise = true;
-                break;
-            }
-        }
-
-        if (!$accesAutorise) {
-            foreach ($cartes as $carte) {
                 if ($carte['validation']->isValid) {
                     $accesAutorise = true;
                     break;
