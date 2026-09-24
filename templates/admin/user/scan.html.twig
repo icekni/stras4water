@@ -3,10 +3,11 @@
 {% block title %}Scanner QR Code Utilisateur{% endblock %}
 
 {% block body %}
+
 <h1>Scanner QR Code utilisateur</h1>
 
 <p>
-    Sélectionnez le groupe de contrôle à utiliser pour le contrôle,
+    Sélectionnez éventuellement un groupe de contrôle,
     puis placez le QR code devant la caméra.
 </p>
 
@@ -15,66 +16,71 @@
         Groupe de contrôle
     </label>
 
-    <select id="groupe-controle" class="form-select">
-        <option value="">-- Sélectionner un groupe --</option>
+```
+<select id="groupe-controle" class="form-select">
+    <option value="">-- Aucun groupe --</option>
 
-        {% for groupe in groupes %}
-            <option value="{{ groupe.id }}">
-                {{ groupe.nom }}
-            </option>
-        {% endfor %}
-    </select>
+    {% for groupe in groupes %}
+        <option value="{{ groupe.id }}">
+            {{ groupe.nom }}
+        </option>
+    {% endfor %}
+</select>
 
-    <div id="groupe-warning" class="text-danger mt-2 d-none">
-        Veuillez sélectionner un groupe de contrôle avant de scanner un QR code.
-    </div>
+<div class="form-text">
+    Sans groupe, le QR code ouvre simplement la fiche de l'utilisateur.
+</div>
+```
+
 </div>
 
 <div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
 
-    <!-- Bouton changement de caméra -->
-    <div style="flex-basis: 100%; margin-bottom: 1rem;">
-        <button
-            id="switch-camera"
-            class="btn btn-outline-secondary"
-            type="button"
-        >
-            Changer de caméra
-        </button>
-    </div>
+```
+{# Bouton changement de caméra #}
+<div style="flex-basis: 100%; margin-bottom: 1rem;">
+    <button
+        id="switch-camera"
+        class="btn btn-outline-secondary"
+        type="button"
+    >
+        Changer de caméra
+    </button>
+</div>
 
-    <!-- Carré caméra / scanner -->
+{# Carré caméra / scanner #}
+<div
+    id="qr-reader"
+    style="width: 300px; height: 300px; border: 2px solid #333;"
+></div>
+
+{# Zone résultat #}
+<div style="flex: 1;">
+    <h3>QR Code détecté :</h3>
+
     <div
-        id="qr-reader"
-        style="width: 300px; height: 300px; border: 2px solid #333;"
-    ></div>
-
-    <!-- Zone résultat -->
-    <div style="flex: 1;">
-        <h3>QR Code détecté :</h3>
-
-        <div
-            id="qr-result"
-            style="padding: 1rem; border: 1px solid #ccc; min-height: 50px;"
-        >
-            Aucun QR détecté
-        </div>
-
-        <button
-            id="reset-scanner"
-            class="btn btn-outline-primary mt-2"
-            type="button"
-        >
-            Scanner à nouveau
-        </button>
+        id="qr-result"
+        style="padding: 1rem; border: 1px solid #ccc; min-height: 50px;"
+    >
+        Aucun QR détecté
     </div>
+
+    <button
+        id="reset-scanner"
+        class="btn btn-outline-primary mt-2"
+        type="button"
+    >
+        Scanner à nouveau
+    </button>
+</div>
+```
+
 </div>
 
 <a href="{{ path('admin_user_index') }}" class="btn btn-secondary mt-3">
     ← Retour à la liste
 </a>
 
-<!-- Librairie -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
@@ -84,11 +90,11 @@ let camerasList = [];
 let currentCameraIndex = 0;
 
 const groupeSelect = document.getElementById('groupe-controle');
-const groupeWarning = document.getElementById('groupe-warning');
 const qrResult = document.getElementById('qr-result');
 
+
 /**
- * Retourne l'URL de scan avec le groupe sélectionné.
+ * Retourne l'URL de scan avec le groupe sélectionné s'il existe.
  */
 function getScanUrl(decodedText) {
     const groupeId = groupeSelect.value;
@@ -103,27 +109,15 @@ function getScanUrl(decodedText) {
     return url;
 }
 
+
 /**
- * Vérifie qu'un groupe est sélectionné.
+ * Démarre le scanner.
  */
-function hasSelectedGroup() {
-    if (!groupeSelect.value) {
-        groupeWarning.classList.remove('d-none');
-        groupeSelect.focus();
-
-        return false;
-    }
-
-    groupeWarning.classList.add('d-none');
-
-    return true;
-}
-
 function startScanner(cameraIndex = 0) {
 
     html5QrCode = new Html5Qrcode("qr-reader");
 
-    Html5Qrcode.getCameras().then(cameras => {
+    Html5QrCode.getCameras().then(cameras => {
         if (cameras && cameras.length) {
             camerasList = cameras;
 
@@ -157,10 +151,6 @@ function startScanner(cameraIndex = 0) {
                         return;
                     }
 
-                    if (!hasSelectedGroup()) {
-                        return;
-                    }
-
                     scanning = false;
                     qrResult.innerText = decodedText;
 
@@ -187,56 +177,65 @@ function startScanner(cameraIndex = 0) {
 }
 
 
-// Changement de groupe
+/**
+ * Changement de groupe.
+ */
 groupeSelect.addEventListener('change', function() {
-    groupeWarning.classList.add('d-none');
+    // Aucun démarrage ou arrêt du scanner nécessaire.
+    // Le groupe sera simplement utilisé lors du prochain scan.
 });
 
 
-// Bouton "Scanner à nouveau"
+/**
+ * Bouton "Scanner à nouveau".
+ */
 document.getElementById('reset-scanner').addEventListener('click', function() {
-    if (!hasSelectedGroup()) {
-        return;
-    }
 
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
             qrResult.innerText = "Aucun QR détecté";
             scanning = false;
+
             startScanner(currentCameraIndex);
+
         }).catch(err => {
             console.error("Erreur arrêt scanner :", err);
         });
+
     } else {
         startScanner(currentCameraIndex);
     }
 });
 
 
-// Bouton "Changer de caméra"
+/**
+ * Bouton "Changer de caméra".
+ */
 document.getElementById('switch-camera').addEventListener('click', function() {
-    if (!hasSelectedGroup()) {
-        return;
-    }
 
     if (!camerasList.length || !html5QrCode) {
         return;
     }
 
     html5QrCode.stop().then(() => {
+
         currentCameraIndex =
             (currentCameraIndex + 1) % camerasList.length;
 
         startScanner(currentCameraIndex);
+
     }).catch(err => {
         console.error("Erreur arrêt scanner :", err);
     });
 });
 
 
-// Démarrage initial
+/**
+ * Démarrage initial.
+ */
 window.addEventListener('DOMContentLoaded', () => {
     startScanner();
 });
 </script>
+
 {% endblock %}
