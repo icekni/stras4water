@@ -236,9 +236,10 @@ class AdminUserController extends AbstractController
         string $hexId,
         Request $request,
         UserRepository $userRepository,
-        GroupeControleRepository $groupeControleRepository
+        GroupeControleRepository $groupeControleRepository,
+        IdEncoderService $idEncoderService
     ): Response {
-        $id = $this->idEncoderService->decode($hexId);
+        $id = $idEncoderService->decode($hexId);
 
         $user = $userRepository->find($id);
 
