@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Repository\GroupeControleRepository;
+use App\Service\ControleAccesService;
 
 #[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/cartes')]
@@ -64,44 +66,166 @@ class AdminCarteController extends AbstractController
         return $this->redirectToRoute('admin_carte_index');
     }
 
-    #[Route('/admin/carte/{id}/verifier', name: 'admin_carte_verifier')]
-    public function verifierAbonnement(
+    #[Route('/{id}/verifier', name: 'admin_carte_verifier', methods: ['POST'])]
+    public function verifierCarte(
         int $id,
-        EntityManagerInterface $em
-    ): Response {
-        $souscrit = $em->getRepository(CarteSouscrite::class)->find($id);
-        if (!$souscrit) {
-            throw $this->createNotFoundException("Carte souscrite #$id introuvable");
-        }
-
-        $souscrit->setTarifReduitVerifie(true);
-        $em->flush();
-
-        $this->addFlash('success', 'Justificatif vérifié avec succès.');
-
-        return $this->redirectToRoute('admin_user_check', ['id' => $souscrit->getUser()->getId()]);
-    }
-
-    #[Route('/admin/carte/{id}/retirer-seance', name: 'admin_carte_retirer_seance')]
-    public function retirerSeance(
-        int $id,
+        Request $request,
         EntityManagerInterface $em
     ): Response {
         $carteSouscrite = $em->getRepository(CarteSouscrite::class)->find($id);
 
         if (!$carteSouscrite) {
-            throw $this->createNotFoundException("Carte souscrite #$id introuvable");
+            throw $this->createNotFoundException(
+                "Carte souscrite #$id introuvable"
+            );
         }
 
-        // Vérifier qu'il reste des séances
-        if ($carteSouscrite->getSeancesRestantes() > 0) {
-            $carteSouscrite->setSeancesRestantes($carteSouscrite->getSeancesRestantes() - 1);
-            $em->flush();
-            $this->addFlash('success', 'Une séance a été retirée de la carte.');
-        } else {
-            $this->addFlash('warning', 'Cette carte n’a plus de séances restantes.');
+        if (!$this->isCsrfTokenValid(
+            'verifier_carte'.$carteSouscrite->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException(
+                'Jeton CSRF invalide.'
+            );
         }
 
-        return $this->redirectToRoute('admin_user_check', ['id' => $carteSouscrite->getUser()->getId()]);
+        $carteSouscrite->setTarifReduitVerifie(true);
+
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            'Justificatif vérifié avec succès.'
+        );
+
+        $redirectParams = [
+            'id' => $carteSouscrite->getUser()->getId(),
+        ];
+
+        $groupeId = $request->request->getInt('groupe');
+
+        if ($groupeId) {
+            $redirectParams['groupe'] = $groupeId;
+        }
+
+        return $this->redirectToRoute(
+            'admin_user_check',
+            $redirectParams
+        );
+    }
+
+    #[Route('/{id}/retirer-seance', name: 'admin_carte_retirer_seance', methods: ['POST'])]
+    public function retirerSeance(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        ControleAccesService $controleAccesService
+    ): Response {
+        $carteSouscrite = $em->getRepository(CarteSouscrite::class)->find($id);
+
+        if (!$carteSouscrite) {
+            throw $this->createNotFoundException(
+                "Carte souscrite #$id introuvable"
+            );
+        }
+
+        if (!$this->isCsrfTokenValid(
+            'retirer_seance'.$carteSouscrite->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException(
+                'Jeton CSRF invalide.'
+            );
+        }
+
+        $groupeId = $request->request->getInt('groupe');
+
+        if (!$groupeId) {
+            throw $this->createAccessDeniedException(
+                'Un groupe de contrôle est requis pour retirer une séance.'
+            );
+        }
+
+        $groupe = $groupeControleRepository->find($groupeId);
+
+        if ($groupe === null || !$groupe->isActif()) {
+            throw $this->createNotFoundException(
+                'Groupe de contrôle introuvable ou désactivé.'
+            );
+        }
+
+        /*
+        * On contrôle l'utilisateur avec le groupe.
+        *
+        * Cela permet notamment de vérifier que la carte fait bien
+        * partie des cartes autorisées par ce groupe.
+        */
+        $controle = $controleAccesService->controler(
+            $carteSouscrite->getUser(),
+            $groupe
+        );
+
+        $carteAutorisee = null;
+
+        foreach ($controle['cartes'] as $item) {
+            if ($item['souscrite']->getId() === $carteSouscrite->getId()) {
+                $carteAutorisee = $item;
+                break;
+            }
+        }
+
+        if ($carteAutorisee === null) {
+            $this->addFlash(
+                'danger',
+                'Cette carte ne permet pas l’accès à ce groupe.'
+            );
+
+            return $this->redirectToRoute('admin_user_check', [
+                'id' => $carteSouscrite->getUser()->getId(),
+                'groupe' => $groupe->getId(),
+            ]);
+        }
+
+        /*
+        * Le justificatif tarif réduit n'empêche pas de retirer une séance.
+        *
+        * On utilise donc une validation spécifique à la consommation,
+        * qui vérifie :
+        * - les séances restantes
+        * - que la carte est active
+        * - que la souscription est ACTIVE
+        *
+        * Le justificatif tarif réduit n'est volontairement pas contrôlé ici.
+        */
+        $consommation = $carteSouscrite->peutRetirerSeance();
+
+        if (!$consommation->isValid) {
+            $this->addFlash(
+                'warning',
+                $consommation->reason
+            );
+
+            return $this->redirectToRoute('admin_user_check', [
+                'id' => $carteSouscrite->getUser()->getId(),
+                'groupe' => $groupe->getId(),
+            ]);
+        }
+
+        $carteSouscrite->setSeancesRestantes(
+            $carteSouscrite->getSeancesRestantes() - 1
+        );
+
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            'Une séance a été retirée de la carte.'
+        );
+
+        return $this->redirectToRoute('admin_user_check', [
+            'id' => $carteSouscrite->getUser()->getId(),
+            'groupe' => $groupe->getId(),
+        ]);
     }
 }

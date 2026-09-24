@@ -13,10 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/abonnements')]
 class AdminAbonnementController extends AbstractController
 {
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/', name: 'admin_abonnement_index', methods: ['GET'])]
     public function index(EntityManagerInterface $em): Response
     {
@@ -27,6 +28,7 @@ class AdminAbonnementController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/new', name: 'admin_abonnement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
@@ -51,6 +53,7 @@ class AdminAbonnementController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}', name: 'admin_abonnement_show', methods: ['GET'])]
     public function show(Abonnement $abonnement): Response
     {
@@ -59,6 +62,7 @@ class AdminAbonnementController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/edit', name: 'admin_abonnement_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Abonnement $abonnement, EntityManagerInterface $em): Response
     {
@@ -82,6 +86,7 @@ class AdminAbonnementController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/{id}/delete', name: 'admin_abonnement_delete', methods: ['POST'])]
     public function delete(Request $request, Abonnement $abonnement, EntityManagerInterface $em): Response
     {
@@ -97,21 +102,53 @@ class AdminAbonnementController extends AbstractController
         return $this->redirectToRoute('admin_abonnement_index');
     }
 
-    #[Route('/admin/abonnement/{id}/verifier', name: 'admin_abonnement_verifier')]
+    #[Route('/{id}/verifier', name: 'admin_abonnement_verifier', methods: ['POST'])]
     public function verifierAbonnement(
         int $id,
+        Request $request,
         EntityManagerInterface $em
     ): Response {
-        $souscrit = $em->getRepository(AbonnementSouscrit::class)->find($id);
-        if (!$souscrit) {
-            throw $this->createNotFoundException("Abonnement souscrit #$id introuvable");
+        $abonnementSouscrit = $em
+            ->getRepository(AbonnementSouscrit::class)
+            ->find($id);
+
+        if (!$abonnementSouscrit) {
+            throw $this->createNotFoundException(
+                "Abonnement souscrit #$id introuvable"
+            );
         }
 
-        $souscrit->setTarifReduitVerifie(true);
+        if (!$this->isCsrfTokenValid(
+            'verifier_abonnement'.$abonnementSouscrit->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException(
+                'Jeton CSRF invalide.'
+            );
+        }
+
+        $abonnementSouscrit->setTarifReduitVerifie(true);
+
         $em->flush();
 
-        $this->addFlash('success', 'Justificatif vérifié avec succès.');
+        $this->addFlash(
+            'success',
+            'Justificatif vérifié avec succès.'
+        );
 
-        return $this->redirectToRoute('admin_user_check', ['id' => $souscrit->getUser()->getId()]);
+        $redirectParams = [
+            'id' => $abonnementSouscrit->getUser()->getId(),
+        ];
+
+        $groupeId = $request->request->getInt('groupe');
+
+        if ($groupeId) {
+            $redirectParams['groupe'] = $groupeId;
+        }
+
+        return $this->redirectToRoute(
+            'admin_user_check',
+            $redirectParams
+        );
     }
 }

@@ -4,77 +4,523 @@
 
 {% block body %}
     <h1>Vérification de l'utilisateur</h1>
-    <p><strong>Nom :</strong> {{ user.nom }} {{ user.prenom }}</p>
-    <p><strong>Email :</strong> {{ user.email }}</p>
-    <p>
-        <strong>Adhésion :</strong>
-        {% if user.adhesion %}
-            ✅ En cours
+
+    {# ============================================================
+       CONTRÔLE D'ACCÈS
+       Affiché uniquement lorsqu'un groupe a été sélectionné
+       ============================================================ #}
+
+    {% if groupe %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Contrôle d'accès</strong>
+            </div>
+
+            <div class="card-body">
+                <p class="mb-3">
+                    <strong>Groupe :</strong>
+                    {{ groupe.nom }}
+                </p>
+
+                {% if controle.accesAutorise %}
+                    <div class="alert alert-success">
+                        <h2 class="h4 mb-2">✅ Accès autorisé</h2>
+                        <p class="mb-0">
+                            L'utilisateur dispose d'un abonnement ou d'une carte
+                            permettant l'accès à ce groupe.
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger">
+                        <h2 class="h4 mb-2">❌ Accès non autorisé</h2>
+                        <p class="mb-0">
+                            Aucun abonnement ou carte valide ne permet l'accès
+                            à ce groupe.
+                        </p>
+                    </div>
+                {% endif %}
+
+
+                {# ------------------------------------------------
+                   Abonnements correspondant au groupe
+                   ------------------------------------------------ #}
+
+                {% if controle.abonnements|length > 0 %}
+                    <h3 class="h5 mt-4">Abonnements concernés</h3>
+
+                    <ul class="list-group">
+                        {% for item in controle.abonnements %}
+                            {% set ab = item.souscrit %}
+                            {% set validation = item.validation %}
+
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+                                        <strong>
+                                            {{ ab.abonnement.discipline.nom }}
+                                        </strong>
+
+                                        <div class="text-muted small">
+                                            Saison : {{ ab.abonnement.saison.nom }}
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end">
+
+                                        {% if validation.isValid %}
+
+                                            <span class="badge text-bg-success">
+                                                Valide
+                                            </span>
+
+                                        {% elseif item.tarifReduitAValider %}
+
+                                            <span class="badge text-bg-warning">
+                                                Justificatif à vérifier
+                                            </span>
+
+                                            <div class="mt-2">
+                                                <form
+                                                    method="post"
+                                                    action="{{ path('admin_abonnement_verifier', {
+                                                        id: ab.id
+                                                    }) }}"
+                                                    class="d-inline"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="_token"
+                                                        value="{{ csrf_token('verifier_abonnement' ~ ab.id) }}"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="groupe"
+                                                        value="{{ groupe.id }}"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                    >
+                                                        Vérifier le justificatif
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                        {% else %}
+
+                                            <span class="badge text-bg-danger">
+                                                Non valide
+                                            </span>
+
+                                            {% if validation.reason %}
+                                                <div class="small text-danger mt-1">
+                                                    {{ validation.reason }}
+                                                </div>
+                                            {% endif %}
+
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+
+                    <div class="alert alert-warning mt-3 mb-0">
+                        Aucun abonnement correspondant à ce groupe.
+                    </div>
+
+                {% endif %}
+
+
+                {# ------------------------------------------------
+                   Cartes correspondant au groupe
+                   ------------------------------------------------ #}
+
+                {% if controle.cartes|length > 0 %}
+
+                    <h3 class="h5 mt-4">Cartes concernées</h3>
+
+                    <ul class="list-group">
+
+                        {% for item in controle.cartes %}
+                            {% set c = item.souscrite %}
+                            {% set validation = item.validation %}
+                            {% set peutRetirerSeance = c.peutRetirerSeance().isValid %}
+
+                            <li class="list-group-item">
+
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+                                        <strong>
+                                            {% for discipline in c.carte.disciplines %}
+                                                {{ discipline.nom }}{% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </strong>
+
+                                        <div class="text-muted small">
+                                            {{ c.seancesRestantes }}
+                                            séance{% if c.seancesRestantes != 1 %}s{% endif %}
+                                            restante{% if c.seancesRestantes != 1 %}s{% endif %}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="text-end">
+
+                                        {# ============================
+                                           CARTE VALIDE
+                                           ============================ #}
+
+                                        {% if validation.isValid %}
+
+                                            <span class="badge text-bg-success">
+                                                Valide
+                                            </span>
+
+
+                                        {# ============================
+                                           JUSTIFICATIF À VÉRIFIER
+                                           ============================ #}
+
+                                        {% elseif item.tarifReduitAValider %}
+
+                                            <span class="badge text-bg-warning">
+                                                Justificatif à vérifier
+                                            </span>
+
+                                            <div class="mt-2">
+
+                                                {# Vérification du justificatif #}
+
+                                                <form
+                                                    method="post"
+                                                    action="{{ path('admin_carte_verifier', {
+                                                        id: c.id
+                                                    }) }}"
+                                                    class="d-inline"
+                                                >
+                                                    <input
+                                                        type="hidden"
+                                                        name="_token"
+                                                        value="{{ csrf_token('verifier_carte' ~ c.id) }}"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="groupe"
+                                                        value="{{ groupe.id }}"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                    >
+                                                        Vérifier
+                                                    </button>
+                                                </form>
+
+
+                                                {# Même avec le justificatif non vérifié,
+                                                   on peut consommer la carte si elle
+                                                   est par ailleurs utilisable. #}
+
+                                                {% if peutRetirerSeance %}
+
+                                                    <form
+                                                        method="post"
+                                                        action="{{ path('admin_carte_retirer_seance', {
+                                                            id: c.id
+                                                        }) }}"
+                                                        class="d-inline"
+                                                        onsubmit="return confirm('Retirer une séance de cette carte ?');"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="_token"
+                                                            value="{{ csrf_token('retirer_seance' ~ c.id) }}"
+                                                        >
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="groupe"
+                                                            value="{{ groupe.id }}"
+                                                        >
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-sm btn-danger"
+                                                        >
+                                                            Déduire 1 séance
+                                                        </button>
+                                                    </form>
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                        {# ============================
+                                           CARTE NON VALIDE
+                                           ============================ #}
+
+                                        {% else %}
+
+                                            <span class="badge text-bg-danger">
+                                                Non valide
+                                            </span>
+
+                                            {% if validation.reason %}
+                                                <div class="small text-danger mt-1">
+                                                    {{ validation.reason }}
+                                                </div>
+                                            {% endif %}
+
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                {% else %}
+
+                    <div class="alert alert-warning mt-3 mb-0">
+                        Aucune carte correspondant à ce groupe.
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    {% endif %}
+
+
+    {# ============================================================
+       INFORMATIONS UTILISATEUR
+       Toujours affichées
+       ============================================================ #}
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+            <strong>Informations utilisateur</strong>
+        </div>
+
+        <div class="card-body">
+
+            <p>
+                <strong>Nom :</strong>
+                {{ user.nom }} {{ user.prenom }}
+            </p>
+
+            <p>
+                <strong>Email :</strong>
+                {{ user.email }}
+            </p>
+
+            <p class="mb-0">
+                <strong>Adhésion :</strong>
+
+                {% if user.adhesion %}
+                    ✅ En cours
+                {% else %}
+                    ❌ Non actif
+                {% endif %}
+            </p>
+
+        </div>
+    </div>
+
+
+    {# ============================================================
+       ABONNEMENTS
+       ============================================================ #}
+
+    <h2>Abonnements en cours</h2>
+
+    <ul class="list-group mb-4">
+
+        {% for ab in abonnements %}
+
+            {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <strong>
+                            {{ ab.abonnement.discipline.nom }}
+                        </strong>
+
+                        — Saison : {{ ab.abonnement.saison.nom }}
+
+                        {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
+
+                            <span class="ms-2">
+                                ⚠️ Justificatif non vérifié
+
+                                <form
+                                    method="post"
+                                    action="{{ path('admin_abonnement_verifier', {
+                                        id: ab.id
+                                    }) }}"
+                                    class="d-inline"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('verifier_abonnement' ~ ab.id) }}"
+                                    >
+
+                                    {% if groupe %}
+                                        <input
+                                            type="hidden"
+                                            name="groupe"
+                                            value="{{ groupe.id }}"
+                                        >
+                                    {% endif %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-success ms-1"
+                                    >
+                                        Vérifier
+                                    </button>
+
+                                </form>
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </li>
+
+            {% endif %}
+
         {% else %}
-            ❌ Non actif
-        {% endif %}
-    </p>
 
-<h2>Abonnements en cours</h2>
-<ul class="list-group">
-{% for ab in abonnements %}
-    {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>{{ ab.abonnement.discipline.nom }}</strong> — Saison : {{ ab.abonnement.saison.nom }}
-                {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                    <span class="ms-2">
-                        ⚠️ Justificatif non vérifié
-                        <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
-                            class="btn btn-sm btn-success ms-1">Vérifier</a>
-                    </span>
-                {% endif %}
-            </div>
-        </li>
-    {% endif %}
-{% else %}
-    <li class="list-group-item">Aucun abonnement souscrit.</li>
-{% endfor %}
-</ul>
+            <li class="list-group-item">
+                Aucun abonnement souscrit.
+            </li>
 
-<h2>Cartes souscrites</h2>
-<ul class="list-group">
-{% for c in cartes %}
-    {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-                <strong>
-                    {% for discipline in c.carte.disciplines %}
-                        {{ discipline.nom }}{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </strong> — Séances restantes : {{ c.seancesRestantes }}
-                {% if c.isTarifReduit and not c.tarifReduitVerifie %}
-                    <span class="ms-2">
-                        ⚠️ Justificatif non vérifié
-                        <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
-                            class="btn btn-sm btn-success ms-1">Vérifier</a>
-                    </span>
-                {% endif %}
-                <span class="ms-2">
-                    <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
-                    class="btn btn-sm btn-danger ms-1"
-                    onclick="return confirm('Retirer une séance de cette carte ?');">
-                    Retirer une séance
-                    </a>
-                </span>
-            </div>
-        </li>
-    {% endif %}
-{% else %}
-    <li class="list-group-item">Aucune carte souscrite.</li>
-{% endfor %}
-</ul>
-<div class="mt-4">
-    <a href="{{ path('admin_user_scan') }}" class="btn btn-secondary">
-        ← Retour à la page de scan
-    </a>
-    <a href="{{ path('admin_user_index') }}" class="btn btn-secondary">
-        ← Retour à la liste
-    </a>
-</div>
+        {% endfor %}
+
+    </ul>
+
+
+    {# ============================================================
+       CARTES
+       ============================================================ #}
+
+    <h2>Cartes souscrites</h2>
+
+    <ul class="list-group mb-4">
+
+        {% for c in cartes %}
+
+            {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <strong>
+                            {% for discipline in c.carte.disciplines %}
+                                {{ discipline.nom }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </strong>
+
+                        — Séances restantes :
+                        {{ c.seancesRestantes }}
+
+                        {% if c.isTarifReduit and not c.tarifReduitVerifie %}
+
+                            <span class="ms-2">
+                                ⚠️ Justificatif non vérifié
+
+                                <form
+                                    method="post"
+                                    action="{{ path('admin_carte_verifier', {
+                                        id: c.id
+                                    }) }}"
+                                    class="d-inline"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('verifier_carte' ~ c.id) }}"
+                                    >
+
+                                    {% if groupe %}
+                                        <input
+                                            type="hidden"
+                                            name="groupe"
+                                            value="{{ groupe.id }}"
+                                        >
+                                    {% endif %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-success ms-1"
+                                    >
+                                        Vérifier
+                                    </button>
+
+                                </form>
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </li>
+
+            {% endif %}
+
+        {% else %}
+
+            <li class="list-group-item">
+                Aucune carte souscrite.
+            </li>
+
+        {% endfor %}
+
+    </ul>
+
+
+    {# ============================================================
+       NAVIGATION
+       ============================================================ #}
+
+    <div class="mt-4">
+
+        <a
+            href="{{ path('admin_user_scan') }}"
+            class="btn btn-secondary"
+        >
+            ← Retour à la page de scan
+        </a>
+
+        <a
+            href="{{ path('admin_user_index') }}"
+            class="btn btn-secondary"
+        >
+            ← Retour à la liste
+        </a>
+
+    </div>
+
 {% endblock %}

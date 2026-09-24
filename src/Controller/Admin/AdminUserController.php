@@ -25,6 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\GroupeControle;
+use App\Repository\GroupeControleRepository;
+use App\Service\ControleAccesService;
 
 #[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/user')]
@@ -160,11 +163,19 @@ class AdminUserController extends AbstractController
     }
 
     #[Route('/{id}/check', name: 'admin_user_check')]
-    public function check(int $id, EntityManagerInterface $em): Response
-    {
+    public function check(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        ControleAccesService $controleAccesService
+    ): Response {
         $user = $em->getRepository(User::class)->find($id);
+
         if (!$user) {
-            throw $this->createNotFoundException("Utilisateur #$id introuvable");
+            throw $this->createNotFoundException(
+                "Utilisateur #$id introuvable"
+            );
         }
 
         $abonnements = $em->getRepository(AbonnementSouscrit::class)->findBy(
@@ -177,30 +188,87 @@ class AdminUserController extends AbstractController
             ['id' => 'DESC']
         );
 
+        $groupe = null;
+        $controle = null;
+
+        $groupeId = $request->query->getInt('groupe');
+
+        if ($groupeId) {
+            $groupe = $groupeControleRepository->find($groupeId);
+
+            if ($groupe === null || !$groupe->isActif()) {
+                throw $this->createNotFoundException(
+                    'Groupe de contrôle introuvable ou désactivé.'
+                );
+            }
+
+            $controle = $controleAccesService->controler(
+                $user,
+                $groupe
+            );
+        }
+
         return $this->render('admin/user/check.html.twig', [
-            'user'        => $user,
+            'user' => $user,
             'abonnements' => $abonnements,
-            'cartes'      => $cartes,
+            'cartes' => $cartes,
+            'groupe' => $groupe,
+            'controle' => $controle,
         ]);
     }
 
     #[Route('/scan', name: 'admin_user_scan')]
-    public function scan(): Response
-    {
-        return $this->render('admin/user/scan.html.twig');
+    public function scan(
+        GroupeControleRepository $groupeControleRepository
+    ): Response {
+        $groupes = $groupeControleRepository->findBy(
+            ['isActif' => true],
+            ['nom' => 'ASC']
+        );
+
+        return $this->render('admin/user/scan.html.twig', [
+            'groupes' => $groupes,
+        ]);
     }
 
     #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
-    public function scanId(string $hexId, UserRepository $userRepository, IdEncoderService $idEncoderService): Response
-    {
-        $id = $idEncoderService->decode($hexId);
+    public function scanId(
+        string $hexId,
+        Request $request,
+        UserRepository $userRepository,
+        GroupeControleRepository $groupeControleRepository
+    ): Response {
+        $id = $this->idEncoderService->decode($hexId);
+
         $user = $userRepository->find($id);
 
-        if ($user == null) {
-            throw $this->createNotFoundException("Utilisateur #$id introuvable");
+        if ($user === null) {
+            throw $this->createNotFoundException(
+                "Utilisateur #$id introuvable"
+            );
         }
 
-        return $this->redirectToRoute('admin_user_check', ['id' => $user->getId()]);
+        $groupeId = $request->query->getInt('groupe');
+
+        // Aucun groupe = simple consultation de l'utilisateur
+        if (!$groupeId) {
+            return $this->redirectToRoute('admin_user_check', [
+                'id' => $user->getId(),
+            ]);
+        }
+
+        $groupe = $groupeControleRepository->find($groupeId);
+
+        if ($groupe === null || !$groupe->isActif()) {
+            throw $this->createNotFoundException(
+                'Groupe de contrôle introuvable ou désactivé.'
+            );
+        }
+
+        return $this->redirectToRoute('admin_user_check', [
+            'id' => $user->getId(),
+            'groupe' => $groupe->getId(),
+        ]);
     }
 
     #[Route('/{id}/adhesion/add', name: 'admin_user_adhesion_add')]
