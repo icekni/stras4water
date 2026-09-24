@@ -6,7 +6,8 @@
 <h1>Scanner QR Code utilisateur</h1>
 
 <p>
-    Sélectionnez d'abord le groupe de contrôle, puis placez le QR code devant la caméra.
+    Sélectionnez le groupe de contrôle à utiliser pour le contrôle,
+    puis placez le QR code devant la caméra.
 </p>
 
 <div class="mb-4" style="max-width: 500px;">
@@ -235,11 +236,7 @@ document.getElementById('switch-camera').addEventListener('click', function() {
 
 // Démarrage initial
 window.addEventListener('DOMContentLoaded', () => {
-    /*
-     * On ne démarre pas automatiquement la caméra.
-     * Le bénévole doit d'abord choisir le groupe.
-     */
-    qrResult.innerText = "Sélectionnez un groupe pour commencer.";
+    startScanner();
 });
 </script>
 {% endblock %}
