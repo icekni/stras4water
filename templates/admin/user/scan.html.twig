@@ -16,7 +16,6 @@
         Groupe de contrôle
     </label>
 
-```
 <select id="groupe-controle" class="form-select">
     <option value="">-- Aucun groupe --</option>
 
@@ -30,13 +29,11 @@
 <div class="form-text">
     Sans groupe, le QR code ouvre simplement la fiche de l'utilisateur.
 </div>
-```
 
 </div>
 
 <div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
 
-```
 {# Bouton changement de caméra #}
 <div style="flex-basis: 100%; margin-bottom: 1rem;">
     <button
@@ -73,7 +70,6 @@
         Scanner à nouveau
     </button>
 </div>
-```
 
 </div>
 
@@ -117,7 +113,7 @@ function startScanner(cameraIndex = 0) {
 
     html5QrCode = new Html5Qrcode("qr-reader");
 
-    Html5QrCode.getCameras().then(cameras => {
+    Html5Qrcode.getCameras().then(cameras => {
         if (cameras && cameras.length) {
             camerasList = cameras;
 
