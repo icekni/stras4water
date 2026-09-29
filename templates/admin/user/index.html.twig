@@ -5,7 +5,7 @@
 {% block body %}
 <h1>Utilisateurs</h1>
 
-<a href="{{ path('admin_user_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
+<a href="{{ path('admin_inscription_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
 
 {% if is_granted('ROLE_ADMIN') %}
@@ -46,8 +46,20 @@
                             <div>
                                 {{ ab.abonnement.nom }}
                                 {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                                    <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
-                                    class="btn btn-sm btn-success ms-1">Vérifier</a>
+                                    <form
+                                        method="post"
+                                        action="{{ path('admin_abonnement_verifier', {
+                                            id: ab.id
+                                        }) }}"
+                                        class="d-inline"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-success"
+                                        >
+                                            Vérifier le justificatif
+                                        </button>
+                                    </form>
                                 {% endif %}
                             </div>
                             {% set hasAbonnement = true %}
@@ -75,54 +87,105 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning mb-1 w-100">Modifier</a>
-                    {% if is_granted('ROLE_ADMIN') %}
-                    <form method="post"
-                        action="{{ path('admin_user_delete', {id: user.id}) }}"
-                        onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
-                        <input type="hidden" name="_token"
-                            value="{{ csrf_token('delete_user_' ~ user.id) }}">
-                        <button class="btn btn-sm btn-danger">Supprimer</button>
-                    </form>                   
-                    {% endif %} 
-                    {% if user.adhesion %}
-                        <div class="mt-3">
-                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                            class="btn btn-sm btn-info w-100"
-                            target="_blank"
-                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                                📥 Carte de membre
-                            </a>
-                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+                    <div class="d-flex flex-column gap-2">
 
-                                <button
-                                    type="submit"
-                                    class="btn btn-info"
-                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
-                                    📧 Carte de membre
-                                </button>
-                            </form>
-                            <form method="post"
-                                action="{{ path('admin_user_regenerate_card', {
-                                    id: user.id
-                                }) }}"
+                        {# Actions principales #}
+                        <a
+                            href="{{ path('admin_user_inscription', {'id': user.id}) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+                            ➕ Ajouter une activité
+                        </a>
+
+                        <a
+                            href="{{ path('admin_user_edit', {'id': user.id}) }}"
+                            class="btn btn-sm btn-outline-secondary"
+                        >
+                            ✏️ Modifier
+                        </a>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <form
+                                method="post"
+                                action="{{ path('admin_user_delete', {id: user.id}) }}"
+                                onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');"
                             >
                                 <input
                                     type="hidden"
                                     name="_token"
-                                    value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
+                                    value="{{ csrf_token('delete_user_' ~ user.id) }}"
                                 >
 
                                 <button
                                     type="submit"
-                                    class="btn btn-warning"
+                                    class="btn btn-sm btn-outline-danger w-100"
                                 >
-                                    🔄 Régénérer la carte de membre
+                                    🗑️ Supprimer
                                 </button>
                             </form>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+
+                        {# Carte de membre #}
+                        {% if user.adhesion %}
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                <div class="small fw-semibold text-muted mb-2">
+                                    Carte de membre
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <a
+                                        href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                                        class="btn btn-sm btn-outline-info"
+                                        target="_blank"
+                                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf"
+                                    >
+                                        📄 Télécharger
+                                    </a>
+
+                                    <form
+                                        method="post"
+                                        action="{{ path('admin_user_send_card', {id: user.id}) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="{{ csrf_token('send_card_' ~ user.id) }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-info"
+                                            onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');"
+                                        >
+                                            📧 Envoyer
+                                        </button>
+                                    </form>
+
+                                </div>
+
+                                <form
+                                    method="post"
+                                    action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
+                                    class="mt-2"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-link text-warning px-0"
+                                    >
+                                        🔄 Régénérer la carte
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                    </div>
                 </td>
             </tr>
         {% else %}
@@ -173,37 +236,110 @@
                     {% endif %}
                 </p>
 
-                <div class="d-flex flex-wrap gap-1 mt-2">
-                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-warning flex-grow-1">Modifier</a>
-                    {% if is_granted('ROLE_ADMIN') %}
-                    <form method="post"
-                        action="{{ path('admin_user_delete', {id: user.id}) }}"
-                        onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
-                        <input type="hidden" name="_token"
-                            value="{{ csrf_token('delete_user_' ~ user.id) }}">
-                            <button class="btn btn-sm btn-danger">Supprimer</button>
-                    </form>    
-                    {% endif %}
-                    {% if user.adhesion %}
-                        <div class="mt-2">
-                            <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                            class="btn btn-sm btn-info flex-grow-1"
-                            target="_blank"
-                            download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
-                                📥 Carte de membre
-                            </a>
-                            <form class="mt-1" method="post" action="{{ path('admin_user_send_card', {id: user.id}) }}">
-                                <input type="hidden" name="_token" value="{{ csrf_token('send_card_' ~ user.id) }}">
+                <div class="mt-2">
+
+                    <div class="d-grid gap-2">
+
+                        {# Actions principales #}
+                        <a
+                            href="{{ path('admin_user_inscription', {'id': user.id}) }}"
+                            class="btn btn-sm btn-primary"
+                        >
+                            ➕ Ajouter une activité
+                        </a>
+
+                        <a
+                            href="{{ path('admin_user_edit', {'id': user.id}) }}"
+                            class="btn btn-sm btn-outline-secondary"
+                        >
+                            ✏️ Modifier
+                        </a>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <form
+                                method="post"
+                                action="{{ path('admin_user_delete', {id: user.id}) }}"
+                                onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('delete_user_' ~ user.id) }}"
+                                >
 
                                 <button
                                     type="submit"
-                                    class="btn btn-info"
-                                    onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
-                                    📧 Carte de membre
+                                    class="btn btn-sm btn-outline-danger w-100"
+                                >
+                                    🗑️ Supprimer
                                 </button>
                             </form>
+                        {% endif %}
+
+                    </div>
+
+                    {# Carte de membre #}
+                    {% if user.adhesion %}
+                        <div class="border rounded p-3 mt-3 bg-light">
+
+                            <div class="fw-semibold mb-2">
+                                Carte de membre
+                            </div>
+
+                            <div class="d-grid gap-2">
+
+                                <a
+                                    href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                                    class="btn btn-sm btn-outline-info"
+                                    target="_blank"
+                                    download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf"
+                                >
+                                    📄 Télécharger la carte
+                                </a>
+
+                                <form
+                                    method="post"
+                                    action="{{ path('admin_user_send_card', {id: user.id}) }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('send_card_' ~ user.id) }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-info w-100"
+                                        onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');"
+                                    >
+                                        📧 Envoyer par email
+                                    </button>
+                                </form>
+
+                            </div>
+
+                            <form
+                                method="post"
+                                action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
+                                class="mt-2"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-link text-warning px-0"
+                                >
+                                    🔄 Régénérer la carte
+                                </button>
+                            </form>
+
                         </div>
                     {% endif %}
+
                 </div>
             </div>
         </div>
