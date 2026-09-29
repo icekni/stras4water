@@ -1,0 +1,98 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}Groupes de contrôle{% endblock %}
+
+{% block body %}
+
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Groupes de contrôle</h1>
+
+        <a href="{{ path('admin_groupe_controle_new') }}" class="btn btn-primary">
+            Nouveau groupe
+        </a>
+    </div>
+
+    {% if groupes is empty %}
+        <div class="alert alert-info">
+            Aucun groupe de contrôle n'a encore été créé.
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Abonnements</th>
+                        <th>Cartes</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for groupe in groupes %}
+                        <tr>
+                            <td>
+                                <strong>{{ groupe.nom }}</strong>
+                            </td>
+
+                            <td>
+                                {{ groupe.abonnements|length }}
+                            </td>
+
+                            <td>
+                                {{ groupe.cartes|length }}
+                            </td>
+
+                            <td>
+                                {% if groupe.isActif %}
+                                    <span class="badge bg-success">
+                                        Actif
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        Inactif
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                <a
+                                    href="{{ path('admin_groupe_controle_edit', {id: groupe.id}) }}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    Modifier
+                                </a>
+
+                                <form
+                                    method="post"
+                                    action="{{ path('admin_groupe_controle_delete', {id: groupe.id}) }}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Supprimer ce groupe de contrôle ?');"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('delete_groupe_controle_' ~ groupe.id) }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

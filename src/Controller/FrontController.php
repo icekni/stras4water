@@ -17,6 +17,7 @@ use App\Service\EmailService;
 use App\Service\HelloAssoTokenService;
 use App\Service\QrCodeGenerator;
 use App\Service\RecuFiscalService;
+use App\Service\CartService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,6 +40,20 @@ final class FrontController extends AbstractController
         return $this->render('front/static/home.html.twig', [
             'controller_name' => 'FrontController',
         ]);
+    }
+
+    #[Route('/adhesion/ajouter', name: 'cart_add_adhesion', methods: ['POST'])]
+    public function addAdhesion(
+        CartService $cartService
+    ): Response {
+        $result = $cartService->addAdhesion();
+
+        $this->addFlash(
+            $result->success ? 'success' : 'warning',
+            $result->message
+        );
+
+        return $this->redirectToRoute('adhesion');
     }
 
     #[Route('/adhesion', name: 'adhesion')]

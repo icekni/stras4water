@@ -155,6 +155,38 @@ class CartService
         }
     }
 
+    public function addAdhesion(): CartAddResult
+    {
+        $user = $this->security->getUser();
+
+        // Déjà adhérent
+        if ($user instanceof User && $user->getAdhesion() !== null) {
+            return new CartAddResult(
+                false,
+                'Vous êtes déjà adhérent de Stras4Water.'
+            );
+        }
+
+        $cart = $this->getCart();
+
+        // Déjà dans le panier
+        if ($cart['adhesion']) {
+            return new CartAddResult(
+                false,
+                'L’adhésion est déjà dans votre panier.'
+            );
+        }
+
+        $cart['adhesion'] = true;
+
+        $this->session->set('cart', $cart);
+
+        return new CartAddResult(
+            true,
+            'Adhésion ajoutée au panier.'
+        );
+    }
+
     public function clear(): void
     {
         $this->session->remove('cart');

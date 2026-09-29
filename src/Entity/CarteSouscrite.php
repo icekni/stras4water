@@ -117,7 +117,33 @@ class CarteSouscrite
         return $this;
     }
 
-    public function isValid (): ValidationResult
+    public function peutRetirerSeance(): ValidationResult
+    {
+        if ($this->seancesRestantes <= 0) {
+            return new ValidationResult(
+                false,
+                'La carte de cours est épuisée.'
+            );
+        }
+
+        if (!$this->carte->isActif()) {
+            return new ValidationResult(
+                false,
+                'La carte a été désactivée.'
+            );
+        }
+
+        if ($this->statut !== Statut::ACTIVE) {
+            return new ValidationResult(
+                false,
+                'Le statut de la carte n’est pas actif.'
+            );
+        }
+
+        return new ValidationResult(true);
+    }
+
+    public function isValid(): ValidationResult
     {
         if ($this->seancesRestantes <= 0) {
             return new ValidationResult(false, 'La carte de cours est épuisée.');
@@ -127,7 +153,27 @@ class CarteSouscrite
             return new ValidationResult(false, 'La carte a été désactivée.');
         }
 
+        if ($this->isTarifReduit() && !$this->tarifReduitVerifie) {
+            return new ValidationResult(
+                false,
+                'La carte est en attente de vérification du justificatif pour tarif réduit.',
+                ValidationResult::CODE_TARIF_REDUIT_A_VERIFIER
+            );
+        }
+
+        if ($this->statut !== Statut::ACTIVE) {
+            return new ValidationResult(
+                false,
+                'Le statut de la carte n’est pas actif.'
+            );
+        }
+
         return new ValidationResult(true);
+    }
+
+    public function isTarifReduitAValider(): bool
+    {
+        return $this->isTarifReduit() && !$this->isTarifReduitVerifie();
     }
 
     public function isTarifReduitVerifie(): ?bool

@@ -39,12 +39,23 @@
         <h2 class="mb-3">Adhésion annuelle</h2>
         <p>Montant fixe : <strong>10 €</strong></p>
         
-        {# <form method="post" action="#">
-            <input type="hidden" name="_token" value="#">
-            <button type="submit" class="btn btn-success btn-lg">
-                Ajouter l’adhésion au panier
+        <form
+            method="post"
+            action="{{ path('cart_add_adhesion') }}"
+        >
+            <input
+                type="hidden"
+                name="_token"
+                value="{{ csrf_token('add_adhesion') }}"
+            >
+
+            <button
+                type="submit"
+                class="btn btn-success btn-lg"
+            >
+                💧 Adhérer pour 10 €
             </button>
-        </form> #}
+        </form>
     </div>
 </div>
 {% endblock %}

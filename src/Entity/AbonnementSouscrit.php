@@ -105,7 +105,11 @@ class AbonnementSouscrit
         }
 
         if ($this->isTarifReduit() && !$this->tarifReduitVerifie) {
-            return new ValidationResult(false, 'L\'abonnement est en attente de vérification du justificatif pour tarif réduit.');
+            return new ValidationResult(
+                false,
+                'L’abonnement est en attente de vérification du justificatif pour tarif réduit.',
+                ValidationResult::CODE_TARIF_REDUIT_A_VERIFIER
+            );
         }
         else if ($this->statut == Statut::PENDING) {
             return new ValidationResult(false, 'Le statut de l’abonnement est en attente.');
@@ -115,6 +119,11 @@ class AbonnementSouscrit
         }
 
         return new ValidationResult(true);
+    }
+
+    public function isTarifReduitAValider(): bool
+    {
+        return $this->isTarifReduit() && !$this->isTarifReduitVerifie();
     }
 
     public function isTarifReduitVerifie(): ?bool

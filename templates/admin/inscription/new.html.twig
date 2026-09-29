@@ -1,0 +1,435 @@
+{% extends 'base/base_admin.html.twig' %}
+
+{% block title %}
+    {% if existingUser %}
+        Ajouter une activité
+    {% else %}
+        Nouvelle inscription
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid py-3">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h3 mb-1">
+                {% if existingUser %}
+                    Ajouter une activité
+                {% else %}
+                    Nouvelle inscription
+                {% endif %}
+            </h1>
+
+            {% if existingUser %}
+                <div class="text-muted">
+                    {{ existingUser.prenom }} {{ existingUser.nom }}
+                </div>
+            {% else %}
+                <div class="text-muted">
+                    Enregistrer une nouvelle personne
+                </div>
+            {% endif %}
+        </div>
+
+        <a
+            href="{{ path('admin_user_index') }}"
+            class="btn btn-outline-secondary"
+        >
+            Retour
+        </a>
+    </div>
+
+    {{ form_start(form, {
+        attr: {
+            id: 'inscription-form'
+        }
+    }) }}
+
+    {% if not existingUser %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Informations
+                </h2>
+
+                {{ form_row(form.nom) }}
+                {{ form_row(form.prenom) }}
+                {{ form_row(form.email) }}
+
+            </div>
+        </div>
+    {% endif %}
+
+    {% if form.adhesion is defined %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Adhésion
+                </h2>
+
+                <label
+                    class="inscription-choice inscription-choice-large"
+                    for="{{ form.adhesion.vars.id }}"
+                >
+                    {{ form_widget(form.adhesion) }}
+
+                    <span>
+                        <small class="d-block text-muted">
+                            10 €
+                        </small>
+                    </span>
+                </label>
+
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <h2 class="h5 mb-3">
+                Abonnements
+            </h2>
+
+            <div class="inscription-choices">
+                {{ form_widget(form.abonnements) }}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <h2 class="h5 mb-3">
+                Cartes
+            </h2>
+
+            <div class="inscription-choices">
+                {{ form_widget(form.cartes) }}
+            </div>
+
+        </div>
+    </div>
+
+    <div id="tarif-section" class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <h2 class="h5 mb-3">
+                Tarif
+            </h2>
+
+            <div class="inscription-radio-group">
+                {% for child in form.tarifReduit %}
+                    <label
+                        class="inscription-choice"
+                        for="{{ child.vars.id }}"
+                    >
+                        {{ form_widget(child) }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <div id="justificatif-section" class="mt-3">
+
+                <h3 class="h6">
+                    Justificatif
+                </h3>
+
+                <div class="inscription-radio-group">
+                    {% for child in form.justificatif %}
+                        <label
+                            class="inscription-choice"
+                            for="{{ child.vars.id }}"
+                        >
+                            {{ form_widget(child) }}
+                        </label>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <h2 class="h5 mb-3">
+                Moyen de paiement
+            </h2>
+
+            <div class="inscription-radio-group">
+                {% for child in form.moyenPaiement %}
+                    <label
+                        class="inscription-choice"
+                        for="{{ child.vars.id }}"
+                    >
+                        {{ form_widget(child) }}
+                    </label>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="inscription-total card shadow-sm mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span class="h5 mb-0">
+                Total
+            </span>
+
+            <strong
+                id="inscription-total"
+                class="fs-3"
+            >
+                0,00 €
+            </strong>
+        </div>
+    </div>
+
+    {{ form_errors(form) }}
+
+    <button
+        type="submit"
+        class="btn btn-primary btn-lg w-100 mb-4"
+    >
+        Enregistrer l'inscription
+    </button>
+
+    {{ form_end(form) }}
+
+</div>
+
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <style>
+        .inscription-choice {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            margin-bottom: 8px;
+            border: 1px solid var(--bs-border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            min-height: 52px;
+        }
+
+        .inscription-choice:has(input:checked) {
+            border-color: var(--bs-primary);
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        .inscription-choice input {
+            flex: 0 0 auto;
+            width: 20px;
+            height: 20px;
+        }
+
+        .inscription-choice-large {
+            min-height: 64px;
+        }
+
+        .inscription-radio-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .inscription-choices > div {
+            display: contents;
+        }
+
+        .inscription-choices > div > label {
+            display: block;
+        }
+
+        .inscription-total {
+            position: sticky;
+            bottom: 10px;
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            .inscription-choice {
+                max-width: 700px;
+            }
+
+            .inscription-radio-group {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('inscription-form');
+
+            if (!form) {
+                return;
+            }
+
+            const totalElement =
+                document.getElementById('inscription-total');
+
+            const tarifSection =
+                document.getElementById('tarif-section');
+
+            const justificatifSection =
+                document.getElementById('justificatif-section');
+
+            const adhesion =
+                form.querySelector('[name$="[adhesion]"]');
+
+            const tarifReduitInputs =
+                form.querySelectorAll(
+                    '[name$="[tarifReduit]"]'
+                );
+
+            const abonnementInputs =
+                form.querySelectorAll(
+                    '[name$="[abonnements][]"]'
+                );
+
+            const carteInputs =
+                form.querySelectorAll(
+                    '[name$="[cartes][]"]'
+                );
+
+            function getSelectedActivities() {
+                return [
+                    ...abonnementInputs,
+                    ...carteInputs,
+                ].filter(input => input.checked);
+            }
+
+            function hasActivities() {
+                return getSelectedActivities().length > 0;
+            }
+
+            function hasReducedTariffActivity() {
+                return getSelectedActivities().some(input =>
+                    input.dataset.tarifReduit === '1'
+                );
+            }
+
+            function isReducedTariffSelected() {
+                const selected =
+                    [...tarifReduitInputs]
+                        .find(input => input.checked);
+
+                return selected
+                    ? selected.value === '1'
+                    : false;
+            }
+
+            function calculateTotal() {
+                let total = 0;
+
+                if (adhesion && adhesion.checked) {
+                    total += 10;
+                }
+
+                const reduced = isReducedTariffSelected();
+
+                getSelectedActivities().forEach(input => {
+                    const normalPrice =
+                        parseFloat(input.dataset.prix || '0');
+
+                    const reducedPrice =
+                        parseFloat(
+                            input.dataset.prixReduit || normalPrice
+                        );
+
+                    const supportsReduced =
+                        input.dataset.tarifReduit === '1';
+
+                    total += (
+                        reduced && supportsReduced
+                            ? reducedPrice
+                            : normalPrice
+                    );
+                });
+
+                totalElement.textContent =
+                    total.toFixed(2).replace('.', ',') + ' €';
+            }
+
+            function updateTariffVisibility() {
+                const activities = hasActivities();
+                const reducedAvailable =
+                    hasReducedTariffActivity();
+
+                tarifSection.hidden = !activities;
+
+                if (!activities) {
+                    justificatifSection.hidden = true;
+
+                    tarifReduitInputs.forEach(input => {
+                        if (input.value === '0') {
+                            input.checked = true;
+                        }
+                    });
+
+                    calculateTotal();
+                    return;
+                }
+
+                if (!reducedAvailable) {
+                    tarifReduitInputs.forEach(input => {
+                        if (input.value === '0') {
+                            input.checked = true;
+                        }
+                    });
+
+                    justificatifSection.hidden = true;
+                    calculateTotal();
+
+                    return;
+                }
+
+                const reduced =
+                    isReducedTariffSelected();
+
+                justificatifSection.hidden = !reduced;
+
+                calculateTotal();
+            }
+
+            [
+                ...abonnementInputs,
+                ...carteInputs,
+                ...tarifReduitInputs,
+            ].forEach(input => {
+                input.addEventListener(
+                    'change',
+                    () => {
+                        updateTariffVisibility();
+                        calculateTotal();
+                    }
+                );
+            });
+
+            if (adhesion) {
+                adhesion.addEventListener(
+                    'change',
+                    calculateTotal
+                );
+            }
+
+            updateTariffVisibility();
+            calculateTotal();
+        });
+    </script>
+{% endblock %}
