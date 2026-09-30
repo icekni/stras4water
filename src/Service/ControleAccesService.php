@@ -19,7 +19,7 @@ class ControleAccesService
         foreach ($user->getAbonnementSouscrits() as $abonnementSouscrit) {
             $abonnement = $abonnementSouscrit->getAbonnement();
 
-            if (!$groupe->getAbonnements()->contains($abonnement) && !$abonnementSouscrit->getStatut() !== Statut::ACTIVE) {
+            if (!$groupe->getAbonnements()->contains($abonnement) && $abonnementSouscrit->getStatut() !== Statut::ACTIVE) {
                 continue;
             }
 
@@ -36,7 +36,7 @@ class ControleAccesService
         foreach ($user->getCarteSouscrites() as $carteSouscrite) {
             $carte = $carteSouscrite->getCarte();
 
-            if (!$groupe->getCartes()->contains($carte) && !$carteSouscrite->getStatut() !== Statut::ACTIVE) {
+            if (!$groupe->getCartes()->contains($carte) && $carteSouscrite->getStatut() !== Statut::ACTIVE) {
                 continue;
             }
 
