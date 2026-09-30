@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Dto\ValidationResult;
 use App\Entity\GroupeControle;
 use App\Entity\User;
+use App\Enum\Statut;
 
 class ControleAccesService
 {
@@ -18,7 +19,10 @@ class ControleAccesService
         foreach ($user->getAbonnementSouscrits() as $abonnementSouscrit) {
             $abonnement = $abonnementSouscrit->getAbonnement();
 
-            if (!$groupe->getAbonnements()->contains($abonnement)) {
+            if (
+                !$groupe->getAbonnements()->contains($abonnement)
+                || $abonnementSouscrit->getStatut() !== Statut::ACTIVE
+            ) {
                 continue;
             }
 
@@ -35,7 +39,10 @@ class ControleAccesService
         foreach ($user->getCarteSouscrites() as $carteSouscrite) {
             $carte = $carteSouscrite->getCarte();
 
-            if (!$groupe->getCartes()->contains($carte)) {
+            if (
+                !$groupe->getCartes()->contains($carte)
+                || $carteSouscrite->getStatut() !== Statut::ACTIVE
+            ) {
                 continue;
             }
 
