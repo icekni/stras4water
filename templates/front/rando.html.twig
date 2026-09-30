@@ -1,0 +1,129 @@
+{% extends 'base/base.html.twig' %}
+
+{% block title %}Rando4Water Strasbourg - Stras4Water{% endblock %}
+
+{% block body %}
+
+<section class="container my-5">
+
+  <h1 class="mb-4 text-center text-success">Rando4Water Strasbourg 🥾💧</h1>
+
+  <div class="text-center mb-4">
+    <a href="{{ path('adhesion') }}" class="btn btn-outline-info">
+      → Adhérer à Stras4Water
+    </a>
+  </div>
+
+  <!-- Description -->
+
+  <div class="mb-5">
+
+<p>
+  <strong>Marcher, partager, découvrir… et agir pour l’accès à l’eau potable.</strong>
+</p>
+
+<div class="text-center my-4">
+  <img
+    src="{{ asset('img/rando.jpg') }}"
+    alt="Rando4Water Strasbourg"
+    class="img-fluid rounded shadow-sm"
+    style="max-height: 400px;"
+  >
+</div>
+
+<p>
+  <strong>Rando4Water</strong>, c’est la section randonnée de Stras4Water :
+  une façon simple et conviviale de prendre l’air, découvrir les plus beaux
+  coins d’Alsace et des environs, rencontrer de nouvelles personnes et
+  soutenir une cause essentielle.
+</p>
+
+<p>
+  🥾 <strong>Les randonnées sont gratuites !</strong>
+  Il suffit simplement d’adhérer à l’association Stras4Water pour
+  <strong>10 € par an</strong> pour participer aux sorties proposées
+  tout au long de l’année.
+</p>
+
+<p>
+  Au programme : des randonnées accessibles à différents niveaux, mais aussi
+  des sorties un peu différentes pour varier les plaisirs :
+  <strong>yoga en pleine nature, randonnées gourmandes, découverte du patrimoine</strong>
+  et bien d’autres expériences à partager ensemble.
+</p>
+
+<p>
+  Pas besoin d’être un grand sportif : l’idée est avant tout de
+  <strong>bouger, découvrir, créer du lien et passer un bon moment</strong>,
+  dans l’esprit convivial et solidaire de Stras4Water.
+</p>
+
+<ul class="list-unstyled">
+  <li class="mb-2">
+    🥾 <strong>Randonnées réservées</strong> aux adhérents de Stras4Water.
+  </li>
+  <li class="mb-2">
+    💧 <strong>Adhésion obligatoire</strong> : 10 € par an.
+  </li>
+  <li class="mb-2">
+    🌿 Des sorties accessibles à différents niveaux.
+  </li>
+  <li class="mb-2">
+    ✨ Des activités variées pour découvrir la nature autrement.
+  </li>
+  <li class="mb-2">
+    🚗 Des possibilités de covoiturage selon les sorties.
+  </li>
+</ul>
+
+<p>
+  En rejoignant Stras4Water, vous participez aussi à une
+  <strong>aventure solidaire</strong> : les bénéfices de l’association
+  permettent de soutenir <strong>WaterAid</strong> et ses actions en faveur
+  de l’accès à l’eau potable, à l’assainissement et à l’hygiène dans les
+  communautés qui en ont le plus besoin.
+</p>
+
+<div class="my-5">
+  <h2 class="h4 text-center mb-4">Une randonnée qui va plus loin 💧</h2>
+
+  <ul class="list-unstyled">
+    <li class="mb-3">🌿 Découvrir de nouveaux sentiers et paysages</li>
+    <li class="mb-3">🤝 Rencontrer et partager avec une communauté conviviale</li>
+    <li class="mb-3">✨ Profiter d’activités originales en pleine nature</li>
+    <li class="mb-3">💧 Soutenir une cause essentielle</li>
+    <li class="mb-3">🥾 Et surtout… marcher ensemble dans la bonne humeur !</li>
+  </ul>
+</div>
+
+<div class="alert alert-info">
+  🚗 <strong>Covoiturage :</strong>
+  certaines sorties peuvent être organisées avec du covoiturage.
+  Une contribution peut éventuellement être demandée aux participants
+  afin de participer aux frais du conducteur.
+</div>
+
+<p class="text-center fs-5 mt-5">
+  <strong>Alors, prêt·e à marcher pour la bonne cause ?</strong>
+</p>
+
+<div class="text-center mt-4">
+  <a href="{{ path('adhesion') }}" class="btn btn-primary btn-lg">
+    🥾 Rejoindre Rando4Water
+  </a>
+</div>
+
+<p class="text-muted small text-center mt-3">
+  Les prochaines sorties seront annoncées prochainement.
+</p>
+
+<p class="mt-4">
+  Pour toute question ou information complémentaire,
+  <a href="/contact">contactez-nous</a>
+  ou suivez-nous sur nos réseaux sociaux.
+</p>
+
+  </div>
+
+</section>
+{% endblock %}

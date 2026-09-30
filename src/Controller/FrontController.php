@@ -3,33 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Donation;
-use App\Entity\Lien;
 use App\Entity\User;
-use App\Enum\DonationStatus;
-use App\Enum\MoyenPaiement;
-use App\Enum\TypeDon;
-use App\Form\DonationType;
 use App\Form\UserType;
-use App\Repository\DonationRepository;
-use App\Service\CarteDeMembreGenerator;
-use App\Service\CountryCodeService;
 use App\Service\EmailService;
-use App\Service\HelloAssoTokenService;
-use App\Service\QrCodeGenerator;
-use App\Service\RecuFiscalService;
 use App\Service\CartService;
-use DateTimeImmutable;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Stripe\BillingPortal\Session;
 use Stripe\Stripe;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class FrontController extends AbstractController
 {
@@ -40,6 +24,12 @@ final class FrontController extends AbstractController
         return $this->render('front/static/home.html.twig', [
             'controller_name' => 'FrontController',
         ]);
+    }
+
+    #[Route('/rando', name: 'rando')]
+    public function rando(): Response
+    {
+        return $this->render('front/rando.html.twig', []);
     }
 
     #[Route('/adhesion/ajouter', name: 'cart_add_adhesion', methods: ['POST'])]
