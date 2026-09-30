@@ -1,6 +1,11 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Cours de Salsa - Stras4Water{% endblock %}
+{% block title %}Cours de Salsa à Strasbourg | Stras4Water{% endblock %}
+
+{% block meta_description %}
+Cours de salsa cubaine à Strasbourg avec Stras4Water : salsa rueda débutant et intermédiaire,
+cours le mardi au Kaleidoscoop et le mercredi à la salle Saint-Joseph.
+{% endblock %}
 
 {% block body %}
 <section class="container my-5">
@@ -23,7 +28,7 @@
       Que vous soyez <strong>débutant</strong> ou que vous ayez déjà quelques bases, nos cours vous permettront de progresser dans une ambiance conviviale et bienveillante.    </p>
 
     <div class="text-center my-4">
-      <img src="{{ asset('img/rueda.jpg') }}" alt="Cours de salsa Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+      <img src="{{ asset('img/rueda.jpg') }}" alt="Cours de salsa rueda à Strasbourg avec Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
 
     <ul class="list-unstyled">
@@ -66,7 +71,7 @@
 
   <!-- Type d'abonnement -->
   {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+  <h2 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h2>
 
   <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
@@ -104,7 +109,7 @@
 
     <!-- Tarif réduit -->
     <div id="tarif-container" class="d-none">
-      <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
+      <h2 class="h5 mb-3">Choisissez votre tarif :</h2>
       <div class="d-flex gap-3 mb-4">
         <div>
           <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>

@@ -1,6 +1,32 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Stras4Water
+{% block title %}Stras4Water | Association solidaire à Strasbourg{% endblock %}
+{% block meta_description %}
+Stras4Water est une association solidaire à Strasbourg qui organise des activités de danse,
+des cours de langues, des randonnées et des événements au profit de l'accès à l'eau.
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    "name": "Stras4Water",
+    "url": "{{ absolute_url(path('home')) }}",
+    "logo": "{{ absolute_url(asset('img/logo.png')) }}",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "1a place des Orphelins",
+        "postalCode": "67000",
+        "addressLocality": "Strasbourg",
+        "addressCountry": "FR"
+    },
+    "sameAs": [
+        "https://www.facebook.com/stras4water",
+        "https://www.instagram.com/stras_4water"
+    ]
+}
+</script>
 {% endblock %}
 
 {% block style %}
@@ -19,6 +45,17 @@
 {% endblock %}
 
 {% block body %}
+
+	<section class="container py-5">
+		<h1 class="text-center">
+			Stras4Water, association solidaire à Strasbourg
+		</h1>
+
+		<p class="lead text-center">
+			Danse, langues et événements à Strasbourg dans une démarche
+			conviviale et solidaire au profit de l'accès à l'eau.
+		</p>
+	</section>
 	<section
 		id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
 		<!-- Indicateurs -->
@@ -29,7 +66,7 @@
 		</div>
 
 		<!-- Slides -->
-		<divbachata
+		<div
 			class="carousel-inner">
 
 			<!-- SLIDE 1 -->
@@ -165,7 +202,7 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 
 	<section class="py-5 bg-white">
 		<div class="container">
-			<h2 class="text-center mb-5">Nos activités</h2>
+			<h2 class="text-center mb-5">Nos activités à Strasbourg</h2>
 			<div
 				class="row justify-content-center">
 
@@ -173,9 +210,9 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 				<div class="col-md-6 col-lg-5 mb-4">
 					<div class="card h-100 shadow border-0">
 						<div class="card-body text-center">
-							<h5 class="card-title">Cours de danse</h5>
+							<h5 class="card-title">Cours de danse à Strasbourg</h5>
 						    <img src="{{ asset('img/danse.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de danse">
-							<p class="card-text">Participez à nos ateliers de salsa, bachata et kizomba, ouverts à tous les niveaux.</p>
+							<p class="card-text">Découvrez nos séances de bachata, salsa et nos stages de kizomba à Strasbourg, dans une ambiance conviviale et accessible.</p>
 							<a href="{{ path('bachata') }}" class="btn btn-outline-success rounded-pill">Bachata</a>
 							<a href="{{ path('salsa') }}" class="btn btn-outline-success rounded-pill">Salsa</a>
 							<a href="{{ path('kizomba') }}" class="btn btn-outline-success rounded-pill">Kizomba</a>
@@ -187,9 +224,9 @@ Des moments pour apprendre, transmettre, et s’épanouir ensemble.</p>
 				<div class="col-md-6 col-lg-5 mb-4">
 					<div class="card h-100 shadow border-0">
 						<div class="card-body text-center">
-							<h5 class="card-title">Cours de langue</h5>
+							<h5 class="card-title">Cours de langues à Strasbourg</h5>
 						    <img src="{{ asset('img/langue.png') }}" class="card-img-top" style="max-width: 200px;" alt="Cours de langue">
-							<p class="card-text">Rejoignez nos cours d’anglais et d'espagnol solidaires dans une ambiance conviviale et bienveillante.</p>
+							<p class="card-text">Participez à nos cours d'anglais et d'espagnol dans une ambiance conviviale et solidaire.</p>
 							<a href="{{ path('anglais') }}" class="btn btn-outline-success rounded-pill">Anglais</a>
 							<a href="{{ path('espagnol') }}" class="btn btn-outline-success rounded-pill">Espagnol</a>
 						</div>
