@@ -179,18 +179,12 @@ class AdminUserController extends AbstractController
         }
 
         $abonnements = $em->getRepository(AbonnementSouscrit::class)->findBy(
-            [
-                'user' => $user,
-                'statut' => Statut::ACTIVE,
-            ],
+            ['user' => $user],
             ['id' => 'DESC']
         );
 
         $cartes = $em->getRepository(CarteSouscrite::class)->findBy(
-            [
-                'user' => $user,
-                'statut' => Statut::ACTIVE,
-            ],
+            ['user' => $user],
             ['id' => 'DESC']
         );
 
