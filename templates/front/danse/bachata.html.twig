@@ -1,6 +1,11 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Cours de Bachata - Stras4Water{% endblock %}
+{% block title %}Cours de Bachata à Strasbourg | Stras4Water{% endblock %}
+
+{% block meta_description %}
+Cours de bachata à Strasbourg avec Stras4Water. Bachata moderne, sensuelle et dominicaine,
+cours ouverts aux débutants dans une ambiance conviviale et solidaire.
+{% endblock %}
 
 {% block body %}
 <section class="container my-5">
@@ -25,7 +30,7 @@
     </p>
 
     <div class="text-center my-4">
-      <img src="{{ asset('img/bachata-cours.jpeg') }}" alt="Cours de bachata Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+      <img src="{{ asset('img/bachata-cours.jpeg') }}" alt="Cours de bachata à Strasbourg avec Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
 
     <p>
@@ -59,7 +64,7 @@
 
   <!-- Type d'abonnement -->
   {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h3>
+  <h2 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h2>
 
   <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
@@ -97,7 +102,7 @@
 
     <!-- Tarif réduit -->
     <div id="tarif-container" class="d-none">
-      <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
+      <h2 class="h5 mb-3">Choisissez votre tarif :</h2>
       <div class="d-flex gap-3 mb-4">
         <div>
           <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>

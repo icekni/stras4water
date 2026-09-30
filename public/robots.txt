@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cart
+Disallow: /mon-compte
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /fillFiscalData/
+Disallow: /recuFiscal/
+
+Sitemap: https://stras4water.org/sitemap.xml
