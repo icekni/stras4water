@@ -69,11 +69,16 @@
                         {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
                             <div>
                                 {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
-                                <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
-                                class="btn btn-sm btn-danger ms-1"
-                                onclick="return confirm('Retirer une séance de cette carte ?');">
-                                Retirer
-                                </a>
+                                <form method="post"
+                                    action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
+                                    <input type="hidden"
+                                        name="_token"
+                                        value="{{ csrf_token('retirer_seance' ~ c.id) }}">
+
+                                    <button type="submit" class="btn btn-warning">
+                                        Retirer une séance
+                                    </button>
+                                </form>
                                 {% if c.isTarifReduit and not c.tarifReduitVerifie %}
                                     <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
                                     class="btn btn-sm btn-success ms-1">Vérifier</a>
@@ -219,11 +224,16 @@
                     {% for c in user.carteSouscrites %}
                         <div>
                             {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
-                            <a href="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
-                               class="btn btn-sm btn-danger ms-1 mb-1"
-                               onclick="return confirm('Retirer une séance de cette carte ?');">
-                               Retirer
-                            </a>
+                            <form method="post"
+                                action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
+                                <input type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('retirer_seance' ~ c.id) }}">
+
+                                <button type="submit" class="btn btn-warning">
+                                    Retirer une séance
+                                </button>
+                            </form>
                             {% if c.isTarifReduit and not c.tarifReduitVerifie %}
                                 <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
                                    class="btn btn-sm btn-success ms-1 mb-1">Vérifier</a>
