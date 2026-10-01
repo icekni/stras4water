@@ -75,8 +75,6 @@
                                         name="_token"
                                         value="{{ csrf_token('retirer_seance' ~ c.id) }}">
 
-                                    <input type="hidden" name="groupe" value="{{ groupe.id }}">
-
                                     <button type="submit" class="btn btn-warning">
                                         Retirer une séance
                                     </button>
@@ -231,8 +229,6 @@
                                 <input type="hidden"
                                     name="_token"
                                     value="{{ csrf_token('retirer_seance' ~ c.id) }}">
-
-                                <input type="hidden" name="groupe" value="{{ groupe.id }}">
 
                                 <button type="submit" class="btn btn-warning">
                                     Retirer une séance
