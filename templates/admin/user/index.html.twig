@@ -70,10 +70,10 @@
                             <div>
                                 {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
                                 <form method="post"
-                                    action="{{ path('admin_carte_retirer_seance', {id: carte.id}) }}">
+                                    action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
                                     <input type="hidden"
                                         name="_token"
-                                        value="{{ csrf_token('retirer_seance' ~ carte.id) }}">
+                                        value="{{ csrf_token('retirer_seance' ~ c.id) }}">
 
                                     <input type="hidden" name="groupe" value="{{ groupe.id }}">
 
@@ -227,10 +227,10 @@
                         <div>
                             {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
                             <form method="post"
-                                action="{{ path('admin_carte_retirer_seance', {id: carte.id}) }}">
+                                action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
                                 <input type="hidden"
                                     name="_token"
-                                    value="{{ csrf_token('retirer_seance' ~ carte.id) }}">
+                                    value="{{ csrf_token('retirer_seance' ~ c.id) }}">
 
                                 <input type="hidden" name="groupe" value="{{ groupe.id }}">
 
