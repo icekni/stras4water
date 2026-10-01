@@ -134,98 +134,75 @@ class AdminCarteController extends AbstractController
             'retirer_seance'.$carteSouscrite->getId(),
             $request->request->get('_token')
         )) {
-            throw $this->createAccessDeniedException(
-                'Jeton CSRF invalide.'
-            );
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
         }
 
         $groupeId = $request->request->getInt('groupe');
+        $groupe = null;
 
-        if (!$groupeId) {
-            throw $this->createAccessDeniedException(
-                'Un groupe de contrôle est requis pour retirer une séance.'
+        // Si un groupe est fourni, on vérifie que la carte y est autorisée.
+        if ($groupeId) {
+            $groupe = $groupeControleRepository->find($groupeId);
+
+            if ($groupe === null || !$groupe->isActif()) {
+                throw $this->createNotFoundException(
+                    'Groupe de contrôle introuvable ou désactivé.'
+                );
+            }
+
+            $controle = $controleAccesService->controler(
+                $carteSouscrite->getUser(),
+                $groupe
             );
-        }
 
-        $groupe = $groupeControleRepository->find($groupeId);
+            $carteAutorisee = false;
 
-        if ($groupe === null || !$groupe->isActif()) {
-            throw $this->createNotFoundException(
-                'Groupe de contrôle introuvable ou désactivé.'
-            );
-        }
+            foreach ($controle['cartes'] as $item) {
+                if ($item['souscrite']->getId() === $carteSouscrite->getId()) {
+                    $carteAutorisee = true;
+                    break;
+                }
+            }
 
-        /*
-        * On contrôle l'utilisateur avec le groupe.
-        *
-        * Cela permet notamment de vérifier que la carte fait bien
-        * partie des cartes autorisées par ce groupe.
-        */
-        $controle = $controleAccesService->controler(
-            $carteSouscrite->getUser(),
-            $groupe
-        );
+            if (!$carteAutorisee) {
+                $this->addFlash(
+                    'danger',
+                    'Cette carte ne permet pas l’accès à ce groupe.'
+                );
 
-        $carteAutorisee = null;
-
-        foreach ($controle['cartes'] as $item) {
-            if ($item['souscrite']->getId() === $carteSouscrite->getId()) {
-                $carteAutorisee = $item;
-                break;
+                return $this->redirectToRoute('admin_user_check', [
+                    'id' => $carteSouscrite->getUser()->getId(),
+                    'groupe' => $groupe->getId(),
+                ]);
             }
         }
 
-        if ($carteAutorisee === null) {
-            $this->addFlash(
-                'danger',
-                'Cette carte ne permet pas l’accès à ce groupe.'
-            );
-
-            return $this->redirectToRoute('admin_user_check', [
-                'id' => $carteSouscrite->getUser()->getId(),
-                'groupe' => $groupe->getId(),
-            ]);
-        }
-
-        /*
-        * Le justificatif tarif réduit n'empêche pas de retirer une séance.
-        *
-        * On utilise donc une validation spécifique à la consommation,
-        * qui vérifie :
-        * - les séances restantes
-        * - que la carte est active
-        * - que la souscription est ACTIVE
-        *
-        * Le justificatif tarif réduit n'est volontairement pas contrôlé ici.
-        */
+        // Le justificatif tarif réduit n'empêche pas de retirer une séance.
         $consommation = $carteSouscrite->peutRetirerSeance();
 
         if (!$consommation->isValid) {
-            $this->addFlash(
-                'warning',
-                $consommation->reason
+            $this->addFlash('warning', $consommation->reason);
+        } else {
+            $carteSouscrite->setSeancesRestantes(
+                $carteSouscrite->getSeancesRestantes() - 1
             );
 
+            $em->flush();
+
+            $this->addFlash(
+                'success',
+                'Une séance a été retirée de la carte.'
+            );
+        }
+
+        // Retour à la page d'où vient l'action.
+        if ($groupe !== null) {
             return $this->redirectToRoute('admin_user_check', [
                 'id' => $carteSouscrite->getUser()->getId(),
                 'groupe' => $groupe->getId(),
             ]);
         }
 
-        $carteSouscrite->setSeancesRestantes(
-            $carteSouscrite->getSeancesRestantes() - 1
-        );
-
-        $em->flush();
-
-        $this->addFlash(
-            'success',
-            'Une séance a été retirée de la carte.'
-        );
-
-        return $this->redirectToRoute('admin_user_check', [
-            'id' => $carteSouscrite->getUser()->getId(),
-            'groupe' => $groupe->getId(),
-        ]);
+        return $this->redirectToRoute('admin_user_index');
     }
 }
