@@ -37,13 +37,63 @@
 
             {% if controle.accesAutorise %}
 
-                <div class="alert alert-success">
-                    <h2 class="h4 mb-2">✅ Accès autorisé</h2>
-                    <p class="mb-0">
-                        L'utilisateur dispose d'un abonnement ou d'une carte
-                        permettant l'accès à ce groupe.
-                    </p>
-                </div>
+                {% set cartesUtilisables = [] %}
+
+                {% for item in controle.cartes %}
+                    {% if item.validation.isValid and item.souscrite.peutRetirerSeance().isValid %}
+                        {% set cartesUtilisables = cartesUtilisables|merge([item]) %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if cartesUtilisables|length > 0 %}
+                    <div class="alert alert-warning">
+                        <h2 class="h4 mb-2">⚠️ Accès autorisé avec une carte</h2>
+                        <p class="mb-3">
+                            Choisissez la carte utilisée pour ce cours.
+                            La séance sera déduite immédiatement.
+                        </p>
+
+                        {% for item in cartesUtilisables %}
+                            {% set c = item.souscrite %}
+
+                            <form
+                                method="post"
+                                action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                                class="mb-2"
+                                onsubmit="return confirm('Retirer une séance de cette carte ?');"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('retirer_seance' ~ c.id) }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="groupe"
+                                    value="{{ groupe.id }}"
+                                >
+
+                                <button type="submit" class="btn btn-warning">
+                                    Déduire 1 séance
+                                    (
+                                    {% for discipline in c.carte.disciplines %}
+                                        {{ discipline.nom }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                    : {{ c.seancesRestantes }} restantes
+                                    )
+                                </button>
+                            </form>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <h2 class="h4 mb-2">✅ Accès autorisé</h2>
+                        <p class="mb-0">
+                            L'utilisateur dispose d'un abonnement valide permettant l'accès à ce groupe.
+                        </p>
+                    </div>
+                {% endif %}
 
             {% elseif tarifReduitAValider %}
 
