@@ -1,0 +1,166 @@
+{% set adhesion_prix = adhesion_prix is defined ? adhesion_prix : 10 %}
+{% set adhesion_exempt = adhesion_exempt is defined ? adhesion_exempt : (app.user ? app.user.adhesion : false) %}
+
+{% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
+
+<div class="stepper-s4w" aria-hidden="true">
+	<span class="step done"><span class="num">✓</span> 1. Discipline</span>
+	<span class="step on"><span class="num">2</span> 2. Formule</span>
+	<span class="step"><span class="num">3</span> 3. Paiement</span>
+</div>
+
+<h2 id="inscription" class="h4 mb-3">Choisissez votre formule :</h2>
+
+<form method="post" action="{{ path('cart_add_item') }}">
+	<div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+
+		{% for abonnement in abonnements|default([]) %}
+			<div class="col">
+				<label class="formule-card h-100" for="abonnement-{{ abonnement.id }}">
+					<input type="radio" class="form-check-input item-radio" name="item"
+						id="abonnement-{{ abonnement.id }}" value="abonnement-{{ abonnement.id }}"
+						data-tarif="{{ abonnement.tarif }}"
+						data-reduit="{{ abonnement.hasTarifReduit ? abonnement.tarifReduit : abonnement.tarif }}"
+						data-has-reduit="{{ abonnement.hasTarifReduit ? '1' : '0' }}"
+						required>
+					<span class="flex-grow-1">
+						<strong>{{ abonnement.nom }}</strong><br>
+						<small class="text-muted">Du {{ abonnement.saison.dateDebut|date('d/m/Y') }} au {{ abonnement.saison.dateFin|date('d/m/Y') }}</small>
+					</span>
+					<span class="prix">{{ abonnement.tarif }} €
+						{% if abonnement.hasTarifReduit %}<small>réduit : {{ abonnement.tarifReduit }} €</small>{% endif %}
+					</span>
+				</label>
+			</div>
+		{% endfor %}
+
+		{% for carte in cartes|default([]) %}
+			<div class="col">
+				<label class="formule-card h-100" for="carte-{{ carte.id }}">
+					<input type="radio" class="form-check-input item-radio" name="item"
+						id="carte-{{ carte.id }}" value="carte-{{ carte.id }}"
+						data-tarif="{{ carte.tarif }}"
+						data-reduit="{{ carte.hasTarifReduit ? carte.tarifReduit : carte.tarif }}"
+						data-has-reduit="{{ carte.hasTarifReduit ? '1' : '0' }}"
+						required>
+					<span class="flex-grow-1">
+						<strong>{{ carte.nom }}</strong><br>
+						<small class="text-muted">Carte de séances, à votre rythme</small>
+					</span>
+					<span class="prix">{{ carte.tarif }} €
+						{% if carte.hasTarifReduit %}<small>réduit : {{ carte.tarifReduit }} €</small>{% endif %}
+					</span>
+				</label>
+			</div>
+		{% endfor %}
+	</div>
+
+	{# Tarif réduit — choix global à la commande #}
+	<div id="tarif-container" class="d-none">
+		<h3 class="h5 mb-3">Votre tarif :</h3>
+		<p class="text-muted small mb-2">Le tarif s'applique à <strong>toute votre commande</strong>, pas seulement à cette activité.</p>
+		<div class="d-flex gap-3 mb-3">
+			<div class="form-check form-check-inline">
+				<input class="form-check-input tarif-radio" type="radio" name="tarif" id="tarif_normal" value="normal" checked>
+				<label class="form-check-label" for="tarif_normal">Tarif normal</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input tarif-radio" type="radio" name="tarif" id="tarif_reduit" value="reduit">
+				<label class="form-check-label" for="tarif_reduit">Tarif réduit (étudiants, sans emploi…)</label>
+			</div>
+		</div>
+		<div class="alert alert-warning d-none" id="justificatif-wrapper">
+			⚠️ Vous avez choisi le tarif réduit : <strong>un justificatif vous sera demandé lors de votre première séance</strong>. Merci de le prévoir.
+		</div>
+	</div>
+
+	{# Récap total en direct — visible seulement après choix d'une formule #}
+	<div id="recap-empty" class="recap-s4w mb-3 text-muted text-center">
+		👈 Sélectionnez une formule ci-dessus pour voir le détail et le total de votre commande.
+	</div>
+
+	<div id="recap-filled" class="recap-s4w mb-3" hidden>
+		<table aria-live="polite">
+			<tr>
+				<td id="recap-item">Formule choisie</td>
+				<td id="recap-item-prix">—</td>
+			</tr>
+			{% if not adhesion_exempt %}
+				<tr id="recap-adh-line">
+					<td>Adhésion annuelle (ajoutée automatiquement)</td>
+					<td>{{ adhesion_prix }} €</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="2" style="text-align:left;">
+						<span class="badge rounded-pill" style="background:#e7f7ee;color:#1e9e58;border:1px solid #bfe8cf;">
+							✅ Votre adhésion est à jour — rien à payer de ce côté
+						</span>
+					</td>
+				</tr>
+			{% endif %}
+			<tr class="total">
+				<td>Total</td>
+				<td id="recap-total">—</td>
+			</tr>
+		</table>
+	</div>
+
+	<button id="btn-submit-inscription" type="submit" class="btn btn-sinscrire btn-lg rounded-pill mt-2" disabled>
+        <i class="bi bi-cart-plus me-2"></i>Ajouter au panier et finaliser →
+    </button>
+
+	{% if not adhesion_exempt %}
+		<div class="alert-s4w-info mt-3">
+			💡 L'adhésion annuelle ({{ adhesion_prix }} €) est requise pour toute souscription et est <strong>déjà incluse dans le total ci-dessus</strong>.
+			Le total s'affiche avant toute connexion : le compte ne sera demandé qu'au moment du paiement.
+		</div>
+	{% endif %}
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	const itemRadios = document.querySelectorAll('.item-radio');
+	const tarifContainer = document.getElementById('tarif-container');
+	const tarifRadios = document.querySelectorAll('.tarif-radio');
+	const justificatif = document.getElementById('justificatif-wrapper');
+	const ADHESION = {{ adhesion_exempt ? 0 : adhesion_prix }};
+    const submitBtn = document.getElementById('btn-submit-inscription');
+	// La ligne d'adhésion est gérée en Twig : elle n'existe pas dans
+	// le DOM si l'utilisateur est déjà adhérent (badge vert à la place).
+
+	function fmt(n) { return n.toLocaleString('fr-FR') + ' €'; }
+
+	function majRecap() {
+		const sel = document.querySelector('.item-radio:checked');
+		if (!sel) return;
+		const reduit = document.getElementById('tarif_reduit')?.checked
+			&& sel.dataset.hasReduit === '1'; // pas de réduit sur cette activité → prix normal
+		const prix = reduit ? parseFloat(sel.dataset.reduit) : parseFloat(sel.dataset.tarif);
+		const total = prix + ADHESION;
+		document.getElementById('recap-item-prix').textContent = fmt(prix);
+		document.getElementById('recap-total').textContent = fmt(total);
+	}
+
+	itemRadios.forEach(radio => radio.addEventListener('change', () => {
+		if (radio.dataset.hasReduit === '1') {
+			tarifContainer.classList.remove('d-none');
+		} else {
+			tarifContainer.classList.add('d-none');
+		}
+		document.getElementById('tarif_normal').checked = true;
+		justificatif.classList.add('d-none');
+		// Le récap et le bouton ne s'activent qu'une fois une formule sélectionnée
+		document.getElementById('recap-empty').hidden = true;
+		document.getElementById('recap-filled').hidden = false;
+		submitBtn.disabled = false;
+		majRecap();
+	}));
+
+	tarifRadios.forEach(radio => radio.addEventListener('change', () => {
+		justificatif.classList.toggle('d-none', radio.value !== 'reduit');
+		majRecap();
+	}));
+});
+</script>
+{% endif %}

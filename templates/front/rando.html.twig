@@ -3,127 +3,105 @@
 {% block title %}Rando4Water Strasbourg - Stras4Water{% endblock %}
 
 {% block body %}
-
 <section class="container my-5">
 
-  <h1 class="mb-4 text-center text-success">Rando4Water Strasbourg 🥾💧</h1>
+	<p class="text-muted small mb-3">
+		<a href="{{ path('home') }}" class="text-decoration-none">Accueil</a> /
+		<a href="{{ path('home') }}#activites" class="text-decoration-none">Activités</a> /
+		<strong>Rando4Water</strong>
+	</p>
 
-  <div class="text-center mb-4">
-    <a href="{{ path('adhesion') }}" class="btn btn-outline-info">
-      → Adhérer à Stras4Water
-    </a>
-  </div>
+	<div class="row g-4 align-items-start mb-4">
+		<div class="col-lg-7">
+			<h1 class="mb-2">🥾 Rando4Water — randonnées solidaires</h1>
+			<p class="text-muted">
+				Marcher, partager, découvrir l'Alsace… et agir pour l'accès à l'eau.
+				Les sorties sont <strong>gratuites</strong>, réservées aux membres à jour de leur adhésion.
+			</p>
+		</div>
+		<div class="col-lg-5">
+			<div class="infobox-s4w">
+				<div>🌿 Sorties accessibles, tous niveaux</div>
+				<div>✨ Yoga nature, randos gourmandes, patrimoine…</div>
+				<div>🚗 Covoiturage selon les sorties (participation possible aux frais)</div>
+				<div>🪪 Réservé aux adhérents (10 €/an)</div>
+			</div>
+		</div>
+	</div>
 
-  <!-- Description -->
+	{% if isAdherent is defined and isAdherent and app.user %}
+		{# ===== Membre à jour : calendrier des sorties ===== #}
+		<div class="recap-s4w mb-4">
+			<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+				<h2 class="h5 mb-0">📅 Prochaines sorties
+					<span class="badge rounded-pill" style="background:#e7f7ee;color:#1e9e58;border:1px solid #bfe8cf;">✅ Adhérent à jour</span>
+				</h2>
+				<a href="{{ path('app_account') }}" class="btn btn-outline-s4w btn-sm rounded-pill">Mon compte</a>
+			</div>
+		</div>
 
-  <div class="mb-5">
+		{% if sorties is defined and sorties|length > 0 %}
+			{% for sortie in sorties %}
+				<div class="planning-creneau mb-2">
+					<span class="heure">{{ sortie.date|date('d/m') }} · {{ sortie.heure }}</span>
+					<span class="fw-bold">{{ sortie.nom }}</span>
+					<span class="lieu">📍 {{ sortie.lieu }} · {{ sortie.niveau }} · {{ sortie.inscrits|length }} inscrit·e·s</span>
+					{# TODO : route de participation aux sorties #}
+					<form method="post" action="{{ path('rando_participe', {id: sortie.id}) }}" class="d-inline">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token('rando' ~ sortie.id) }}">
+						<button type="submit" class="btn btn-primary btn-sm rounded-pill">Je participe</button>
+					</form>
+				</div>
+			{% endfor %}
+		{% else %}
+			<div class="alert-s4w-info">
+				Les prochaines sorties seront annoncées ici et sur nos réseaux sociaux. Restez connecté·e !
+			</div>
+		{% endif %}
 
-<p>
-  <strong>Marcher, partager, découvrir… et agir pour l’accès à l’eau potable.</strong>
-</p>
+	{% else %}
+		{# ===== Visiteur / non-adhérent : un seul message ===== #}
+		<div class="recap-s4w mb-4">
+			<div class="row align-items-center g-3">
+				<div class="col-lg-7">
+					<h2 class="h5 mb-2">Vous n'êtes pas encore membre ?</h2>
+					<p class="mb-0 text-muted">
+						L'adhésion annuelle (10 €) donne accès à <strong>toutes</strong>
+						les randonnées de l'année, sans frais supplémentaires.
+					</p>
+				</div>
+				<div class="col-lg-5 text-lg-end">
+					<a href="{{ path('adhesion') }}" class="btn btn-sinscrire rounded-pill me-2 mb-2">Adhérer pour 10 €/an →</a>
+					{% if not app.user %}
+						<a href="{{ path('app_login') }}" class="btn btn-outline-s4w rounded-pill mb-2">Déjà membre ? Se connecter</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		{#<div class="alert-s4w-info">
+			👋 <strong>Membre connecté à jour d'adhésion ?</strong> Cette page affiche alors directement
+			le calendrier des sorties et le bouton « Je participe ».
+		</div>#}
+	{% endif %}
 
-<div class="text-center my-4">
-  <img
-    src="{{ asset('img/rando.jpg') }}"
-    alt="Rando4Water Strasbourg"
-    class="img-fluid rounded shadow-sm"
-    style="max-height: 400px;"
-  >
-</div>
-
-<p>
-  <strong>Rando4Water</strong>, c’est la section randonnée de Stras4Water :
-  une façon simple et conviviale de prendre l’air, découvrir les plus beaux
-  coins d’Alsace et des environs, rencontrer de nouvelles personnes et
-  soutenir une cause essentielle.
-</p>
-
-<p>
-  🥾 <strong>Les randonnées sont gratuites !</strong>
-  Il suffit simplement d’adhérer à l’association Stras4Water pour
-  <strong>10 € par an</strong> pour participer aux sorties proposées
-  tout au long de l’année.
-</p>
-
-<p>
-  Au programme : des randonnées accessibles à différents niveaux, mais aussi
-  des sorties un peu différentes pour varier les plaisirs :
-  <strong>yoga en pleine nature, randonnées gourmandes, découverte du patrimoine</strong>
-  et bien d’autres expériences à partager ensemble.
-</p>
-
-<p>
-  Pas besoin d’être un grand sportif : l’idée est avant tout de
-  <strong>bouger, découvrir, créer du lien et passer un bon moment</strong>,
-  dans l’esprit convivial et solidaire de Stras4Water.
-</p>
-
-<ul class="list-unstyled">
-  <li class="mb-2">
-    🥾 <strong>Randonnées réservées</strong> aux adhérents de Stras4Water.
-  </li>
-  <li class="mb-2">
-    💧 <strong>Adhésion obligatoire</strong> : 10 € par an.
-  </li>
-  <li class="mb-2">
-    🌿 Des sorties accessibles à différents niveaux.
-  </li>
-  <li class="mb-2">
-    ✨ Des activités variées pour découvrir la nature autrement.
-  </li>
-  <li class="mb-2">
-    🚗 Des possibilités de covoiturage selon les sorties.
-  </li>
-</ul>
-
-<p>
-  En rejoignant Stras4Water, vous participez aussi à une
-  <strong>aventure solidaire</strong> : les bénéfices de l’association
-  permettent de soutenir <strong>WaterAid</strong> et ses actions en faveur
-  de l’accès à l’eau potable, à l’assainissement et à l’hygiène dans les
-  communautés qui en ont le plus besoin.
-</p>
-
-<div class="my-5">
-  <h2 class="h4 text-center mb-4">Une randonnée qui va plus loin 💧</h2>
-
-  <ul class="list-unstyled">
-    <li class="mb-3">🌿 Découvrir de nouveaux sentiers et paysages</li>
-    <li class="mb-3">🤝 Rencontrer et partager avec une communauté conviviale</li>
-    <li class="mb-3">✨ Profiter d’activités originales en pleine nature</li>
-    <li class="mb-3">💧 Soutenir une cause essentielle</li>
-    <li class="mb-3">🥾 Et surtout… marcher ensemble dans la bonne humeur !</li>
-  </ul>
-</div>
-
-<div class="alert alert-info">
-  🚗 <strong>Covoiturage :</strong>
-  certaines sorties peuvent être organisées avec du covoiturage.
-  Une contribution peut éventuellement être demandée aux participants
-  afin de participer aux frais du conducteur.
-</div>
-
-<p class="text-center fs-5 mt-5">
-  <strong>Alors, prêt·e à marcher pour la bonne cause ?</strong>
-</p>
-
-<div class="text-center mt-4">
-  <a href="{{ path('adhesion') }}" class="btn btn-primary btn-lg">
-    🥾 Rejoindre Rando4Water
-  </a>
-</div>
-
-<p class="text-muted small text-center mt-3">
-  Les prochaines sorties seront annoncées prochainement.
-</p>
-
-<p class="mt-4">
-  Pour toute question ou information complémentaire,
-  <a href="/contact">contactez-nous</a>
-  ou suivez-nous sur nos réseaux sociaux.
-</p>
-
-  </div>
+	{# ===== Contenu éditorial ===== #}
+	<div class="mt-5">
+		<p><strong>Marcher, partager, découvrir… et agir pour l'accès à l'eau potable.</strong></p>
+		<p>
+			<strong>Rando4Water</strong>, c'est la section randonnée de Stras4Water : une façon simple et
+			conviviale de prendre l'air, découvrir les plus beaux coins d'Alsace, rencontrer de nouvelles
+			personnes et soutenir une cause essentielle. Pas besoin d'être un grand sportif : l'idée est
+			avant tout de bouger, créer du lien et passer un bon moment.
+		</p>
+		<p>
+			En rejoignant Stras4Water, vous participez aussi à une aventure solidaire : comme toutes les
+			associations du réseau 4Water, nous reversons nos bénéfices (après frais) à <strong>WaterAid</strong>,
+			pour l'accès à l'eau potable, l'assainissement et l'hygiène dans les communautés qui en ont le plus besoin.
+		</p>
+		<p class="mt-4">
+			Pour toute question, <a href="{{ path('contact') }}">contactez-nous</a> ou suivez-nous sur nos réseaux sociaux.
+		</p>
+	</div>
 
 </section>
 {% endblock %}

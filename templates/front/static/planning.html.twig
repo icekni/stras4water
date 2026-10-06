@@ -1,0 +1,91 @@
+{% extends 'base/base.html.twig' %}
+
+{% block title %}Planning des cours | Stras4Water{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+	<h1 class="mb-2">📅 Planning des cours &amp; activités</h1>
+	<p class="text-muted mb-4">Hors vacances scolaires et jours fériés.</p>
+
+	{% set planning = {
+		'Mardi': [
+			{h: '19h30–20h30', d: '🕺 Salsa Rueda — débutant', l: 'Kaleidoscoop, 5 rue de la Coopérative, Strasbourg', n: 'Débutant', url: path('salsa')},
+			{h: '20h30–21h30', d: '🕺 Salsa Rueda — intermédiaire', l: 'Kaleidoscoop, 5 rue de la Coopérative, Strasbourg', n: 'Intermédiaire', url: path('salsa')},
+		],
+		'Mercredi': [
+			{h: '19h45–20h45', d: '💃 Bachata — tous niveaux', l: 'Salle Saint-Joseph, 53 rue Saint-Urbain, Strasbourg', n: 'Débutants bienvenus', url: path('bachata')},
+			{h: '20h45–21h45', d: '🕺 Salsa Rueda — débutant', l: 'Salle Saint-Joseph, 53 rue Saint-Urbain, Strasbourg', n: 'Débutant', url: path('salsa')},
+		],
+		'Jeudi': [
+			{h: '18h30–19h30', d: '🇬🇧 Anglais — A1/A2', l: 'Maison des Associations, 1a place des Orphelins, Strasbourg', n: 'Niveau A1/A2', url: path('anglais')},
+			{h: '19h30–20h30', d: '🇪🇸 Espagnol — A1/A2', l: 'Maison des Associations, 1a place des Orphelins, Strasbourg', n: 'Niveau A1/A2', url: path('espagnol')},
+		],
+	} %}
+
+	{# Soirée mensuelle : 2e vendredi du mois, ouverte à tous (pas seulement aux membres) #}
+	{% set mensuels = [
+		{h: '19h00–Minuit', d: '🎉 Soirée dansante', l: 'Kaleidoscoop, 5 rue de la Coopérative', n: 'Ouverte à tous', freq: '2eme vendredi du mois'},
+	] %}
+
+	{% for jour, creneaux in planning %}
+		<div class="mb-4">
+			<div class="planning-day-head">{{ jour }}</div>
+			{% for c in creneaux %}
+				<div class="planning-creneau">
+					<span class="heure">{{ c.h }}</span>
+					<span class="fw-bold">{{ c.d }}</span>
+					<span class="lieu">📍 {{ c.l }}</span>
+					<span class="niveau-pill">{{ c.n }}</span>
+					<a href="{{ c.url }}#inscription" class="btn btn-outline-s4w btn-sm rounded-pill">S'inscrire</a>
+				</div>
+			{% endfor %}
+		</div>
+	{% endfor %}
+
+	{# ===== Soirées mensuelles ===== #}
+	<div class="mb-4">
+		<div class="planning-day-head" style="background: var(--s4w-rouge);">Vendredi — 1× par mois 🎉</div>
+		{% for m in mensuels %}
+			<div class="planning-creneau">
+				<span class="heure">{{ m.h }}</span>
+				<span class="fw-bold">{{ m.d }}</span>
+				<span class="lieu">📍 {{ m.l }}</span>
+				<span class="niveau-pill">{{ m.freq }}</span>
+				<span class="badge rounded-pill" style="background:#fdecec;color:var(--s4w-rouge);border:1px solid #f6c7cb;">
+					{{ m.n }}
+				</span>
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="mt-4">
+		<div class="planning-day-head ponctuel">Ponctuel 🎟️ — stages &amp; sorties</div>
+        
+		<div class="planning-creneau">
+			<span class="heure"></span>
+			<span class="fw-bold">🌀 Stage salsa</span>
+			<span class="lieu"></span>
+			<span class=""></span>
+			<a href="{{ path('salsa') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
+		</div>
+		<div class="planning-creneau">
+			<span class="heure"></span>
+			<span class="fw-bold">🌀 Stage kizomba</span>
+			<span class="lieu"></span>
+			<span class=""></span>
+			<a href="{{ path('kizomba') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
+		</div>
+		<div class="planning-creneau">
+			<span class="heure">Dimanches</span>
+			<span class="fw-bold">🥾 Randonnées</span>
+			<span class="lieu">📍 selon la randonnée</span>
+			<span class="niveau-pill">Réservés aux adhérents</span>
+			<a href="{{ path('rando') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
+		</div>
+	</div>
+
+	<div class="alert-s4w-info mt-4">
+		💡 Les créneaux peuvent évoluer en cours d'année : les horaires à jour sont toujours indiqués sur la page de chaque activité.
+	</div>
+</section>
+{% endblock %}

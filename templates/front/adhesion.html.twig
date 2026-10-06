@@ -1,61 +1,66 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Adhésion - Stras4Water{% endblock %}
+{% block title %}Adhésion | Stras4Water{% endblock %}
 
 {% block body %}
 <div class="container my-5">
-    <h1 class="mb-4 text-center">Adhérez à Stras4Water</h1>
 
-    <div class="row align-items-center mb-5">
-        <div class="col-md-6">
-            <p>
-                <strong>Stras4Water</strong> est une association qui finance des projets d’accès à l’eau potable
-                et à l’hygiène dans les pays les plus touchés, via des cours de danse et des événements solidaires.
-            </p>
+	{# ===== Si déjà adhérent : état clair, pas de double paiement ===== #}
+	{% if app.user and app.user.adhesion %}
+		<div class="recap-s4w text-center mb-4">
+			<h1 class="h3 mb-2">Vous êtes déjà adhérent·e 🎉</h1>
+			<p class="text-muted mb-3">Votre adhésion est à jour pour la saison en cours — rien à payer de ce côté.</p>
+			<div class="d-flex gap-2 justify-content-center flex-wrap">
+				<a href="{{ path('app_account') }}" class="btn btn-primary rounded-pill">Mon compte</a>
+				<a href="{{ path('home') }}#activites" class="btn btn-sinscrire rounded-pill">S'inscrire à un cours →</a>
+			</div>
+		</div>
+	{% endif %}
 
-            <p>
-                En adhérant, vous soutenez ces projets et rejoignez une communauté dynamique autour de la danse, des langues et du bien-être.
-            </p>
+	<div class="row align-items-start g-4 mb-5">
+		<div class="col-md-6">
+			<h1 class="mb-3">Adhérez à Stras4Water</h1>
+			<p>
+				<strong>Stras4Water</strong> est une association qui finance des projets d'accès à l'eau potable
+				et à l'hygiène dans les pays les plus touchés, via des cours de danse, de langues et des événements solidaires.
+			</p>
+			<p>
+				En adhérant, vous soutenez ces projets et rejoignez une communauté dynamique autour de la danse,
+				des langues et du bien-être.
+			</p>
+			<ul>
+				<li>Accès à nos cours, stages et soirées</li>
+				<li>Participation aux <strong>randonnées gratuites</strong> réservées aux membres</li>
+				<li>Participation à une cause solidaire : 100 % des bénéfices financent l'accès à l'eau</li>
+			</ul>
+			<p class="mb-0">
+				<span class="badge rounded-pill" style="background:#fdecec;color:var(--s4w-rouge);border:1px solid #f6c7cb;">
+					⚠️ Obligatoire pour toute souscription
+				</span>
+			</p>
+			<p class="text-muted small mt-2 mb-0">
+				L'adhésion est requise pour tout abonnement ou carte de 10 cours — sauf pour le <strong>cours d'essai
+				gratuit</strong> proposé dans chaque discipline.
+			</p>
+		</div>
+		<div class="col-md-6 text-center">
+			<img src="{{ asset('img/s4w.jpeg') }}" alt="Solidarité et danse" class="img-fluid rounded shadow">
+		</div>
+	</div>
 
-            <ul>
-                <li>Accès à nos cours, stages et soirées</li>
-                <li>Participation à une cause solidaire</li>
-                <li>Déduction fiscale à hauteur de 66% (10€ = 3,40€ après déduction)</li>
-            </ul>
-
-            <p class="fw-bold text-danger">
-                ⚠️ L’adhésion est <strong>obligatoire</strong> pour toute inscription à un abonnement ou une carte de 10 cours, 
-                sauf pour le <strong>cours d’essai gratuit</strong> proposé dans chaque discipline.
-            </p>
-        </div>
-
-        <div class="col-md-6 text-center">
-            <img src="{{ asset('img/s4w.jpeg') }}"
-                 alt="Solidarité et danse" class="img-fluid rounded shadow">
-        </div>
-    </div>
-
-    <div class="text-center">
-        <h2 class="mb-3">Adhésion annuelle</h2>
-        <p>Montant fixe : <strong>10 €</strong></p>
-        
-        <form
-            method="post"
-            action="{{ path('cart_add_adhesion') }}"
-        >
-            <input
-                type="hidden"
-                name="_token"
-                value="{{ csrf_token('add_adhesion') }}"
-            >
-
-            <button
-                type="submit"
-                class="btn btn-success btn-lg"
-            >
-                💧 Adhérer pour 10 €
-            </button>
-        </form>
-    </div>
+	{# ===== CTA adhésion ===== #}
+	<div class="recap-s4w text-center mx-auto" style="max-width: 460px;">
+		<h2 class="h4 mb-2">Adhésion annuelle</h2>
+		<p>Montant fixe : <strong style="font-size: 1.4rem;">10 €</strong></p>
+		<form method="post" action="{{ path('cart_add_adhesion') }}">
+			<input type="hidden" name="_token" value="{{ csrf_token('add_adhesion') }}">
+			<button type="submit" class="btn btn-sinscrire btn-lg rounded-pill w-100">
+				💧 Adhérer pour 10 €
+			</button>
+		</form>
+		<p class="text-muted small mt-2 mb-0">
+			Elle est ajoutée automatiquement au panier si vous souscrivez à une activité sans être à jour d'adhésion.
+		</p>
+	</div>
 </div>
 {% endblock %}

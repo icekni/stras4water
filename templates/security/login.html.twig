@@ -1,69 +1,64 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Connexion{% endblock %}
+{% block title %}Connexion | Stras4Water{% endblock %}
 
 {% block body %}
 <div class="container mt-5" style="max-width: 500px;">
-    <div class="card shadow-lg rounded-4">
-        <div class="card-body p-4">
+	<div class="card border-0 shadow-sm" style="border-radius: 10px;">
+		<div class="card-body p-4">
 
-            <h2 class="mb-4 text-center">Connexion</h2>
+			<h2 class="mb-4 text-center">Connexion</h2>
 
-            {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
+			{% if error %}
+				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+			{% endif %}
 
-            {% if app.user %}
-                <div class="alert alert-info">
-                    Connecté en tant que {{ app.user.userIdentifier }}. 
-                    <a href="{{ path('app_logout') }}">Se déconnecter</a>
-                </div>
-            {% endif %}
+			{% if app.user %}
+				<div class="alert-s4w-info">
+					Connecté en tant que {{ app.user.userIdentifier }}.
+					<a href="{{ path('app_logout') }}">Se déconnecter</a>
+				</div>
+			{% endif %}
 
-            {% if showResendLink %}
-                <div class="alert alert-warning">
-                    Votre compte n’est pas encore activé. 
-                    <a href="{{ path('app_resend_verification_email', { email: last_username }) }}">
-                        Renvoyer le mail de confirmation
-                    </a>
-                </div>
-            {% endif %}
+			{% if showResendLink %}
+				<div class="alert alert-warning">
+					Votre compte n'est pas encore activé.
+					<a href="{{ path('app_resend_verification_email', { email: last_username }) }}">
+						Renvoyer le mail de confirmation
+					</a>
+				</div>
+			{% endif %}
 
-            <form method="post">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Adresse e-mail</label>
-                    <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
-                </div>
+			<form method="post">
+				<div class="mb-3">
+					<label for="username" class="form-label">Adresse e-mail</label>
+					<input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+				</div>
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Mot de passe</label>
-                    <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-                </div>
-                <div class="text-end mb-3">
-                    <a href="{{ path('app_forgot_password') }}">
-                        Mot de passe oublié ?
-                    </a>
-                </div>
+				<div class="mb-3">
+					<label for="password" class="form-label">Mot de passe</label>
+					<input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+				</div>
+				<div class="text-end mb-3">
+					<a href="{{ path('app_forgot_password') }}">Mot de passe oublié ?</a>
+				</div>
 
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+				<div class="form-check mb-3">
+					<input type="checkbox" name="_remember_me" id="_remember_me" class="form-check-input">
+					<label class="form-check-label" for="_remember_me">Se souvenir de moi</label>
+				</div>
 
-                <div class="form-check mb-3">
-                    <input type="checkbox" name="_remember_me" id="_remember_me" class="form-check-input">
-                    <label class="form-check-label" for="_remember_me">Se souvenir de moi</label>
-                </div>               
-
-                <div class="d-grid">
-                    <button class="btn btn-primary btn-lg rounded-pill" type="submit">
-                        Se connecter
-                    </button>
-                </div>
-            </form>
-            <p class="mt-3 text-center">
-                Pas encore de compte ?
-                <a href="{{ path('app_register') }}">Créer un compte</a>
-            </p>
-        </div>
-    </div>
+				<div class="d-grid">
+					<button class="btn btn-primary btn-lg rounded-pill" type="submit">Se connecter</button>
+				</div>
+			</form>
+			<p class="mt-3 text-center">
+				Pas encore de compte ?
+				<a href="{{ path('app_register') }}">Créer un compte</a>
+			</p>
+		</div>
+	</div>
 </div>
 {% endblock %}

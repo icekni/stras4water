@@ -1,58 +1,96 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Qui sommes-nous - Stras4Water{% endblock %}
+{% block title %}Qui sommes-nous | Stras4Water{% endblock %}
+
+{% block meta_description %}
+Stras4Water, association à but non lucratif à Strasbourg : danse, langues, randonnées.
+Membre du réseau 4Water, nous reversons 100 % de nos bénéfices à WaterAid.
+{% endblock %}
 
 {% block body %}
 <section class="container my-5">
 
-<h1 class="mb-4 text-center text-primary">Qui sommes-nous ?</h1>
+	{# ===== Intro ===== #}
+	<div class="row g-4 align-items-start mb-4">
+		<div class="col-lg-7">
+			<h1 class="mb-3">Qui sommes-nous ?</h1>
+			<p>
+				<strong>Stras4Water</strong> est une <strong>association à but non lucratif</strong> fondée en février 2024
+				à Strasbourg. Reconnue d'<strong>intérêt général</strong>, notre mission est de créer des espaces d'échange
+				et de solidarité à travers des activités accessibles à tous.
+			</p>
+			<p>
+				L'aventure a commencé avec la <strong>danse</strong>, et en particulier la <strong>bachata</strong>. Très vite,
+				nous avons compris que ce qui comptait le plus pour nous, c'était le <strong>partage de passion</strong>.
+				C'est pourquoi nous proposons aujourd'hui, ou envisageons de proposer, une grande variété d'activités
+				(langues, danses, randonnées, ateliers…) — du moment qu'elles sont <strong>inclusives, bienveillantes et
+				financièrement accessibles</strong>.
+			</p>
+		</div>
+		<div class="col-lg-5">
+			<div class="infobox-s4w">
+				<div>🏅 Association loi 1908 (Alsace-Moselle), reconnue d'intérêt général</div>
+				<div>🤝 Portée exclusivement par des <strong>bénévoles</strong></div>
+				<div>🌍 Membre du <strong>réseau 4Water</strong> (Glasgow, Berlin, Lyon, Prague…)</div>
+				<div>💧 100 % des bénéfices (après frais) reversés à <strong>WaterAid</strong></div>
+			</div>
+		</div>
+	</div>
 
-<div class="mb-5">
+	<div class="text-center my-4">
+		<img src="{{ asset('img/noel.png') }}" alt="Stras4Water - association à Strasbourg" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+	</div>
 
-  <p>
-    <strong>Stras4Water</strong> est une <strong>association à but non lucratif</strong> fondée en février 2024 à Strasbourg. 
-    Reconnue d’<strong>intérêt général</strong>, notre mission est de créer des espaces d’échange et de solidarité à travers des activités accessibles à tous.
-  </p>
+	{# ===== Réseau 4Water + WaterAid ===== #}
+	<h2 class="mt-5">Un engagement local, un impact global</h2>
+	<p>
+		Stras4Water fait partie du <a href="https://4water.org/"><strong>réseau européen 4Water</strong></a>, un réseau
+		international solidaire regroupant plusieurs villes (Glasgow, Berlin, Lyon, Prague…) qui organisent des
+		événements pour financer des projets liés à l'<strong>accès à l'eau potable</strong> dans le monde.
+	</p>
+	<p>
+		L'intégralité des fonds récoltés dans ce cadre est reversée à
+		<a href="https://www.wateraid.org/"><strong>WaterAid</strong></a>, une ONG internationale qui agit dans plus de
+		30 pays pour permettre à toutes et tous d'avoir accès à une eau propre, des toilettes décentes et une bonne hygiène.
+	</p>
 
-  <p>
-    L’aventure a commencé avec la <strong>danse</strong>, et en particulier la <strong>bachata</strong>. Très vite, nous avons compris que ce qui comptait le plus pour nous, c’était le <strong>partage de passion</strong>. 
-    C’est pourquoi nous proposons aujourd’hui, ou envisageons de proposer, une grande variété d’activités (langues, danses, ateliers…) – 
-    du moment qu’elles sont <strong>inclusives, bienveillantes et financièrement accessibles</strong>.
-  </p>
+	{# ===== Bandeau chiffres charbon ===== #}
+	<div class="darkstats my-4">
+		<div class="row text-center">
+			<div class="col-6 col-md-4">
+				<b>+ de 640 000 £</b>
+				<small>reversés à WaterAid et Welthungerhilfe par le réseau 4Water</small>
+			</div>
+			<div class="col-6 col-md-4">
+				<b>29 millions</b>
+				<small>de personnes ont accédé à l'eau potable grâce à WaterAid depuis 1981</small>
+			</div>
+			<div class="col-6 col-md-4">
+				<b>100 %</b>
+				<small>de nos bénéfices (après frais : salles, SACEM, assurance) reversés</small>
+			</div>
+		</div>
+	</div>
 
-  <div class="text-center my-4">
-    <img src="{{ asset('img/noel.png') }}" alt="Stras4Water - association à Strasbourg" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
-  </div>
+	<div class="text-center my-4">
+		<img src="{{ asset('img/wateraid-logo.png') }}" alt="WaterAid logo" class="img-fluid" style="max-height: 120px;">
+	</div>
 
-  <h2 class="mt-5">Un engagement local, un impact global</h2>
+	<p>
+		En participant à nos cours ou événements, vous soutenez à la fois <strong>un projet local solidaire</strong>
+		et <strong>une cause humanitaire d'envergure mondiale</strong>.
+	</p>
 
-  <p>
-    Stras4Water fait partie du <a href="https://4water.org/" alt="lien vers le site web de 4water"><strong>réseau européen 4Water</strong></a>, un reseau international solidaire regroupant plusieurs villes (Glasgow, Berlin, Lyon, Prague...) qui organisent des événements pour financer des projets liés à l’<strong>accès à l’eau potable</strong> dans le monde.
-  </p>
+	{# ===== Impliquer ===== #}
+	<h2 class="mt-5">Envie de vous impliquer ?</h2>
+	<p>
+		Stras4Water est portée exclusivement par des <strong>bénévoles</strong>. Si vous avez envie de partager une
+		passion ou de contribuer autrement (organisation, communication, graphisme, etc.), vous êtes les bienvenu·es !
+	</p>
 
-  <p>
-    L’intégralité des fonds récoltés dans ce cadre est reversée à <a href="https://www.wateraid.org/" alt="Lien vers le site web de WaterAid"><strong>WaterAid</strong></a>, une ONG internationale qui agit dans plus de 30 pays pour permettre à toutes et tous d’avoir accès à une eau propre, des toilettes décentes et une bonne hygiène.
-  </p>
-
-  <div class="text-center my-4">
-    <img src="{{ asset('img/wateraid-logo.png') }}" alt="WaterAid logo" class="img-fluid" style="max-height: 120px;">
-  </div>
-
-  <p>
-    En participant à nos cours ou événements, vous soutenez à la fois <strong>un projet local solidaire</strong> et <strong>une cause humanitaire d’envergure mondiale</strong>.
-  </p>
-
-  <h2 class="mt-5">Envie de vous impliquer ?</h2>
-
-  <p>
-    Stras4Water est portée exclusivement par des <strong>bénévoles</strong>. Si vous avez envie de partager une passion ou de contribuer autrement (organisation, communication, graphisme, etc.), vous êtes les bienvenu·es !
-  </p>
-
-  <p class="mt-4">
-    <a href="/contact" class="btn btn-primary">Nous contacter</a> ou <strong>suivez-nous sur les réseaux sociaux</strong> pour ne rien rater de nos projets.
-  </p>
-
-</div>
-
+	<div class="text-center my-4">
+		<a href="{{ path('contact') }}" class="btn btn-primary rounded-pill me-2">Nous contacter</a>
+		<a href="{{ path('donation') }}" class="btn btn-success rounded-pill">Je fais un don</a>
+	</div>
 </section>
 {% endblock %}
