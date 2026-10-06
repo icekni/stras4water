@@ -1,6 +1,6 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Cours de Salsa à Strasbourg | Stras4Water{% endblock %}
+{% block title %}Cours de Salsa Rueda à Strasbourg | Stras4Water{% endblock %}
 
 {% block meta_description %}
 Cours de salsa cubaine à Strasbourg avec Stras4Water : salsa rueda débutant et intermédiaire,
@@ -10,173 +10,74 @@ cours le mardi au Kaleidoscoop et le mercredi à la salle Saint-Joseph.
 {% block body %}
 <section class="container my-5">
 
-  <h1 class="mb-4 text-center text-danger">Cours de Salsa Rueda à Strasbourg</h1>
-  {% if inscription_possible == false %}
-  <div class="text-center mb-4">
-    <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
-  </div>
-  {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-    <div class="text-center mb-4">
-    <a href="#inscription" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
-    </div>
-  {% endif %}
+	{# ===== Breadcrumb ===== #}
+	<p class="text-muted small mb-3">
+		<a href="{{ path('home') }}" class="text-decoration-none">Accueil</a> /
+		<a href="{{ path('home') }}#activites" class="text-decoration-none">Cours de danse</a> /
+		<strong>Salsa Rueda</strong>
+	</p>
 
-  <!-- Description -->
-  <div class="mb-5">
-    <p>
-      Venez apprendre la <strong>Salsa Rueda</strong>, une danse festive, dynamique et collective !
-      Que vous soyez <strong>débutant</strong> ou que vous ayez déjà quelques bases, nos cours vous permettront de progresser dans une ambiance conviviale et bienveillante.    </p>
+	{# ===== Hero discipline ===== #}
+	<div class="row g-4 align-items-start mb-4">
+		<div class="col-lg-7">
+			<h1 class="mb-2">🕺 Cours de Salsa Rueda à Strasbourg</h1>
+			<p class="text-muted">
+				Une danse festive, dynamique et collective ! Débutant ou déjà quelques bases :
+				progression dans une ambiance conviviale et bienveillante.
+				Première séance offerte, tarifs solidaires.
+			</p>
+			{% if inscription_possible == false %}
+				<a href="https://www.helloasso.com/associations/stras4water" class="btn btn-sinscrire rounded-pill">
+					→ S'inscrire ou s'abonner maintenant
+				</a>
+			{% endif %}
+		</div>
+		<div class="col-lg-5">
+			<div class="infobox-s4w">
+				<div>📅 <strong>Mardi – Kaleidoscoop</strong> (5 rue de la Coopérative) : débutant 19h30–20h30, intermédiaire 20h30–21h30</div>
+				<div>📅 <strong>Mercredi – Salle Saint-Joseph</strong> (53 rue Saint-Urbain) : débutant 20h45–21h45</div>
+				<div>📆 De <strong>septembre à fin juin</strong> (hors vacances scolaires)</div>
+				<div>✨ <strong>1 abonnement = plusieurs créneaux accessibles</strong> (voir détail ci-dessous)</div>
+				<div>🎁 <strong>Première séance offerte</strong> pour toute nouvelle personne</div>
+			</div>
+		</div>
+	</div>
 
-    <div class="text-center my-4">
-      <img src="{{ asset('img/rueda.jpg') }}" alt="Cours de salsa rueda à Strasbourg avec Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
-    </div>
+	{# ===== Tunnel d'inscription ===== #}
+	{% if inscription_possible and ((abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0)) %}
+		{{ include('front/discipline/_inscription.html.twig') }}
+	{% endif %}
 
-    <ul class="list-unstyled">
-      <li>📅 <strong>Mardi – Kaleidoscoop</strong> (5 rue de la Coopérative, Strasbourg)</li>
-      <ul>
-        <li>🕢 19h30 à 20h30 : <strong>Cours débutant</strong></li>
-        <li>🕣 20h30 à 21h30 : <strong>Cours intermédiaire</strong></li>
-      </ul>
+	{# ===== Contenu éditorial ===== #}
+	<div class="mt-5">
+		<div class="text-center my-4">
+			<img src="{{ asset('img/rueda.jpg') }}" alt="Cours de salsa rueda à Strasbourg avec Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+		</div>
 
-      <li class="mt-2">📅 <strong>Mercredi – Salle Saint-Joseph</strong> (53 rue Saint-Urbain, Strasbourg)</li>
-      <ul>
-        <li>🕣 20h45 à 21h45 : <strong>Cours débutant</strong></li>
-      </ul>
-
-      <li class="mt-4">
-        📆 Les cours ont lieu de <strong>septembre à fin juin</strong> (hors vacances scolaires).
-      </li>
-
-      <li class="mt-4">
-        ✨ <strong>Avec un seul abonnement au cours débutant, vous pouvez participer aux deux cours débutants :</strong>
-        le mardi au Kaleidoscoop <strong>et</strong> le mercredi à la salle Saint-Joseph.
-      </li>
-
-      <li class="mt-4">🎁 <strong>Première séance offerte</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité.</li>
-    </ul>
-
-
-<p>
-  <strong>Les débutants sont bienvenus en cours d’année</strong>, mais il faut bien être conscient qu’ils auront du retard par rapport aux participants arrivés dès septembre. Il faudra donc s’armer de motivation pour rattraper ce qui a été vu au début de la saison.
-</p>
-
-    <p>
-      En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> qui agit pour l’accès à l’eau propre dans les zones en difficulté. ❤️
-    </p>
-
-    <p class="mt-4">
-      Pour toute question ou information complémentaire, <a href="/contact">contactez-nous</a> ou suivez-nous sur nos réseaux sociaux.
-    </p>
-  </div>
-
-  <!-- Type d'abonnement -->
-  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <h2 id="inscription" class="h5 mb-3">Choisissez votre type d'abonnement :</h2>
-
-  <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
-      {% for abonnement in abonnements %}
-        <div class="col">
-          <input type="radio" class="btn-check abonnement-radio"
-                name="item"
-                id="abonnement-{{ abonnement.id }}"
-                value="abonnement-{{ abonnement.id }}"
-                data-has-reduit="{{ abonnement.hasTarifReduit ? '1' : '0' }}"
-                required>
-          <label class="btn btn-outline-primary w-100 text-start" for="abonnement-{{ abonnement.id }}">
-            <strong>{{ abonnement.nom }}</strong><br>
-            Du {{ abonnement.saison.dateDebut|date("d/m/Y") }} au {{ abonnement.saison.dateFin|date("d/m/Y") }}<br>
-            Tarif normal : {{ abonnement.tarif }} €{% if abonnement.hasTarifReduit %}, réduit : {{ abonnement.tarifReduit }} €{% endif %}
-          </label>
-        </div>
-      {% endfor %}
-
-      {% for carte in cartes %}
-        <div class="col">
-          <input type="radio" class="btn-check carte-radio"
-                name="item"
-                id="carte-{{ carte.id }}"
-                value="carte-{{ carte.id }}"
-                data-has-reduit="{{ carte.hasTarifReduit ? '1' : '0' }}"
-                required>
-          <label class="btn btn-outline-primary w-100 text-start" for="carte-{{ carte.id }}">
-            <strong>{{ carte.nom }}</strong><br>
-            Tarif normal : {{ carte.tarif }} €{% if carte.hasTarifReduit %}, réduit : {{ carte.tarifReduit }} €{% endif %}
-          </label>
-        </div>
-      {% endfor %}
+		<div class="alert-s4w-info mb-4">
+    ✨ <strong>Un abonnement = accès à plusieurs créneaux :</strong>
+        <ul class="mb-0 mt-2">
+            <li>🎟️ <strong>Abonnement débutant</strong> → cours débutant du <strong>mardi</strong> (Kaleidoscoop) <strong>et</strong> cours débutant du <strong>mercredi</strong> (Saint-Joseph)</li>
+            <li>🎟️ <strong>Abonnement intermédiaire</strong> → cours débutant <strong>et</strong> intermédiaire du <strong>mardi</strong>, <strong>et</strong> cours débutant du <strong>mercredi</strong> — idéal pour rattraper ou consolider vos bases</li>
+        </ul>
     </div>
 
-    <!-- Tarif réduit -->
-    <div id="tarif-container" class="d-none">
-      <h2 class="h5 mb-3">Choisissez votre tarif :</h2>
-      <div class="d-flex gap-3 mb-4">
-        <div>
-          <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
-          <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
-        </div>
-        <div>
-          <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
-          <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
-        </div>
-      </div>
-    </div>
+		<p>
+			<strong>Les débutants sont bienvenus en cours d'année</strong>, mais il faut bien être conscient qu'ils auront
+			du retard par rapport aux participants arrivés dès septembre. Il faudra donc s'armer de motivation pour
+			rattraper ce qui a été vu au début de la saison.
+		</p>
 
-    <!-- Justificatif info -->
-    <div class="alert alert-warning d-none" id="justificatif-wrapper">
-      ⚠️ Vous avez choisi le tarif réduit : <strong>un justificatif vous sera demandé lors de votre première séance</strong>. Merci de le prévoir.
-    </div>
+		<p>
+			En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> : comme toutes les
+			associations du réseau <strong>4Water</strong>, nous reversons <strong>l'intégralité de nos bénéfices</strong>
+			(une fois nos frais couverts) à <strong>WaterAid</strong>, pour l'accès à l'eau potable dans les zones en difficulté. ❤️
+		</p>
 
-    <!-- Alerte adhésion -->
-    <div class="alert alert-info mt-4">
-      ⚠️ <strong>L'adhésion annuelle est obligatoire</strong> pour toute souscription.
-      Elle est automatiquement ajoutée au panier si vous n'êtes pas encore adhérent(e).
-      <br><br>
-      <strong>Si vous n'êtes pas connecté(e)</strong> : vous serez invité à vous connecter ou créer un compte.
-    </div>
+		<p class="mt-4">
+			Pour toute question ou information complémentaire, <a href="{{ path('contact') }}">contactez-nous</a> ou suivez-nous sur nos réseaux sociaux.
+		</p>
+	</div>
 
-    <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
-  </form>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const radiosAbonnement = document.querySelectorAll('.abonnement-radio, .carte-radio');
-    const tarifContainer = document.getElementById('tarif-container');
-    const justificatifWrapper = document.getElementById('justificatif-wrapper');
-    const radiosTarif = document.querySelectorAll('input[name="tarif"]');
-
-    radiosAbonnement.forEach(radio => {
-      radio.addEventListener('change', () => {
-        const hasReduit = radio.dataset.hasReduit === '1';
-
-        if (hasReduit) {
-          tarifContainer.classList.remove('d-none');
-          radiosTarif.forEach(r => r.required = true);
-          document.getElementById('tarif_normal').checked = true;
-          justificatifWrapper.classList.add('d-none');
-        } else {
-          tarifContainer.classList.add('d-none');
-          justificatifWrapper.classList.add('d-none');
-          radiosTarif.forEach(t => {
-            t.checked = false;
-            t.required = false;
-          });
-        }
-      });
-    });
-
-    radiosTarif.forEach(radio => {
-      radio.addEventListener('change', () => {
-        if (radio.value === 'reduit') {
-          justificatifWrapper.classList.remove('d-none');
-        } else {
-          justificatifWrapper.classList.add('d-none');
-        }
-      });
-    });
-  });
-</script>
-{% endif %}
 </section>
-
 {% endblock %}

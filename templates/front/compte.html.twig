@@ -3,125 +3,142 @@
 {% block title %}Mon compte{% endblock %}
 
 {% block body %}
-<div class="container mt-5" style="max-width: 800px;">
-    <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes informations personnelles</h2>
+<div class="container mt-5" style="max-width: 1000px;">
 
-            {{ form_start(userForm) }}
-                {{ form_row(userForm.email) }}
-                {{ form_row(userForm.prenom) }}
-                {{ form_row(userForm.nom) }}
-                <div class="d-grid mt-3">
-                    <button type="submit" class="btn btn-success btn-lg rounded-pill">Mettre à jour</button>
-                </div>
-            {{ form_end(userForm) }}
-        </div>
-    </div>
+	<div class="row g-4">
+		{# ===== Menu latéral ===== #}
+		<div class="col-md-4 col-lg-3">
+			<div class="card border-0 shadow-sm" style="border-radius: 10px; overflow: hidden;">
+				<div class="list-group list-group-flush">
+					<a href="#dashboard" class="list-group-item fw-bold" style="border-left: 4px solid var(--s4w-bleu); background: var(--s4w-bleu-bg); color: var(--s4w-bleu);">📍 Tableau de bord</a>
+					<a href="#abonnements" class="list-group-item text-muted">💳 Mes abonnements &amp; cartes</a>
+					<a href="#dons" class="list-group-item text-muted">🧾 Mes dons &amp; reçus fiscaux</a>
+					<a href="#infos" class="list-group-item text-muted">⚙️ Mes informations</a>
+				</div>
+			</div>
+		</div>
 
-    <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes dons</h2>
+		<div class="col-md-8 col-lg-9">
 
-            {% if donations is empty %}
-                <p class="text-muted text-center">Aucun don enregistré pour le moment.</p>
-            {% else %}
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Montant</th>
-                            <th>Date</th>
-                            <th>Reçu fiscal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for don in donations %}
-                            <tr>
-                                <td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
-                                <td>{{ don.createdAt|date('d/m/Y') }}</td>
-                                <td>
-                                    {% if don.numeroOrdreRF %}
-                                        <a href="{{ path('displayRF', {id: don.id}) }}" target="_blank">Télécharger</a>
-                                    {% elseif don.wantsRecuFiscal %}
-                                        <em>En attente (vérifiez vos mails)</em>
-                                    {% else %}
-                                        <em>Non demandé</em>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
+			{# ===== Dashboard / statut ===== #}
+			<div id="dashboard" class="card border-0 shadow-sm mb-4" style="border-radius: 10px;">
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+						<h2 class="h5 mb-0">Tableau de bord — saison {{ saisonEnCours }}</h2>
+						{% if isAdherent %}
+							<span class="badge rounded-pill" style="background:#e7f7ee;color:#1e9e58;border:1px solid #bfe8cf;">✅ Adhérent à jour</span>
+						{% else %}
+							<span class="badge rounded-pill" style="background:#fdeeee;color:#c0392b;border:1px solid #f5c6c6;">❌ Pas encore adhérent</span>
+						{% endif %}
+					</div>
 
-    <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mon statut</h2>
-            <p class="text-center">
-                {% if isAdherent %}
-                <p class="mb-3">
-                    ✅ Vous êtes adhérent de l'association pour la saison
-                    <strong>{{ saisonEnCours }}</strong>.
-                </p>                    
-                <a  href="{{ asset('cartesMembre/' ~ app.user.id ~ '.pdf') }}"
-                    target="_blank"
-                    download="carte-de-membre-{{ app.user.nom }}-{{ app.user.prenom }}.pdf"
-                    class="btn btn-primary">
-                    <i class="bi bi-download"></i>
-                    Télécharger ma carte de membre
-                </a>
-                {% else %}
-                    ❌ Vous n'êtes pas encore adhérent de l'association.
-                {% endif %}
-            </p>
-        </div>
-    </div>
+					{% if isAdherent %}
+						<p class="text-muted small mb-3">Votre accès aux cours et aux sorties rando est actif.</p>
+						<a href="{{ asset('cartesMembre/' ~ app.user.id ~ '.pdf') }}"
+							target="_blank"
+							download="carte-de-membre-{{ app.user.nom }}-{{ app.user.prenom }}.pdf"
+							class="btn btn-primary rounded-pill">
+							<i class="bi bi-download me-1"></i> Télécharger ma carte de membre
+						</a>
+					{% else %}
+						<p class="text-muted small mb-3">L'adhésion annuelle (10 €) est requise pour les cours, cartes et sorties rando.</p>
+						<a href="{{ path('adhesion') }}" class="btn btn-sinscrire rounded-pill">Adhérer maintenant →</a>
+					{% endif %}
+				</div>
+			</div>
 
-    <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes abonnements actifs</h2>
-            {% if abonnements is empty %}
-                <p class="text-muted text-center">Aucun abonnement pour le moment.</p>
-            {% else %}
-                <table class="table table-striped">
-                    <tbody>
-                        {% for abonnement in abonnements %}
-                            <tr>
-                                <td>{{ abonnement.abonnement.nom }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
+			{# ===== Abonnements & cartes côte à côte ===== #}
+			<div class="row g-3 mb-4" id="abonnements">
+				<div class="col-md-6">
+					<div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
+						<div class="card-body">
+							<h2 class="h6 mb-3">Mes abonnements actifs</h2>
+							{% if abonnements is empty %}
+								<p class="text-muted small mb-2">Aucun abonnement pour le moment.</p>
+								<a href="{{ path('home') }}#activites" class="btn btn-outline-s4w btn-sm rounded-pill">S'inscrire à un cours</a>
+							{% else %}
+								{% for abonnement in abonnements %}
+									<p class="mb-1">💃 <strong>{{ abonnement.abonnement.nom }}</strong></p>
+								{% endfor %}
+							{% endif %}
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
+						<div class="card-body">
+							<h2 class="h6 mb-3">Mes cartes actives</h2>
+							{% if cartes is empty %}
+								<p class="text-muted small mb-0">Aucune carte pour le moment.</p>
+							{% else %}
+								{% for carte in cartes %}
+									{% set total = carte.carte.nbSeances ?? 10 %}
+									{% set pct = total > 0 ? (carte.seancesRestantes / total * 100) : 0 %}
+									<p class="mb-2 small">
+										🎟️ <strong>{{ carte.carte.nom }}</strong> — {{ carte.seancesRestantes }} séance(s) restante(s)
+									</p>
+									<div class="progress mb-3" style="height: 10px; background: var(--s4w-bleu-bg);">
+										<div class="progress-bar" role="progressbar" style="width: {{ pct }}%; background: var(--s4w-bleu-vif);" aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+									</div>
+								{% endfor %}
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
 
-    <div class="card shadow-lg rounded-4 mb-4">
-        <div class="card-body">
-            <h2 class="mb-4 text-center">Mes cartes actives</h2>
-            {% if cartes is empty %}
-                <p class="text-muted text-center">Aucune carte pour le moment.</p>
-            {% else %}
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Carte</th>
-                            <th>Seances restantes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for carte in cartes %}
-                            <tr>
-                                <td>{{ carte.carte.nom }}</td>
-                                <td>{{ carte.seancesRestantes }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
+			{# ===== Dons ===== #}
+			<div id="dons" class="card border-0 shadow-sm mb-4" style="border-radius: 10px;">
+				<div class="card-body">
+					<h2 class="h6 mb-3">🧾 Mes dons &amp; reçus fiscaux</h2>
+					{% if donations is empty %}
+						<p class="text-muted small mb-2">Aucun don enregistré pour le moment.</p>
+						<a href="{{ path('donation') }}" class="btn btn-success btn-sm rounded-pill">Faire un don</a>
+					{% else %}
+						<div class="table-responsive">
+							<table class="table table-sm align-middle mb-0">
+								<thead>
+									<tr class="text-muted small">
+										<th>Montant</th><th>Date</th><th>Reçu fiscal</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for don in donations %}
+										<tr>
+											<td>{{ don.montant|number_format(2, ',', ' ') }} €</td>
+											<td>{{ don.createdAt|date('d/m/Y') }}</td>
+											<td>
+												{% if don.numeroOrdreRF %}
+													<a href="{{ path('displayRF', {id: don.id}) }}" target="_blank" class="text-decoration-none">📄 Télécharger</a>
+												{% elseif don.wantsRecuFiscal %}
+													<em class="text-muted small">En attente (vérifiez vos mails)</em>
+												{% else %}
+													<em class="text-muted small">Non demandé</em>
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{# ===== Infos personnelles ===== #}
+			<div id="infos" class="card border-0 shadow-sm" style="border-radius: 10px;">
+				<div class="card-body">
+					<h2 class="h6 mb-3">⚙️ Mes informations personnelles</h2>
+					{{ form_start(userForm) }}
+						{{ form_row(userForm.email) }}
+						{{ form_row(userForm.prenom) }}
+						{{ form_row(userForm.nom) }}
+						<button type="submit" class="btn btn-success rounded-pill">Mettre à jour</button>
+					{{ form_end(userForm) }}
+				</div>
+			</div>
+
+		</div>
+	</div>
 </div>
 {% endblock %}

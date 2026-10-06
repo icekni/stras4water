@@ -1,179 +1,79 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Cours d’espagnol - Stras4Water{% endblock %}
+{% block title %}Cours d'espagnol à Strasbourg | Stras4Water{% endblock %}
+
+{% block meta_description %}
+Cours d'espagnol accessible à tous à Strasbourg avec Stras4Water, niveau A1.
+Jeudis 19h30 à la Maison des Associations, ambiance conviviale et solidaire.
+{% endblock %}
 
 {% block body %}
 <section class="container my-5">
 
-  <h1 class="mb-4 text-center text-info">
-    Cours d’espagnol à Strasbourg
-  </h1>
+	{# ===== Breadcrumb ===== #}
+	<p class="text-muted small mb-3">
+		<a href="{{ path('home') }}" class="text-decoration-none">Accueil</a> /
+		<a href="{{ path('home') }}#activites" class="text-decoration-none">Cours de langue</a> /
+		<strong>Espagnol</strong>
+	</p>
 
-  <div class="border border-info rounded p-3 mb-4 mx-auto" style="max-width: 320px; font-size: 0.9rem; background-color: #e9f5fb;">
-    <strong>Niveau requis : A1</strong><br>
-    (Débutants / Faux débutants)<br><br>
-    Exemples d’aptitudes à ce niveau :<br>
-    • Savoir dire « Je m’appelle... »<br>
-    • Comprendre et utiliser des mots simples<br>
-    • Se présenter et parler de soi simplement
-  </div>
+	{# ===== Hero discipline ===== #}
+	<div class="row g-4 align-items-start mb-4">
+		<div class="col-lg-7">
+			<h1 class="mb-2">🇪🇸 Cours d'espagnol à Strasbourg</h1>
+			<p class="text-muted">
+				Apprendre l'espagnol dans un cadre <strong>convivial et bienveillant</strong>, accessible à tous.
+				Premier cours offert, tarifs solidaires.
+			</p>
+			{% if inscription_possible == false %}
+				<a href="https://www.helloasso.com/associations/stras4water" class="btn btn-sinscrire rounded-pill">
+					→ S'inscrire ou s'abonner maintenant
+				</a>
+			{% endif %}
+		</div>
+		<div class="col-lg-5">
+			<div class="infobox-s4w">
+				<div>🎓 <strong>Niveau requis : A1</strong> (débutants / faux débutants) — savoir se présenter, comprendre et utiliser des mots simples</div>
+				<div>📅 <strong>Jeudis 19h30–20h30</strong> · du 10 sept. à fin juin (hors vacances scolaires) {# ⚠️ mettre à jour les dates de saison #}</div>
+				<div>📍 <strong>Maison des Associations</strong>, 1a place des Orphelins, Strasbourg</div>
+				<div>🎁 <strong>Premier cours offert</strong> pour toute nouvelle personne</div>
+			</div>
+		</div>
+	</div>
 
-  {% if inscription_possible == false %}
-  <div class="text-center mb-4">
-    <a href="https://www.helloasso.com/associations/stras4water" class="btn btn-outline-info">→ S'inscrire ou s'abonner maintenant</a>
-  </div>
-  {% elseif (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <div class="text-center mb-4">
-    <a href="#inscription" class="btn btn-outline-info">→ Inscription et abonnements</a>
-  </div>
-  {% endif %}
+	{# ===== Tunnel d'inscription ===== #}
+	{% if inscription_possible and ((abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0)) %}
+		{{ include('front/discipline/_inscription.html.twig') }}
+	{% endif %}
 
-  <!-- Description -->
-  <div class="mb-5">
-    <p>
-      Apprendre <strong>l’espagnol</strong> est un atout aujourd’hui, que ce soit pour la vie quotidienne, professionnelle ou associative.
-      Stras4Water propose des <strong>cours de langue accessibles à tous</strong>, dans un cadre convivial et bienveillant.
-    </p>
+	{# ===== Contenu éditorial ===== #}
+	<div class="mt-5">
+		<div class="text-center my-4">
+			<img src="{{ asset('img/espagnol-cours.webp') }}" alt="Cours d'espagnol Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+		</div>
 
-    <div class="text-center my-4">
-      <img src="{{ asset('img/espagnol-cours.webp') }}" alt="Cours d’espagnol Stras4Water" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
-    </div>
+		<p>
+			Apprendre <strong>l'espagnol</strong> est un atout aujourd'hui, que ce soit pour la vie quotidienne,
+			professionnelle ou associative. L'objectif est de pratiquer la langue dans une ambiance conviviale et
+			participative, sans pression ni jugement : le contenu est adapté au niveau du groupe et centré sur des
+			situations pratiques.
+		</p>
 
-    <ul class="list-unstyled">
-      <li>📅 <strong>Quand ?</strong> Tous les <strong>jeudis de 19h30 à 20h30</strong>, du <strong>10 septembre 2025</strong> à <strong>fin juin 2026</strong> (hors vacances scolaires).</li>
-      <li>📍 <strong>Où ?</strong> <em>Maison des Associations de Strasbourg, 1a place des Orphelins, 67000 Strasbourg</em>.</li>
-      <li>🕖 <strong>Accueil & inscriptions sur place ou en ligne <a href="#inscription" >ici</a></strong>.</li>
-      <li>🎁 <strong>Premier cours offert</strong> pour toutes les nouvelles personnes souhaitant découvrir l'activité !</li>
-    </ul>
+		<p>
+			Comme pour toutes nos activités, les cours sont proposés à des <strong>tarifs très accessibles</strong>,
+			avec une <strong>réduction de 50 % pour les personnes en situation de précarité</strong>.
+		</p>
 
-    <p>
-      En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> qui agit pour l’accès à l’eau propre dans les zones en difficulté. ❤️
-    </p>
+		<p>
+			En vous inscrivant, vous soutenez également notre <strong>association Stras4Water</strong> : comme toutes les
+			associations du réseau <strong>4Water</strong>, nous reversons <strong>l'intégralité de nos bénéfices</strong>
+			(une fois nos frais couverts) à <strong>WaterAid</strong>, pour l'accès à l'eau potable dans les zones en difficulté. ❤️
+		</p>
 
-    <p>
-      L’objectif est de pratiquer la langue dans une ambiance conviviale et participative, sans pression ni jugement. Le contenu est adapté au niveau du groupe et centré sur des situations pratiques.
-    </p>
-
-    <p>
-      Comme pour toutes nos activités, les cours sont proposés à des <strong>tarifs très accessibles</strong>, avec une <strong>réduction de 50 % pour les personnes en situation de précarité</strong>.
-    </p>
-
-    <p>
-      Pour toute question, n’hésitez pas à <a href="{{ path('contact') }}">nous contacter</a> ou à nous suivre sur les réseaux sociaux pour rester informé·e de nos activités.
-    </p>
-  </div>
-
-  <!-- Types d’abonnement -->
-  {% if (abonnements is defined and abonnements|length > 0) or (cartes is defined and cartes|length > 0) %}
-  <h3 id="inscription" class="h5 mb-3">Choisissez votre type d’abonnement :</h3>
-
-  <form method="post" action="{{ path('cart_add_item') }}" enctype="multipart/form-data">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
-      {% for abonnement in abonnements %}
-        <div class="col">
-          <input type="radio" class="btn-check abonnement-radio"
-                name="item"
-                id="abonnement-{{ abonnement.id }}"
-                value="abonnement-{{ abonnement.id }}"
-                data-has-reduit="{{ abonnement.hasTarifReduit ? '1' : '0' }}"
-                required>
-          <label class="btn btn-outline-primary w-100 text-start" for="abonnement-{{ abonnement.id }}">
-            <strong>{{ abonnement.nom }}</strong><br>
-            Du {{ abonnement.saison.dateDebut|date("d-m-Y") }} au {{ abonnement.saison.dateFin|date("d-m-Y") }}<br>
-            Tarif normal : {{ abonnement.tarif }} €{% if abonnement.hasTarifReduit %}, réduit : {{ abonnement.tarifReduit }} €{% endif %}
-          </label>
-        </div>
-      {% endfor %}
-
-      {% for carte in cartes %}
-        <div class="col">
-          <input type="radio" class="btn-check carte-radio"
-                name="item"
-                id="carte-{{ carte.id }}"
-                value="carte-{{ carte.id }}"
-                data-has-reduit="{{ carte.hasTarifReduit ? '1' : '0' }}"
-                required>
-          <label class="btn btn-outline-primary w-100 text-start" for="carte-{{ carte.id }}">
-            <strong>{{ carte.nom }}</strong><br>
-            Tarif normal : {{ carte.tarif }} €{% if carte.hasTarifReduit %}, réduit : {{ carte.tarifReduit }} €{% endif %}
-          </label>
-        </div>
-      {% endfor %}
-    </div>
-
-    <!-- Tarif réduit -->
-    <div id="tarif-container" class="d-none">
-      <h3 class="h5 mb-3">Choisissez votre tarif :</h3>
-      <div class="d-flex gap-3 mb-4">
-        <div>
-          <input type="radio" class="btn-check" name="tarif" id="tarif_normal" value="normal" required>
-          <label class="btn btn-outline-secondary" for="tarif_normal">Tarif normal</label>
-        </div>
-        <div>
-          <input type="radio" class="btn-check" name="tarif" id="tarif_reduit" value="reduit">
-          <label class="btn btn-outline-secondary" for="tarif_reduit">Tarif réduit</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Justificatif -->
-    <div class="alert alert-warning d-none" id="justificatif-wrapper">
-      ⚠️ Vous avez choisi le tarif réduit : <strong>vous devrez présenter un justificatif lors de votre première séance</strong>. Merci de le préparer.
-    </div>
-
-    <!-- Alerte adhésion -->
-    <div class="alert alert-info mt-4">
-      ⚠️ <strong>L’adhésion annuelle est obligatoire</strong> pour toute inscription.
-      Elle est ajoutée automatiquement au panier si vous n’êtes pas encore adhérent·e.
-      <br><br>
-      <strong>Si vous n’êtes pas connecté·e</strong>, vous serez invité·e à vous connecter ou créer un compte.
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">S’inscrire</button>
-  </form>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const radiosAbonnement = document.querySelectorAll('.abonnement-radio, .carte-radio');
-    const tarifContainer = document.getElementById('tarif-container');
-    const justificatifWrapper = document.getElementById('justificatif-wrapper');
-    const radiosTarif = document.querySelectorAll('input[name="tarif"]');
-
-    radiosAbonnement.forEach(radio => {
-      radio.addEventListener('change', () => {
-        const hasReduit = radio.dataset.hasReduit === '1';
-
-        if (hasReduit) {
-          tarifContainer.classList.remove('d-none');
-          radiosTarif.forEach(r => r.required = true);
-          const tarifNormalRadio = document.getElementById('tarif_normal');
-          if (tarifNormalRadio) {
-            tarifNormalRadio.checked = true;
-          }
-          justificatifWrapper.classList.add('d-none');
-        } else {
-          tarifContainer.classList.add('d-none');
-          justificatifWrapper.classList.add('d-none');
-          radiosTarif.forEach(t => {
-            t.checked = false;
-            t.required = false;
-          });
-        }
-      });
-    });
-
-    radiosTarif.forEach(radio => {
-      radio.addEventListener('change', () => {
-        if (radio.value === 'reduit') {
-          justificatifWrapper.classList.remove('d-none');
-        } else {
-          justificatifWrapper.classList.add('d-none');
-        }
-      });
-    });
-  });
-</script>
-  {% endif %}
+		<p class="mt-4">
+			Pour toute question, n'hésitez pas à <a href="{{ path('contact') }}">nous contacter</a> ou à suivre nos réseaux sociaux.
+		</p>
+	</div>
 
 </section>
 {% endblock %}
