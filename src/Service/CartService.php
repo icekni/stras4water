@@ -287,4 +287,47 @@ class CartService
         return false;
     }
 
+    public function getCount(): int
+    {
+        $cart = $this->getCart();
+
+        $count = count($cart['abonnements']) + count($cart['cartes']);
+
+        if (!empty($cart['adhesion'])) {
+            $count++;
+        }
+
+        return $count;
+    }
+
+        /**
+     * Réévalue la ligne adhésion après un changement d'état de connexion.
+     * À appeler au login (listener) : si l'utilisateur est déjà adhérent,
+     * on retire l'adhésion du panier — il ne doit pas la repayée.
+     */
+    public function refreshAdhesion(): void
+    {
+        $user = $this->security->getUser();
+
+        if (!($user instanceof User)) {
+            return; // pas connecté : on ne touche à rien
+        }
+
+        $cart = $this->session->get('cart', []);
+        if ($cart === []) {
+            return;
+        }
+
+        if ($user->getAdhesion() !== null) {
+            // Déjà adhérent → plus de ligne adhésion
+            $cart['adhesion'] = false;
+        } elseif (!empty($cart['abonnements']) || !empty($cart['cartes'])) {
+            // Non adhérent mais articles → adhésion obligatoire
+            $cart['adhesion'] = true;
+        }
+        // cas non adhérent + panier sans article : on laisse l'état tel quel
+        // (l'adhésion seule peut être volontaire, cf. randonneurs)
+
+        $this->session->set('cart', $cart);
+    }
 }

@@ -32,6 +32,12 @@ final class FrontController extends AbstractController
         return $this->render('front/rando.html.twig', []);
     }
 
+    #[Route('/planning', name: 'planning')]
+    public function planning(): Response
+    {
+        return $this->render('front/static/planning.html.twig');
+    }
+
     #[Route('/adhesion/ajouter', name: 'cart_add_adhesion', methods: ['POST'])]
     public function addAdhesion(
         CartService $cartService

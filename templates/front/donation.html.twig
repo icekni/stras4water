@@ -1,196 +1,95 @@
 {% extends 'base/base.html.twig' %}
 
-{% block title %}Faire un don
-{% endblock %}
-
-{% block style %}
-	<style>
-		.HaPay {
-			width: fit-content;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			-webkit-box-pack: center;
-			-ms-flex-pack: center;
-		}
-
-		.HaPay * {
-			font-family: "Open Sans", "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
-			transition: all 0.3s ease-out;
-		}
-
-		.HaPayButton {
-			align-items: stretch;
-			-webkit-box-pack: stretch;
-			-ms-flex-pack: stretch;
-			background: none;
-			border: none;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			padding: 0;
-			border-radius: 8px;
-		}
-
-		.HaPayButton:hover {
-			cursor: pointer;
-		}
-
-		.HaPayButton:not(:disabled):focus {
-			box-shadow: 0 0 0 0.25rem rgba(73, 211, 138, 0.25);
-			-webkit-box-shadow: 0 0 0 0.25rem rgba(73, 211, 138, 0.25);
-		}
-
-		.HaPayButton:not(:disabled):hover .HaPayButtonLabel,
-		.HaPayButton:not(:disabled):focus .HaPayButtonLabel {
-			background-color: #483dbe;
-		}
-
-		.HaPayButton:not(:disabled):hover .HaPayButtonLogo,
-		.HaPayButton:not(:disabled):focus .HaPayButtonLogo,
-		.HaPayButton:not(:disabled):hover .HaPayButtonLabel,
-		.HaPayButton:not(:disabled):focus .HaPayButtonLabel {
-			border: 1px solid #483dbe;
-		}
-
-		.HaPayButton:disabled {
-			cursor: not-allowed;
-		}
-
-		.HaPayButton:disabled .HaPayButtonLogo,
-		.HaPayButton:disabled .HaPayButtonLabel {
-			border: 1px solid #d1d6de;
-		}
-
-		.HaPayButtonLogo {
-			background-color: #ffffff;
-			border: 1px solid #4c40cf;
-			border-top-left-radius: 8px;
-			border-bottom-left-radius: 8px;
-			padding: 10px;
-			width: 50px;
-		}
-
-		.HaPayButtonLabel {
-			align-items: center;
-			-webkit-box-pack: center;
-			-ms-flex-pack: center;
-			justify-content: space-between;
-			column-gap: 5px;
-			background-color: #4c40cf;
-			border: 1px solid #4c40cf;
-			border-top-right-radius: 8px;
-			border-bottom-right-radius: 8px;
-			color: #ffffff;
-			font-size: 16px;
-			font-weight: 800;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			padding: 0 16px;
-		}
-
-		.HaPayButton:disabled .HaPayButtonLabel {
-			background-color: #d1d6de;
-			color: #505870;
-		}
-
-		.HaPaySecured {
-			align-items: center;
-			-webkit-box-pack: center;
-			-ms-flex-pack: center;
-			justify-content: space-between;
-			display: -webkit-box;
-			display: -ms-flexbox;
-			display: flex;
-			column-gap: 5px;
-			padding: 8px 16px;
-			font-size: 12px;
-			font-weight: 600;
-			color: #2e2f5e;
-		}
-
-		.HaPay svg {
-			fill: currentColor;
-		}
-	</style>
-{% endblock %}
+{% block title %}Faire un don | Stras4Water{% endblock %}
 
 {% block body %}
 <div class="container mt-5 d-flex justify-content-center">
-    <div class="col-md-6">
-        <h1 class="mb-4 text-center">Faire un don</h1>
+	<div class="col-md-6">
+		<h1 class="mb-2 text-center">Faire un don 💧</h1>
+		<p class="text-muted text-center mb-4">
+			100 % des bénéfices de nos activités financent l'accès à l'eau via WaterAid.
+			Votre don s'y ajoute intégralement.
+		</p>
 
-        <div class="card shadow p-4">
-            {{ form_start(form) }}
+		<div class="card border-0 shadow-sm p-4" style="border-radius: 10px;">
+			{{ form_start(form) }}
 
-                <div class="mb-3">
-                    {{ form_label(form.montant) }}
-                    {{ form_widget(form.montant, {'attr': {'id': 'montantDon', 'class': 'form-control'}}) }}
-                    {{ form_errors(form.montant) }}
-                </div>
+				<div class="mb-3">
+					{{ form_label(form.montant) }}
+					{{ form_widget(form.montant, {'attr': {'id': 'montantDon', 'class': 'form-control'}}) }}
+					{{ form_errors(form.montant) }}
+				</div>
 
-                <div id="donInfo" class="alert alert-info d-none mt-2">
-                    <div><strong>Montant donné :</strong> <span id="donMontant">0</span> €</div>
-                    <div><strong>Déduction fiscale (66%) :</strong> <span id="reduction">0</span> €</div>
-                    <div><strong>Coût réel après déduction :</strong> <span id="montantReel">0</span> €</div>
-					<div><small>(Si vous cochez l'option "Je souhaite un reçu fiscal")</small></div>
-                </div>
+				<div id="donInfo" class="recap-s4w d-none mt-2 mb-3">
+					<table>
+						<tr>
+							<td>Montant donné</td>
+							<td><span id="donMontant">0</span> €</td>
+						</tr>
+						<tr>
+							<td>Déduction fiscale (66 %)</td>
+							<td><span id="reduction">0</span> €</td>
+						</tr>
+						<tr class="total">
+							<td>Coût réel après déduction</td>
+							<td><span id="montantReel">0</span> €</td>
+						</tr>
+					</table>
+					<p class="fiscal-note mb-0">💚 <small>(Si vous cochez l'option « Je souhaite un reçu fiscal »)</small></p>
+				</div>
 
-                <div class="mb-3">
-                    {{ form_row(form.wantsRecuFiscal) }}
-                </div>
+				<div class="mb-3">
+					{{ form_row(form.wantsRecuFiscal) }}
+				</div>
 
-                <div id="emailField" style="display: none;">
-                    {{ form_row(form.email) }}
-                </div>
+				<div id="emailField" style="display: none;">
+					{{ form_row(form.email) }}
+				</div>
 
-                <button class="btn btn-primary w-100 mt-3">Donner</button>
-            {{ form_end(form) }}
-        </div>
-    </div>
+				<button class="btn btn-success btn-lg rounded-pill w-100">Je fais un don</button>
+			{{ form_end(form) }}
+		</div>
+
+		<div class="alert-s4w-info mt-3">
+			🧾 Le reçu fiscal est émis uniquement pour les dons sans contrepartie, conformément à l'article 200 du CGI.
+		</div>
+	</div>
 </div>
 
 <script>
-    // Gestion de l'affichage de l'email selon la case à cocher "reçu fiscal"
-    const checkboxRecu = document.getElementById('donation_wantsRecuFiscal');
-    const emailField = document.getElementById('emailField');
+	// Affichage de l'email selon la case "reçu fiscal"
+	const checkboxRecu = document.getElementById('donation_wantsRecuFiscal');
+	const emailField = document.getElementById('emailField');
 
-    checkboxRecu.addEventListener('change', function () {
-        emailField.style.display = this.checked ? 'block' : 'none';
-    });
+	checkboxRecu.addEventListener('change', function () {
+		emailField.style.display = this.checked ? 'block' : 'none';
+	});
+	if (checkboxRecu.checked) {
+		emailField.style.display = 'block';
+	}
 
-    // Si la page est rechargée avec la case déjà cochée (ex : validation échouée)
-    if (checkboxRecu.checked) {
-        emailField.style.display = 'block';
-    }
+	// Calcul dynamique du coût réel après déduction (dons uniquement)
+	const montantInput = document.getElementById('donation_montant');
+	const donInfo = document.getElementById('donInfo');
+	const donMontant = document.getElementById('donMontant');
+	const reduction = document.getElementById('reduction');
+	const montantReel = document.getElementById('montantReel');
 
-    // Calcul dynamique du montant réel après déduction
-    const montantInput = document.getElementById('donation_montant');
-    const donInfo = document.getElementById('donInfo');
-    const donMontant = document.getElementById('donMontant');
-    const reduction = document.getElementById('reduction');
-    const montantReel = document.getElementById('montantReel');
+	montantInput.addEventListener('input', function () {
+		let valeur = this.value.trim().replace(',', '.');
+		const montant = parseFloat(valeur);
 
-    montantInput.addEventListener('input', function () {
-        let valeur = this.value.trim().replace(',', '.');
-        const montant = parseFloat(valeur);
+		if (!isNaN(montant) && montant > 0) {
+			const reduc = montant * 0.66;
+			const net = montant - reduc;
 
-        if (!isNaN(montant) && montant > 0) {
-            const reduc = montant * 0.66;
-            const net = montant - reduc;
-
-            donMontant.textContent = montant.toFixed(2);
-            reduction.textContent = reduc.toFixed(2);
-            montantReel.textContent = net.toFixed(2);
-            donInfo.classList.remove('d-none');
-        } else {
-            donInfo.classList.add('d-none');
-        }
-    });
+			donMontant.textContent = montant.toFixed(2);
+			reduction.textContent = reduc.toFixed(2);
+			montantReel.textContent = net.toFixed(2);
+			donInfo.classList.remove('d-none');
+		} else {
+			donInfo.classList.add('d-none');
+		}
+	});
 </script>
 {% endblock %}
-
