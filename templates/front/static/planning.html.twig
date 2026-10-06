@@ -2,6 +2,63 @@
 
 {% block title %}Planning des cours | Stras4Water{% endblock %}
 
+{% block style %}
+<style>
+	/* ---------- Créneaux : grille stable (remplace le flex-wrap dispersé) ----------
+	   Desktop : heure (130px) | activité+lieu | niveau | bouton — colonnes alignées
+	   Mobile  : tout s'empile dans l'ordre, bouton pleine largeur                  */
+	.planning-creneau {
+		display: grid;
+		grid-template-columns: 130px 1fr auto auto auto; /* heure | activité | niveau | badge | bouton */
+		align-items: center;
+		gap: .6rem 1rem;
+		padding: .8rem 1.1rem;
+		border: 1px solid #e3e8ea;
+		border-top: none;
+	}
+	.planning-creneau:last-child { border-radius: 0 0 10px 10px; }
+	.planning-creneau .heure { grid-column: 1; font-weight: 800; color: var(--s4w-bleu); }
+	.planning-creneau .date-tbd { grid-column: 1; }
+	.planning-creneau .bloc-activite { grid-column: 2; }
+	.planning-creneau .niveau-pill { grid-column: 3; }
+	.planning-creneau .badge { grid-column: 4; }
+	.planning-creneau .btn { grid-column: 5; white-space: nowrap; }
+
+	/* Activité = titre + lieu empilés, inséparables */
+	.planning-creneau .bloc-activite { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+
+	/* ---------- Mobile ---------- */
+	@media (max-width: 767.98px) {
+		.planning-creneau {
+			grid-template-columns: 1fr;
+			gap: .45rem;
+			padding: .9rem 1rem;
+		}
+		/* en mobile, l'ordre redevient celui du DOM */
+		.planning-creneau .heure,
+		.planning-creneau .date-tbd,
+		.planning-creneau .bloc-activite,
+		.planning-creneau .niveau-pill,
+		.planning-creneau .badge,
+		.planning-creneau .btn { grid-column: 1; }
+		.planning-creneau .btn { width: 100%; }
+		.planning-creneau .niveau-pill,
+		.planning-creneau .badge { justify-self: start; }
+	}
+
+	/* ---------- Date / lieu pas encore annoncés (stages) ---------- */
+	.date-tbd {
+		background: #f4f6f7;
+		color: var(--s4w-gris);
+		border: 1px dashed #c9d2d6;
+		border-radius: 6px;
+		padding: 2px 10px;
+		font-weight: 700;
+		font-size: .8rem;
+	}
+</style>
+{% endblock %}
+
 {% block body %}
 <section class="container my-5">
 	<h1 class="mb-2">📅 Planning des cours &amp; activités</h1>
@@ -27,61 +84,73 @@
 		{h: '19h00–Minuit', d: '🎉 Soirée dansante', l: 'Kaleidoscoop, 5 rue de la Coopérative', n: 'Ouverte à tous', freq: '2eme vendredi du mois'},
 	] %}
 
+	{# ---------- Macro unique : rend un créneau, quelle que soit la section ---------- #}
+	{% macro creneau(c, bouton, badge = null) %}
+		<div class="planning-creneau">
+			{% if c.h %}
+				<span class="heure">{{ c.h }}</span>
+			{% else %}
+				<span class="date-tbd">🗓️ Date à venir</span>
+			{% endif %}
+			<span class="bloc-activite">
+				<span class="activite">{{ c.d }}</span>
+				{% if c.l %}
+					<span class="lieu">📍 {{ c.l }}</span>
+				{% endif %}
+			</span>
+			{% if c.n %}
+				<span class="niveau-pill">{{ c.n }}</span>
+			{% endif %}
+			{% if badge %}{{ badge | raw }}{% endif %}
+			{% if bouton %}{{ bouton | raw }}{% endif %}
+		</div>
+	{% endmacro %}
+	{% import _self as macros %}
+
 	{% for jour, creneaux in planning %}
 		<div class="mb-4">
 			<div class="planning-day-head">{{ jour }}</div>
 			{% for c in creneaux %}
-				<div class="planning-creneau">
-					<span class="heure">{{ c.h }}</span>
-					<span class="fw-bold">{{ c.d }}</span>
-					<span class="lieu">📍 {{ c.l }}</span>
-					<span class="niveau-pill">{{ c.n }}</span>
-					<a href="{{ c.url }}#inscription" class="btn btn-outline-s4w btn-sm rounded-pill">S'inscrire</a>
-				</div>
+				{{ macros.creneau(
+					c,
+					'<a href="' ~ c.url ~ '#inscription" class="btn btn-outline-s4w btn-sm rounded-pill">S\'inscrire</a>'
+				) }}
 			{% endfor %}
 		</div>
 	{% endfor %}
 
 	{# ===== Soirées mensuelles ===== #}
 	<div class="mb-4">
-		<div class="planning-day-head" style="background: var(--s4w-rouge);">Vendredi — 1× par mois 🎉</div>
+		<div class="planning-day-head" style="background: var(--s4w-rouge);">Vendredi — 1x par mois 🎉</div>
 		{% for m in mensuels %}
-			<div class="planning-creneau">
-				<span class="heure">{{ m.h }}</span>
-				<span class="fw-bold">{{ m.d }}</span>
-				<span class="lieu">📍 {{ m.l }}</span>
-				<span class="niveau-pill">{{ m.freq }}</span>
-				<span class="badge rounded-pill" style="background:#fdecec;color:var(--s4w-rouge);border:1px solid #f6c7cb;">
-					{{ m.n }}
-				</span>
-			</div>
+			{{ macros.creneau(
+				m,
+				'',
+				'<span class="badge rounded-pill" style="background:#fdecec;color:var(--s4w-rouge);border:1px solid #f6c7cb;">' ~ m.freq ~ '</span>'
+			) }}
 		{% endfor %}
 	</div>
 
+	{# ===== Ponctuel : stages & sorties =====
+	   Les stages n'ont pas encore de date/lieu : h et l vides
+	   → badge "Date à venir" et pas de ligne lieu, au lieu de cases vides. #}
 	<div class="mt-4">
 		<div class="planning-day-head ponctuel">Ponctuel 🎟️ — stages &amp; sorties</div>
-        
-		<div class="planning-creneau">
-			<span class="heure"></span>
-			<span class="fw-bold">🌀 Stage salsa</span>
-			<span class="lieu"></span>
-			<span class=""></span>
-			<a href="{{ path('salsa') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
-		</div>
-		<div class="planning-creneau">
-			<span class="heure"></span>
-			<span class="fw-bold">🌀 Stage kizomba</span>
-			<span class="lieu"></span>
-			<span class=""></span>
-			<a href="{{ path('kizomba') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
-		</div>
-		<div class="planning-creneau">
-			<span class="heure">Dimanches</span>
-			<span class="fw-bold">🥾 Randonnées</span>
-			<span class="lieu">📍 selon la randonnée</span>
-			<span class="niveau-pill">Réservés aux adhérents</span>
-			<a href="{{ path('rando') }}" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>
-		</div>
+
+		{{ macros.creneau(
+			{h: null, d: '🌀 Stage salsa', l: null, n: null},
+			'<a href="' ~ path('salsa') ~ '" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>'
+		) }}
+
+		{{ macros.creneau(
+			{h: null, d: '🌀 Stage kizomba', l: null, n: null},
+			'<a href="' ~ path('kizomba') ~ '" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>'
+		) }}
+
+		{{ macros.creneau(
+			{h: 'Dimanches', d: '🥾 Randonnées', l: 'selon la randonnée', n: 'Réservés aux adhérents'},
+			'<a href="' ~ path('rando') ~ '" class="btn btn-outline-s4w btn-sm rounded-pill">En savoir plus</a>'
+		) }}
 	</div>
 
 	<div class="alert-s4w-info mt-4">
