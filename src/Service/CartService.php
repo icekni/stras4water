@@ -4,32 +4,33 @@ namespace App\Service;
 
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Entity\Abonnement;
 use App\Entity\Carte;
 use App\Entity\User;
 use App\Dto\CartAddResult;
 use App\Entity\Discipline;
 use App\Entity\Saison;
-use App\Enum\CartResult;
 use App\Repository\AbonnementRepository;
 use App\Repository\CarteRepository;
 
 class CartService
 {
-    private $session;
-    private $security;
-    private $abonnementRepository;
-    private $carteRepository;
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly Security $security,
+        private readonly AbonnementRepository $abonnementRepository,
+        private readonly CarteRepository $carteRepository,
+    ) {
+    }
 
-    public function __construct(RequestStack $requestStack, 
-                                Security $security,
-                                AbonnementRepository $abonnementRepository,
-                                CarteRepository $carteRepository)
+    /**
+     * Session récupérée à l'usage, jamais au constructeur :
+     * évite "There is currently no session available" au cache:clear/warmup.
+     */
+    private function getSession(): SessionInterface
     {
-        $this->session  = $requestStack->getSession();
-        $this->security = $security;
-        $this->abonnementRepository = $abonnementRepository;
-        $this->carteRepository = $carteRepository;
+        return $this->requestStack->getSession();
     }
 
     /**
@@ -37,7 +38,7 @@ class CartService
      */
     public function getCart(): array
     {
-        return $this->session->get('cart', [
+        return $this->getSession()->get('cart', [
             'abonnements' => [],
             'cartes'      => [],
             'adhesion'    => null, // null = pas dans panier, array = présente
@@ -85,7 +86,7 @@ class CartService
         ];
 
         $this->checkAdhesion($cart);
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
 
         return new CartAddResult(true, 'Abonnement ajouté au panier.');
     }
@@ -134,7 +135,7 @@ class CartService
         ];
 
         $this->checkAdhesion($cart);
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
 
         return new CartAddResult(true, 'Carte ajoutée au panier.');
     }
@@ -179,7 +180,7 @@ class CartService
 
         $cart['adhesion'] = true;
 
-        $this->session->set('cart', $cart);
+        $this->getSession()->set('cart', $cart);
 
         return new CartAddResult(
             true,
@@ -189,12 +190,13 @@ class CartService
 
     public function clear(): void
     {
-        $this->session->remove('cart');
+        $this->getSession()->remove('cart');
     }
 
     public function removeItem(string $type, int $id): void
     {
-        $cart = $this->session->get('cart', []);
+        $session = $this->getSession();
+        $cart = $session->get('cart', []);
 
         if ($type === 'abonnement' && isset($cart['abonnements'])) {
             $cart['abonnements'] = array_values(array_filter($cart['abonnements'], fn($item) => $item['id'] != $id));
@@ -208,7 +210,7 @@ class CartService
             unset($cart['adhesion']);
         }
 
-        $this->session->set('cart', $cart);
+        $session->set('cart', $cart);
     }
 
     private function isUserDejaAbonne(User $user, Discipline $discipline, Saison $saison): bool
@@ -300,7 +302,7 @@ class CartService
         return $count;
     }
 
-        /**
+    /**
      * Réévalue la ligne adhésion après un changement d'état de connexion.
      * À appeler au login (listener) : si l'utilisateur est déjà adhérent,
      * on retire l'adhésion du panier — il ne doit pas la repayée.
@@ -313,7 +315,8 @@ class CartService
             return; // pas connecté : on ne touche à rien
         }
 
-        $cart = $this->session->get('cart', []);
+        $session = $this->getSession();
+        $cart = $session->get('cart', []);
         if ($cart === []) {
             return;
         }
@@ -328,6 +331,6 @@ class CartService
         // cas non adhérent + panier sans article : on laisse l'état tel quel
         // (l'adhésion seule peut être volontaire, cf. randonneurs)
 
-        $this->session->set('cart', $cart);
+        $session->set('cart', $cart);
     }
 }
