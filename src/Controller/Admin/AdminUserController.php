@@ -241,16 +241,22 @@ class AdminUserController extends AbstractController
         IdEncoderService $idEncoderService,
         ControleAccesService $controleAccesService
     ): Response {
-        $id = $idEncoderService->decode($hexId);
+        try {
+            $id = $idEncoderService->decode($hexId);
+        } catch (\InvalidArgumentException|\ValueError $e) {
+            throw $this->createNotFoundException('QR code inconnu.');
+        }
+
+        $user = $userRepository->find($id);
+        if ($user === null) {
+            throw $this->createNotFoundException('QR code inconnu.');
+        }
         $user = $userRepository->find($id);
 
-        // QR inconnu : on renvoie un fragment d'erreur plutôt qu'une 404,
-        // le JS affichera l'alerte dans le panneau sans casser la page
+        // QR inconnu → 404 : le JS l'ignore, le panneau garde
+        // le dernier utilisateur affiché, pas de bip "refusé"
         if ($user === null) {
-            return $this->render('admin/user/_check_fragment.html.twig', [
-                'user' => null, 'groupe' => null, 'controle' => null,
-                'abonnements' => [], 'cartes' => [],
-            ]);
+            throw $this->createNotFoundException('QR code inconnu.');
         }
 
         $abonnements = $em->getRepository(AbonnementSouscrit::class)->findBy(

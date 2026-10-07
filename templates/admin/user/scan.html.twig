@@ -175,13 +175,23 @@ function readVerdict() {
 async function handleScan(decodedText) {
     busy = true;
     scanStatus.innerText = '⏳ Vérification en cours…';
-    qrResult.innerHTML = '<div class="text-muted">Chargement du contrôle…</div>';
 
     try {
         const res = await fetch(getFragmentUrl(decodedText), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
+
+        // QR INCONNU (autre QR posé sur la table, ticket, etc.) :
+        // on IGNORE — le panneau garde le dernier utilisateur affiché,
+        // pas de bip "refusé" mensonger, re-scan possible immédiatement.
+        if (res.status === 404) {
+            scanStatus.innerText = '⚠️ QR code inconnu — ignoré.';
+            busy = false;
+            return;
+        }
+
         if (!res.ok) throw new Error('HTTP ' + res.status);
+        qrResult.innerHTML = '<div class="text-muted">Chargement du contrôle…</div>';
         qrResult.innerHTML = await res.text();
 
         const verdict = readVerdict();
@@ -190,9 +200,9 @@ async function handleScan(decodedText) {
         scanStatus.innerText = '✅ Scanné — prêt pour la prochaine carte.';
     } catch (e) {
         console.error(e);
-        qrResult.innerHTML = '<div class="alert alert-danger mb-0">Erreur lors de la vérification.</div>';
-        feedback('refuse');
-        scanStatus.innerText = '❌ Erreur — réessayez.';
+        // Vraie erreur serveur : on garde le panneau précédent affiché
+        // (plus utile qu'un panneau rouge qui efface tout).
+        scanStatus.innerText = '❌ Erreur réseau — réessayez.';
     } finally {
         // Réarmement : on accepte un NOUVEAU QR dès 1,5 s,
         // le même QR reste bloqué par le cooldown
