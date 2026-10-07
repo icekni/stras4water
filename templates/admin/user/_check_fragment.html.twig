@@ -1,0 +1,132 @@
+{% set verdict = 'refuse' %}
+{% if controle.accesAutorise %}
+    {% set cartesUtilisables = [] %}
+    {% for item in controle.cartes %}
+        {% if item.validation.isValid and item.souscrite.peutRetirerSeance().isValid %}
+            {% set cartesUtilisables = cartesUtilisables|merge([item]) %}
+        {% endif %}
+    {% endfor %}
+    {% if cartesUtilisables|length > 0 %}
+        {% set verdict = 'carte' %}
+    {% else %}
+        {% set verdict = 'ok' %}
+    {% endif %}
+{% elseif controle.tarifReduitAValider is defined and controle.tarifReduitAValider %}
+    {% set verdict = 'attente' %}
+{% endif %}
+
+<div data-verdict="{{ verdict }}" data-nom="{{ user.prenom }} {{ user.nom }}" class="p-1">
+
+    {# ---- 1. LE VERDICT — en premier, gros et coloré ----
+       Cas "carte" : les boutons de déduction sont INCLUS directement
+       dans le bandeau (pas de double étape verdict → choix). #}
+    {% if verdict == 'ok' %}
+        <div class="text-center mb-2 py-2" style="background:#d1e7dd;color:#0f5132;border-radius:8px;font-size:1.2rem;font-weight:800;">
+            ✅ {{ user.prenom }} {{ user.nom }} — accès autorisé
+        </div>
+    {% elseif verdict == 'carte' %}
+        <div class="mb-2 py-2 px-2" style="background:#fff3cd;color:#664d03;border-radius:8px;">
+            <div class="text-center" style="font-size:1.1rem;font-weight:800;">
+                🎫 {{ user.prenom }} {{ user.nom }} — déduire une séance :
+            </div>
+            {% for item in cartesUtilisables %}
+                {% set c = item.souscrite %}
+                <form method="post"
+                      action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}"
+                      class="mb-1 mt-2"
+                      data-confirm="Retirer une séance de cette carte ?"
+                      data-label="Déduire 1 séance">
+                    <input type="hidden" name="_token" value="{{ csrf_token('retirer_seance' ~ c.id) }}">
+                    <input type="hidden" name="groupe" value="{{ groupe.id }}">
+                    <input type="hidden" name="fragment" value="1">
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">
+                        {% for discipline in c.carte.disciplines %}{{ discipline.nom }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        — {{ c.seancesRestantes }} restantes
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+    {% elseif verdict == 'attente' %}
+        <div class="text-center mb-2 py-2" style="background:#fff3cd;color:#664d03;border-radius:8px;font-size:1.1rem;font-weight:800;">
+            ⚠️ {{ user.prenom }} {{ user.nom }} — justificatif à vérifier
+        </div>
+    {% else %}
+        <div class="text-center mb-2 py-2" style="background:#f8d7da;color:#842029;border-radius:8px;font-size:1.2rem;font-weight:800;">
+            ❌ {{ user.prenom }} {{ user.nom }} — accès refusé
+        </div>
+    {% endif %}
+
+    {# ---- 2. Identité (le nom est déjà dans le verdict — ici : email + adhésion) ---- #}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="text-muted small">{{ user.email }}</div>
+        <div class="text-end">
+            {% if user.adhesion %}
+                <span class="badge text-bg-success">Adhésion en cours</span>
+            {% else %}
+                <span class="badge text-bg-danger">Pas d'adhésion</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if groupe %}
+
+
+    {% else %}
+        <div class="alert alert-info mb-3">
+            Aucun groupe sélectionné — fiche utilisateur uniquement.
+        </div>
+    {% endif %}
+
+    {# ---- Détail abonnements / cartes (version compacte) ---- #}
+    {% if groupe and (controle.abonnements|length > 0 or controle.cartes|length > 0) %}
+        <details class="mb-2">
+            <summary class="text-muted small">Détail des abonnements / cartes concernés</summary>
+            <div class="mt-2">
+                {% for item in controle.abonnements %}
+                    {% set ab = item.souscrit %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-1">
+                        <small><strong>{{ ab.abonnement.discipline.nom }}</strong> — {{ ab.abonnement.saison.nom }}</small>
+                        {% if item.validation.isValid %}
+                            <span class="badge text-bg-success">Valide</span>
+                        {% elseif item.tarifReduitAValider %}
+                            <form method="post" action="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" class="d-inline"
+                                  data-label="Vérifier le justificatif">
+                                <input type="hidden" name="_token" value="{{ csrf_token('verifier_abonnement' ~ ab.id) }}">
+                                <input type="hidden" name="groupe" value="{{ groupe.id }}">
+                                <input type="hidden" name="fragment" value="1">
+                                <button type="submit" class="btn btn-sm btn-success">Vérifier justificatif</button>
+                            </form>
+                        {% else %}
+                            <span class="badge text-bg-danger">Non valide</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% for item in controle.cartes %}
+                    {% set c = item.souscrite %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-1">
+                        <small>
+                            <strong>
+                                {% for discipline in c.carte.disciplines %}{{ discipline.nom }}{% if not loop.last %}, {% endif %}{% endfor %}
+                            </strong>
+                            — {{ c.seancesRestantes }} séance(s)
+                        </small>
+                        {% if item.validation.isValid %}
+                            <span class="badge text-bg-success">Valide</span>
+                        {% elseif item.tarifReduitAValider %}
+                            <form method="post" action="{{ path('admin_carte_verifier', {id: c.id}) }}" class="d-inline"
+                                  data-label="Vérifier">
+                                <input type="hidden" name="_token" value="{{ csrf_token('verifier_carte' ~ c.id) }}">
+                                <input type="hidden" name="groupe" value="{{ groupe.id }}">
+                                <input type="hidden" name="fragment" value="1">
+                                <button type="submit" class="btn btn-sm btn-success">Vérifier</button>
+                            </form>
+                        {% else %}
+                            <span class="badge text-bg-danger">Non valide</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </details>
+    {% endif %}
+
+</div>

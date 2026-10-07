@@ -231,6 +231,55 @@ class AdminUserController extends AbstractController
         ]);
     }
 
+    #[Route('/scan/fragment/{hexId}', name: 'admin_user_scan_fragment', methods: ['GET'])]
+    public function scanFragment(
+        string $hexId,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        IdEncoderService $idEncoderService,
+        ControleAccesService $controleAccesService
+    ): Response {
+        $id = $idEncoderService->decode($hexId);
+        $user = $userRepository->find($id);
+
+        // QR inconnu : on renvoie un fragment d'erreur plutôt qu'une 404,
+        // le JS affichera l'alerte dans le panneau sans casser la page
+        if ($user === null) {
+            return $this->render('admin/user/_check_fragment.html.twig', [
+                'user' => null, 'groupe' => null, 'controle' => null,
+                'abonnements' => [], 'cartes' => [],
+            ]);
+        }
+
+        $abonnements = $em->getRepository(AbonnementSouscrit::class)->findBy(
+            ['user' => $user], ['id' => 'DESC']
+        );
+        $cartes = $em->getRepository(CarteSouscrite::class)->findBy(
+            ['user' => $user], ['id' => 'DESC']
+        );
+
+        $groupe = null;
+        $controle = null;
+
+        $groupeId = $request->query->getInt('groupe');
+        if ($groupeId) {
+            $groupe = $groupeControleRepository->find($groupeId);
+            if ($groupe !== null && $groupe->isActif()) {
+                $controle = $controleAccesService->controler($user, $groupe);
+            }
+        }
+
+        return $this->render('admin/user/_check_fragment.html.twig', [
+            'user' => $user,
+            'abonnements' => $abonnements,
+            'cartes' => $cartes,
+            'groupe' => $groupe,
+            'controle' => $controle,
+        ]);
+    }
+
     #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
     public function scanId(
         string $hexId,
