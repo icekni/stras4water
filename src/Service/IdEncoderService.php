@@ -24,10 +24,10 @@ class IdEncoderService
      */
     public function decode(string $encoded): int
     {
-        if (!ctype_xdigit($hexId)) {
+        if (!ctype_xdigit($encoded)) {
             throw new \InvalidArgumentException('QR non hexadécimal');
         }
-        
+
         return hexdec($encoded) - $this->offset;
     }
 }
