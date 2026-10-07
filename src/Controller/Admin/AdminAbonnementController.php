@@ -115,6 +115,7 @@ class AdminAbonnementController extends AbstractController
         $abonnementSouscrit = $em
             ->getRepository(AbonnementSouscrit::class)
             ->find($id);
+        $isFragment = (bool) $request->request->get('fragment');
 
         if (!$abonnementSouscrit) {
             throw $this->createNotFoundException(
@@ -135,10 +136,9 @@ class AdminAbonnementController extends AbstractController
 
         $em->flush();
 
-        $this->addFlash(
-            'success',
-            'Justificatif vérifié avec succès.'
-        );
+        if (!$isFragment) {
+            $this->addFlash('success', 'Justificatif vérifié avec succès.');
+        }
 
         // ---- Mode scan continu : renvoyer le fragment mis à jour ----
         if ($request->request->get('fragment')) {
@@ -162,6 +162,7 @@ class AdminAbonnementController extends AbstractController
                     ->findBy(['user' => $user], ['id' => 'DESC']),
                 'cartes' => $em->getRepository(\App\Entity\CarteSouscrite::class)
                     ->findBy(['user' => $user], ['id' => 'DESC']),
+                'action_effectuee' => 'justificatif_verifie',
             ]);
         }
 

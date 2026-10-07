@@ -128,8 +128,15 @@ function beep(frequency = 880, duration = 0.12, pattern = 1) {
     } catch (e) { console.warn('bip indisponible', e); }
 }
 
+// Chrome bloque Audio/vibrate tant que l'utilisateur n'a pas interagi avec
+// la page. On lève un flag au 1er tap (ex : choix du groupe).
+let userInteracted = false;
+['pointerdown', 'touchstart', 'click'].forEach(evt =>
+    window.addEventListener(evt, () => { userInteracted = true; }, { once: true, passive: true })
+);
+
 function vibrate(verdict) {
-    if (!navigator.vibrate) return; // iPhone : pas de vibration, bip + flash prennent le relais
+    if (!navigator.vibrate || !userInteracted) return; // iPhone/Chrome : bip + flash prennent le relais
     if (verdict === 'ok')          navigator.vibrate(80);
     else if (verdict === 'refuse') navigator.vibrate([200, 100, 200]);
     else                           navigator.vibrate([120, 80, 120]);
@@ -138,6 +145,7 @@ function vibrate(verdict) {
 function beepVerdict(verdict) {
     if (verdict === 'ok')          beep(880, 0.12, 1);   // un bip aigu court
     else if (verdict === 'refuse') beep(220, 0.25, 2);   // deux bips graves
+    else if (verdict === 'consult') beep(660, 0.10, 1);  // un bip neutre
     else                           beep(520, 0.14, 2);   // deux bips médiums
 }
 
@@ -216,7 +224,10 @@ qrResult.addEventListener('submit', async function (e) {
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         qrResult.innerHTML = await res.text(); // le contrôleur renvoie le fragment mis à jour
-        feedback(readVerdict());
+
+        // PAS de bip/vibration : l'action vient du bénévole, il la voit.
+        // La confirmation ("séance retirée" / "justificatif vérifié") est rendue
+        // par le TEMPLATE via action_effectuee — plus de badge JS approximatif.
     } catch (e) {
         console.error(e);
         alert('Erreur lors de l\'action. Rechargez la page.');
