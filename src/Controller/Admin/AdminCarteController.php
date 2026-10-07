@@ -70,9 +70,12 @@ class AdminCarteController extends AbstractController
     public function verifierCarte(
         int $id,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        ControleAccesService $controleAccesService
     ): Response {
         $carteSouscrite = $em->getRepository(CarteSouscrite::class)->find($id);
+        $isFragment = (bool) $request->request->get('fragment');
 
         if (!$carteSouscrite) {
             throw $this->createNotFoundException(
@@ -93,25 +96,22 @@ class AdminCarteController extends AbstractController
 
         $em->flush();
 
-        $this->addFlash(
-            'success',
-            'Justificatif vérifié avec succès.'
-        );
+        if (!$isFragment) {
+            $this->addFlash('success', 'Justificatif vérifié avec succès.');
+        }
 
-        $redirectParams = [
-            'id' => $carteSouscrite->getUser()->getId(),
-        ];
+        // ---- Mode scan continu : renvoyer le fragment mis à jour ----
+        if ($request->request->get('fragment')) {
+            return $this->fragmentResponse($carteSouscrite->getUser(), $request, $em, $groupeControleRepository, $controleAccesService, 'justificatif_verifie');
+        }
 
+        $redirectParams = ['id' => $carteSouscrite->getUser()->getId()];
         $groupeId = $request->request->getInt('groupe');
-
         if ($groupeId) {
             $redirectParams['groupe'] = $groupeId;
         }
 
-        return $this->redirectToRoute(
-            'admin_user_check',
-            $redirectParams
-        );
+        return $this->redirectToRoute('admin_user_check', $redirectParams);
     }
 
     #[Route('/{id}/retirer-seance', name: 'admin_carte_retirer_seance', methods: ['POST'])]
@@ -123,6 +123,8 @@ class AdminCarteController extends AbstractController
         ControleAccesService $controleAccesService
     ): Response {
         $carteSouscrite = $em->getRepository(CarteSouscrite::class)->find($id);
+        $isFragment = (bool) $request->request->get('fragment');
+        $actionEffectuee = null;
 
         if (!$carteSouscrite) {
             throw $this->createNotFoundException(
@@ -165,11 +167,16 @@ class AdminCarteController extends AbstractController
             }
 
             if (!$carteAutorisee) {
-                $this->addFlash(
-                    'danger',
-                    'Cette carte ne permet pas l’accès à ce groupe.'
-                );
+                if ($request->request->get('fragment')) {
+                    // fragment sans action : verdict recalculé, la carte
+                    // concernée apparaîtra avec sa raison dans le détail
+                    return $this->fragmentResponse(
+                        $carteSouscrite->getUser(),
+                        $request, $em, $groupeControleRepository, $controleAccesService
+                    );
+                }
 
+                $this->addFlash('danger', 'Cette carte ne permet pas l’accès à ce groupe.');
                 return $this->redirectToRoute('admin_user_check', [
                     'id' => $carteSouscrite->getUser()->getId(),
                     'groupe' => $groupe->getId(),
@@ -181,18 +188,24 @@ class AdminCarteController extends AbstractController
         $consommation = $carteSouscrite->peutRetirerSeance();
 
         if (!$consommation->isValid) {
-            $this->addFlash('warning', $consommation->reason);
+            if (!$isFragment) {
+                $this->addFlash('warning', $consommation->reason);
+            }
         } else {
             $carteSouscrite->setSeancesRestantes(
                 $carteSouscrite->getSeancesRestantes() - 1
             );
-
             $em->flush();
+            $actionEffectuee = 'seance_retiree';
 
-            $this->addFlash(
-                'success',
-                'Une séance a été retirée de la carte.'
-            );
+            if (!$isFragment) {
+                $this->addFlash('success', 'Une séance a été retirée de la carte.');
+            }
+        }
+
+        // ---- Mode scan continu : renvoyer le fragment mis à jour ----
+        if ($request->request->get('fragment')) {
+            return $this->fragmentResponse($carteSouscrite->getUser(), $request, $em, $groupeControleRepository, $controleAccesService, $actionEffectuee);
         }
 
         // Retour à la page d'où vient l'action.
@@ -204,5 +217,42 @@ class AdminCarteController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_user_index');
+    }
+
+    /**
+     * Scan continu : rend le fragment de contrôle mis à jour (sans redirection).
+     */
+    private function fragmentResponse(
+        \App\Entity\User $user,
+        Request $request,
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        ControleAccesService $controleAccesService,
+        ?string $actionEffectuee = null
+    ): Response {
+        $groupe = null;
+        $controle = null;
+
+        $groupeId = $request->request->getInt('groupe');
+        if ($groupeId) {
+            $groupe = $groupeControleRepository->find($groupeId);
+            if ($groupe !== null && $groupe->isActif()) {
+                $controle = $controleAccesService->controler($user, $groupe);
+            }
+        }
+
+        $abonnements = $em->getRepository(\App\Entity\AbonnementSouscrit::class)
+            ->findBy(['user' => $user], ['id' => 'DESC']);
+        $cartes = $em->getRepository(CarteSouscrite::class)
+            ->findBy(['user' => $user], ['id' => 'DESC']);
+
+        return $this->render('admin/user/_check_fragment.html.twig', [
+            'user' => $user,
+            'groupe' => $groupe,
+            'controle' => $controle,
+            'abonnements' => $abonnements,
+            'cartes' => $cartes,
+            'action_effectuee' => $actionEffectuee
+        ]);
     }
 }

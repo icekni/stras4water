@@ -20,11 +20,12 @@ final class SitemapController extends AbstractController
             ['name' => 'anglais', 'changefreq' => 'weekly', 'priority' => '0.8'],
             ['name' => 'espagnol', 'changefreq' => 'weekly', 'priority' => '0.8'],
             ['name' => 'rando', 'changefreq' => 'monthly', 'priority' => '0.7'],
-            ['name' => 'events', 'changefreq' => 'weekly', 'priority' => '0.9'],
+            // ['name' => 'events', 'changefreq' => 'weekly', 'priority' => '0.9'],
             ['name' => 'adhesion', 'changefreq' => 'monthly', 'priority' => '0.6'],
             ['name' => 'about', 'changefreq' => 'monthly', 'priority' => '0.6'],
             ['name' => 'contact', 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['name' => 'donation', 'changefreq' => 'monthly', 'priority' => '0.7'],
+            ['name' => 'planning', 'changefreq' => 'monthly', 'priority' => '0.7'],
         ];
 
         $urls = [];

@@ -1,236 +1,321 @@
 {% extends 'base/base_admin.html.twig' %}
 
-{% block title %}Scanner QR Code Utilisateur{% endblock %}
+{% block title %}Scan continu — contrôle d'accès{% endblock %}
+
+{% block style %}
+<style>
+    /* ---------- Flash visuel au nouveau scan ----------
+       Appliqué au PREMIER enfant du fragment (le bandeau verdict) :
+       le contenu du fragment a ses propres fonds et masquerait
+       une animation posée sur #qr-result lui-même. */
+    @keyframes flash-scan {
+        0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        25%  { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(25,135,84,.45); }
+        100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+    }
+    #qr-result.flash > *:first-child { animation: flash-scan .7s ease-out; }
+</style>
+{% endblock %}
 
 {% block body %}
 
-<h1>Scanner QR Code utilisateur</h1>
+{# ============================================================
+   Layout "une main, un écran" (mobile-first) :
+   - Groupe : bandeau compact en haut
+   - Caméra : compacte (220px) — assez pour viser un QR, sans manger l'écran
+   - VERDICT : épinglé en BAS de l'écran (sticky bottom).
+     → toujours visible sans scroller, même si le fragment est long.
+     Le panneau complet reste scrollable juste au-dessus.
+   ============================================================ #}
+<div class="d-flex flex-column" style="min-height: calc(100vh - 60px);">
 
-<p>
-    Sélectionnez éventuellement un groupe de contrôle,
-    puis placez le QR code devant la caméra.
-</p>
-
-<div class="mb-4" style="max-width: 500px;">
-    <label for="groupe-controle" class="form-label">
-        Groupe de contrôle
-    </label>
-
-<select id="groupe-controle" class="form-select">
-    <option value="">-- Aucun groupe --</option>
-
-    {% for groupe in groupes %}
-        <option value="{{ groupe.id }}">
-            {{ groupe.nom }}
-        </option>
-    {% endfor %}
-</select>
-
-<div class="form-text">
-    Sans groupe, le QR code ouvre simplement la fiche de l'utilisateur.
-</div>
-
-</div>
-
-<div style="display: flex; flex-direction: row; gap: 2rem; flex-wrap: wrap;">
-
-{# Bouton changement de caméra #}
-<div style="flex-basis: 100%; margin-bottom: 1rem;">
-    <button
-        id="switch-camera"
-        class="btn btn-outline-secondary"
-        type="button"
-    >
-        Changer de caméra
-    </button>
-</div>
-
-{# Carré caméra / scanner #}
-<div
-    id="qr-reader"
-    style="width: 300px; height: 300px; border: 2px solid #333;"
-></div>
-
-{# Zone résultat #}
-<div style="flex: 1;">
-    <h3>QR Code détecté :</h3>
-
-    <div
-        id="qr-result"
-        style="padding: 1rem; border: 1px solid #ccc; min-height: 50px;"
-    >
-        Aucun QR détecté
+    {# Sélecteur de groupe — compact, en haut, CIBLE DE L'ANCRE D'ARRIVÉE #}
+    <div class="px-2 pt-2" id="scan-top">
+        <div class="d-flex align-items-center gap-2">
+            <label for="groupe-controle" class="form-label small mb-0 text-nowrap fw-bold">Groupe :</label>
+            <select id="groupe-controle" class="form-select form-select-sm">
+                <option value="">-- Aucun --</option>
+                {% for g in groupes %}
+                    <option value="{{ g.id }}">{{ g.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
 
-    <button
-        id="reset-scanner"
-        class="btn btn-outline-primary mt-2"
-        type="button"
-    >
-        Scanner à nouveau
-    </button>
-</div>
+    {# Caméra — compacte et centrée #}
+    <div class="px-2 pt-2 text-center">
+        <div id="qr-reader" style="width: 220px; height: 220px; margin: 0 auto;"></div>
+        <div id="scan-status" class="small mt-1" style="min-height: 1.2rem;">
+            Scanner actif — en attente…
+        </div>
+        <button id="switch-camera" class="btn btn-outline-secondary btn-sm py-0" type="button">
+            Changer de caméra
+        </button>
+    </div>
+
+    {# Résultat : verdict EN HAUT du fragment, détails en dessous #}
+    <div class="px-2 pt-2 flex-grow-1" style="overflow-y: auto;">
+        <div id="qr-result">
+            <div class="text-muted text-center p-2 small">
+                Aucun QR scanné pour l'instant.<br>
+                Les contrôles d'accès s'afficheront ici.
+            </div>
+        </div>
+    </div>
 
 </div>
 
-<a href="{{ path('admin_user_index') }}" class="btn btn-secondary mt-3">
-    ← Retour à la liste
-</a>
+{# Retour discret : le bénévole n'en a pas besoin pendant le cours #}
+<div class="px-3 pb-2">
+    <a href="{{ path('admin_user_index') }}" class="btn btn-link btn-sm text-secondary p-0">
+        ← Retour à la liste
+    </a>
+</div>
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
 let html5QrCode;
-let scanning = false;
 let camerasList = [];
 let currentCameraIndex = 0;
 
+let busy = false;            // true pendant le fetch d'un résultat
+let lastScanned = null;      // dernier QR décodé
+let lastScannedAt = 0;       // timestamp du dernier scan
+const COOLDOWN_MS = 3000;    // même QR ignoré pendant 3 s
+const REARM_MS = 1500;       // réarmement du scanner après un scan
+
 const groupeSelect = document.getElementById('groupe-controle');
 const qrResult = document.getElementById('qr-result');
-
+const scanStatus = document.getElementById('scan-status');
 
 /**
- * Retourne l'URL de scan avec le groupe sélectionné s'il existe.
+ * URL du fragment de contrôle (route AJAX à créer côté contrôleur).
  */
-function getScanUrl(decodedText) {
-    const groupeId = groupeSelect.value;
-
-    let url = "{{ path('admin_user_scan_id', {'hexId': 'ID_REPLACE'}) }}"
+function getFragmentUrl(decodedText) {
+    let url = "{{ path('admin_user_scan_fragment', {'hexId': 'ID_REPLACE'}) }}"
         .replace('ID_REPLACE', encodeURIComponent(decodedText));
-
-    if (groupeId) {
-        url += '?groupe=' + encodeURIComponent(groupeId);
+    if (groupeSelect.value) {
+        url += '?groupe=' + encodeURIComponent(groupeSelect.value);
     }
-
     return url;
 }
 
-
 /**
- * Démarre le scanner.
+ * FEEDBACK NOUVEAU SCAN — 3 canaux redondants :
+ * 1. FLASH VISUEL : le panneau flash (vert = OK, rouge = refus, orange = action requise)
+ * 2. VIBRATION    : Android (navigator.vibrate, absent sur iOS)
+ * 3. BIP          : AudioContext — fonctionne sur iPhone même en mode silencieux
+ *                   (le son est déverrouillé dès le premier toucher sur la page)
  */
-function startScanner(cameraIndex = 0) {
-
-    html5QrCode = new Html5Qrcode("qr-reader");
-
-    Html5Qrcode.getCameras().then(cameras => {
-        if (cameras && cameras.length) {
-            camerasList = cameras;
-
-            // Recherche caméra arrière si index 0
-            if (cameraIndex === 0) {
-                let rearCamera = cameras.find(cam =>
-                    cam.label.toLowerCase().includes('back') ||
-                    cam.label.toLowerCase().includes('rear')
-                );
-
-                currentCameraIndex = rearCamera
-                    ? cameras.indexOf(rearCamera)
-                    : 0;
-            } else {
-                currentCameraIndex = cameraIndex % cameras.length;
-            }
-
-            const cameraId = camerasList[currentCameraIndex].id;
-            scanning = true;
-
-            html5QrCode.start(
-                cameraId,
-                {
-                    fps: 10,
-                    qrbox: 250,
-                    aspectRatio: 1.0,
-                    rememberLastUsedCamera: true
-                },
-                decodedText => {
-                    if (!scanning) {
-                        return;
-                    }
-
-                    scanning = false;
-                    qrResult.innerText = decodedText;
-
-                    html5QrCode.stop().then(() => {
-                        window.location.href = getScanUrl(decodedText);
-                    }).catch(err => {
-                        console.error("Erreur arrêt scanner :", err);
-                    });
-                },
-                errorMessage => {
-                    // Erreurs de lecture ignorées
-                }
-            ).catch(err => {
-                console.error("Erreur démarrage scanner :", err);
-            });
-
-        } else {
-            alert("Aucune caméra détectée.");
+let audioCtx = null;
+function beep(frequency = 880, duration = 0.12, pattern = 1) {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        for (let i = 0; i < pattern; i++) {
+            const t = audioCtx.currentTime + i * (duration + 0.09);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.value = frequency;
+            gain.gain.setValueAtTime(0.18, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + duration);
         }
-
-    }).catch(err => {
-        console.error("Erreur récupération caméras :", err);
-    });
+    } catch (e) { console.warn('bip indisponible', e); }
 }
 
+// Chrome bloque Audio/vibrate tant que l'utilisateur n'a pas interagi avec
+// la page. On lève un flag au 1er tap (ex : choix du groupe).
+let userInteracted = false;
+['pointerdown', 'touchstart', 'click'].forEach(evt =>
+    window.addEventListener(evt, () => { userInteracted = true; }, { once: true, passive: true })
+);
+
+function vibrate(verdict) {
+    if (!navigator.vibrate || !userInteracted) return; // iPhone/Chrome : bip + flash prennent le relais
+    if (verdict === 'ok')          navigator.vibrate(80);
+    else if (verdict === 'refuse') navigator.vibrate([200, 100, 200]);
+    else                           navigator.vibrate([120, 80, 120]);
+}
+
+function beepVerdict(verdict) {
+    if (verdict === 'ok')          beep(880, 0.12, 1);   // un bip aigu court
+    else if (verdict === 'refuse') beep(220, 0.25, 2);   // deux bips graves
+    else if (verdict === 'consult') beep(660, 0.10, 1);  // un bip neutre
+    else                           beep(520, 0.14, 2);   // deux bips médiums
+}
+
+function flashVerdict() {
+    qrResult.classList.remove('flash');
+    void qrResult.offsetWidth; // retrigger de l'animation CSS
+    qrResult.classList.add('flash');
+}
+
+function feedback(verdict) {
+    vibrate(verdict);
+    beepVerdict(verdict);
+    flashVerdict();
+}
 
 /**
- * Changement de groupe.
+ * Détermine le verdict depuis le fragment HTML injecté (data attribute).
  */
-groupeSelect.addEventListener('change', function() {
-    // Aucun démarrage ou arrêt du scanner nécessaire.
-    // Le groupe sera simplement utilisé lors du prochain scan.
-});
-
+function readVerdict() {
+    const el = qrResult.querySelector('[data-verdict]');
+    return el ? el.getAttribute('data-verdict') : 'ok';
+}
 
 /**
- * Bouton "Scanner à nouveau".
+ * Charge et affiche le résultat d'un scan.
  */
-document.getElementById('reset-scanner').addEventListener('click', function() {
+async function handleScan(decodedText) {
+    busy = true;
+    scanStatus.innerText = '⏳ Vérification en cours…';
 
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-            qrResult.innerText = "Aucun QR détecté";
-            scanning = false;
-
-            startScanner(currentCameraIndex);
-
-        }).catch(err => {
-            console.error("Erreur arrêt scanner :", err);
+    try {
+        const res = await fetch(getFragmentUrl(decodedText), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 
-    } else {
-        startScanner(currentCameraIndex);
-    }
-});
+        // QR INCONNU (autre QR posé sur la table, ticket, etc.) :
+        // on IGNORE — le panneau garde le dernier utilisateur affiché,
+        // pas de bip "refusé" mensonger, re-scan possible immédiatement.
+        if (res.status === 404) {
+            scanStatus.innerText = '⚠️ QR code inconnu — ignoré.';
+            busy = false;
+            return;
+        }
 
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        qrResult.innerHTML = '<div class="text-muted">Chargement du contrôle…</div>';
+        qrResult.innerHTML = await res.text();
+
+        const verdict = readVerdict();
+        feedback(verdict);
+
+        scanStatus.innerText = '✅ Scanné — prêt pour la prochaine carte.';
+    } catch (e) {
+        console.error(e);
+        // Vraie erreur serveur : on garde le panneau précédent affiché
+        // (plus utile qu'un panneau rouge qui efface tout).
+        scanStatus.innerText = '❌ Erreur réseau — réessayez.';
+    } finally {
+        // Réarmement : on accepte un NOUVEAU QR dès 1,5 s,
+        // le même QR reste bloqué par le cooldown
+        setTimeout(() => { busy = false; }, REARM_MS);
+    }
+}
 
 /**
- * Bouton "Changer de caméra".
+ * Intercepte les formulaires du fragment (Déduire 1 séance / Vérifier justificatif)
+ * pour ne PAS quitter la page : fetch, puis re-render du fragment.
  */
-document.getElementById('switch-camera').addEventListener('click', function() {
+qrResult.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button');
+    if (btn) { btn.disabled = true; btn.innerText = '…'; }
 
-    if (!camerasList.length || !html5QrCode) {
+    // confirm() éventuel géré avant interception via data-confirm
+    if (form.dataset.confirm && !confirm(form.dataset.confirm)) {
+        if (btn) { btn.disabled = false; btn.innerText = form.dataset.label || 'OK'; }
         return;
     }
 
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        qrResult.innerHTML = await res.text(); // le contrôleur renvoie le fragment mis à jour
+
+        // PAS de bip/vibration : l'action vient du bénévole, il la voit.
+        // La confirmation ("séance retirée" / "justificatif vérifié") est rendue
+        // par le TEMPLATE via action_effectuee — plus de badge JS approximatif.
+    } catch (e) {
+        console.error(e);
+        alert('Erreur lors de l\'action. Rechargez la page.');
+        if (btn) btn.disabled = false;
+    }
+});
+
+/**
+ * Démarre le scanner (jamais arrêté par un scan réussi).
+ */
+function startScanner(cameraIndex = 0) {
+    html5QrCode = new Html5Qrcode("qr-reader");
+
+    Html5Qrcode.getCameras().then(cameras => {
+        if (!cameras || !cameras.length) {
+            alert("Aucune caméra détectée.");
+            return;
+        }
+        camerasList = cameras;
+
+        if (cameraIndex === 0) {
+            let rearCamera = cameras.find(cam =>
+                cam.label.toLowerCase().includes('back') ||
+                cam.label.toLowerCase().includes('rear')
+            );
+            currentCameraIndex = rearCamera ? cameras.indexOf(rearCamera) : 0;
+        } else {
+            currentCameraIndex = cameraIndex % cameras.length;
+        }
+
+        html5QrCode.start(
+            camerasList[currentCameraIndex].id,
+            { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0, rememberLastUsedCamera: true },
+            decodedText => {
+                const now = Date.now();
+
+                // Même QR que le précédent, il y a moins de 3 s → on ignore
+                if (decodedText === lastScanned && (now - lastScannedAt) < COOLDOWN_MS) {
+                    return;
+                }
+                // Un scan est déjà en cours de traitement → on ignore
+                if (busy) {
+                    return;
+                }
+
+                lastScanned = decodedText;
+                lastScannedAt = now;
+
+                handleScan(decodedText); // ne STOPPE PAS le scanner
+            },
+            () => { /* erreurs de lecture ignorées */ }
+        ).catch(err => console.error("Erreur démarrage scanner :", err));
+
+    }).catch(err => console.error("Erreur récupération caméras :", err));
+}
+
+groupeSelect.addEventListener('change', () => {
+    // le groupe sera utilisé au prochain scan, rien à redémarrer
+    scanStatus.innerText = 'Scanner actif — en attente d\u2019un QR code…';
+});
+
+document.getElementById('switch-camera').addEventListener('click', () => {
+    if (!camerasList.length || !html5QrCode) return;
     html5QrCode.stop().then(() => {
-
-        currentCameraIndex =
-            (currentCameraIndex + 1) % camerasList.length;
-
+        currentCameraIndex = (currentCameraIndex + 1) % camerasList.length;
         startScanner(currentCameraIndex);
-
-    }).catch(err => {
-        console.error("Erreur arrêt scanner :", err);
     });
 });
 
-
-/**
- * Démarrage initial.
- */
 window.addEventListener('DOMContentLoaded', () => {
     startScanner();
+
+    // Arrivée sur la page : scroll direct sur le sélecteur de groupe,
+    // pour que caméra + verdict soient visibles sans manipuler le téléphone.
+    // (le header admin reste au-dessus, accessible en remontant)
+    setTimeout(() => {
+        document.getElementById('scan-top')?.scrollIntoView({ block: 'start' });
+    }, 100);
 });
 </script>
 

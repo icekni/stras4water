@@ -231,6 +231,61 @@ class AdminUserController extends AbstractController
         ]);
     }
 
+    #[Route('/scan/fragment/{hexId}', name: 'admin_user_scan_fragment', methods: ['GET'])]
+    public function scanFragment(
+        string $hexId,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        IdEncoderService $idEncoderService,
+        ControleAccesService $controleAccesService
+    ): Response {
+        try {
+            $id = $idEncoderService->decode($hexId);
+        } catch (\InvalidArgumentException|\ValueError $e) {
+            throw $this->createNotFoundException('QR code inconnu.');
+        }
+
+        $user = $userRepository->find($id);
+        if ($user === null) {
+            throw $this->createNotFoundException('QR code inconnu.');
+        }
+        $user = $userRepository->find($id);
+
+        // QR inconnu → 404 : le JS l'ignore, le panneau garde
+        // le dernier utilisateur affiché, pas de bip "refusé"
+        if ($user === null) {
+            throw $this->createNotFoundException('QR code inconnu.');
+        }
+
+        $abonnements = $em->getRepository(AbonnementSouscrit::class)->findBy(
+            ['user' => $user], ['id' => 'DESC']
+        );
+        $cartes = $em->getRepository(CarteSouscrite::class)->findBy(
+            ['user' => $user], ['id' => 'DESC']
+        );
+
+        $groupe = null;
+        $controle = null;
+
+        $groupeId = $request->query->getInt('groupe');
+        if ($groupeId) {
+            $groupe = $groupeControleRepository->find($groupeId);
+            if ($groupe !== null && $groupe->isActif()) {
+                $controle = $controleAccesService->controler($user, $groupe);
+            }
+        }
+
+        return $this->render('admin/user/_check_fragment.html.twig', [
+            'user' => $user,
+            'abonnements' => $abonnements,
+            'cartes' => $cartes,
+            'groupe' => $groupe,
+            'controle' => $controle,
+        ]);
+    }
+
     #[Route('/scan/{hexId}', name: 'admin_user_scan_id', methods: ['GET', 'POST'])]
     public function scanId(
         string $hexId,

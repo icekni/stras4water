@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Repository\GroupeControleRepository;
+use App\Service\ControleAccesService;
 
 #[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/abonnements')]
@@ -106,11 +108,14 @@ class AdminAbonnementController extends AbstractController
     public function verifierAbonnement(
         int $id,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        GroupeControleRepository $groupeControleRepository,
+        ControleAccesService $controleAccesService
     ): Response {
         $abonnementSouscrit = $em
             ->getRepository(AbonnementSouscrit::class)
             ->find($id);
+        $isFragment = (bool) $request->request->get('fragment');
 
         if (!$abonnementSouscrit) {
             throw $this->createNotFoundException(
@@ -131,24 +136,42 @@ class AdminAbonnementController extends AbstractController
 
         $em->flush();
 
-        $this->addFlash(
-            'success',
-            'Justificatif vérifié avec succès.'
-        );
+        if (!$isFragment) {
+            $this->addFlash('success', 'Justificatif vérifié avec succès.');
+        }
 
-        $redirectParams = [
-            'id' => $abonnementSouscrit->getUser()->getId(),
-        ];
+        // ---- Mode scan continu : renvoyer le fragment mis à jour ----
+        if ($request->request->get('fragment')) {
+            $user = $abonnementSouscrit->getUser();
 
+            $groupe = null;
+            $controle = null;
+            $groupeId = $request->request->getInt('groupe');
+            if ($groupeId) {
+                $groupe = $groupeControleRepository->find($groupeId);
+                if ($groupe !== null && $groupe->isActif()) {
+                    $controle = $controleAccesService->controler($user, $groupe);
+                }
+            }
+
+            return $this->render('admin/user/_check_fragment.html.twig', [
+                'user' => $user,
+                'groupe' => $groupe,
+                'controle' => $controle,
+                'abonnements' => $em->getRepository(AbonnementSouscrit::class)
+                    ->findBy(['user' => $user], ['id' => 'DESC']),
+                'cartes' => $em->getRepository(\App\Entity\CarteSouscrite::class)
+                    ->findBy(['user' => $user], ['id' => 'DESC']),
+                'action_effectuee' => 'justificatif_verifie',
+            ]);
+        }
+
+        $redirectParams = ['id' => $abonnementSouscrit->getUser()->getId()];
         $groupeId = $request->request->getInt('groupe');
-
         if ($groupeId) {
             $redirectParams['groupe'] = $groupeId;
         }
 
-        return $this->redirectToRoute(
-            'admin_user_check',
-            $redirectParams
-        );
+        return $this->redirectToRoute('admin_user_check', $redirectParams);
     }
 }
