@@ -133,6 +133,12 @@ class AdminAbonnementController extends AbstractController
         }
 
         $abonnementSouscrit->setTarifReduitVerifie(true);
+        
+        // La vérification du justificatif valide l'entité :
+        // PENDING (attente justificatif) → ACTIVE
+        if ($abonnementSouscrit->getStatut() === Statut::PENDING) {
+            $abonnementSouscrit->setStatut(Statut::ACTIVE);
+        }
 
         $em->flush();
 

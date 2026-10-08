@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Repository\GroupeControleRepository;
 use App\Service\ControleAccesService;
+use App\Enum\Statut;
 
 #[IsGranted('ROLE_ACCUEIL')]
 #[Route('/admin/cartes')]
@@ -93,6 +94,10 @@ class AdminCarteController extends AbstractController
         }
 
         $carteSouscrite->setTarifReduitVerifie(true);
+
+        if ($carteSouscrite->getStatut() === Statut::PENDING) {
+            $carteSouscrite->setStatut(Statut::ACTIVE);
+        }
 
         $em->flush();
 
