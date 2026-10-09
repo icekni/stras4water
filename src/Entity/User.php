@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Enum\Statut;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -224,7 +225,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getAbonnementSouscrits(): Collection
     {
-        return $this->abonnementSouscrits->filter(fn(AbonnementSouscrit $abonnementSouscrit) => $abonnementSouscrit->getAbonnement()->isActif());
+        return $this->abonnementSouscrits->filter(fn(AbonnementSouscrit $abonnementSouscrit) => 
+            ($s->getStatut() === Statut::PENDING
+                || $s->getStatut() === Statut::ACTIVE)
+                && $s->getAbonnement()?->isActif());
     }
 
     public function addAbonnementSouscrit(AbonnementSouscrit $abonnementSouscrit): static
