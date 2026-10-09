@@ -1,8 +1,6 @@
 {% extends 'base/base_admin.html.twig' %}
 
-{% block title %}
-Ajouter un abonnement
-{% endblock %}
+{% block title %}Ajouter un abonnement{% endblock %}
 
 {% block body %}
 
@@ -13,6 +11,8 @@ Ajouter un abonnement
 {{ form_start(form) }}
 
     {{ form_row(form.abonnement) }}
+    {{ form_row(form.isTarifReduit) }}
+    {{ form_row(form.tarifReduitVerifie) }}
     {{ form_row(form.moyenPaiement) }}
 
     <button class="btn btn-primary">
@@ -21,4 +21,23 @@ Ajouter un abonnement
 
 {{ form_end(form) }}
 
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function() {
+    const tarifReduit = document.getElementById('{{ form.isTarifReduit.vars.id }}');
+    const justifBox = document.getElementById('{{ form.tarifReduitVerifie.vars.id }}')
+        ?.closest('.mb-3, .form-check, div');
+
+    if (tarifReduit && justifBox) {
+        const toggle = () => {
+            justifBox.style.display = tarifReduit.checked ? '' : 'none';
+            if (!tarifReduit.checked) justifBox.querySelector('input').checked = false;
+        };
+        tarifReduit.addEventListener('change', toggle);
+        toggle(); // état initial
+    }
+})();
+</script>
 {% endblock %}

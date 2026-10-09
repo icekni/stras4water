@@ -411,6 +411,14 @@ class AdminUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($abonnementSouscrit->isTarifReduit()) {
+                if (!$abonnementSouscrit->isTarifReduitVerifie()) {
+                    $abonnementSouscrit->setStatut(Statut::PENDING);
+                }
+            } else {
+                $abonnementSouscrit->setTarifReduitVerifie(false);
+            }
+
             $em->persist($abonnementSouscrit);
             $em->flush();
 
@@ -464,6 +472,14 @@ class AdminUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($carteSouscrite->isTarifReduit()) {
+                if (!$carteSouscrite->isTarifReduitVerifie()) {
+                    $carteSouscrite->setStatut(Statut::PENDING);
+                }
+            } else {
+                $carteSouscrite->setTarifReduitVerifie(false);
+            }
+
             $em->persist($carteSouscrite);
             $em->flush();
 
