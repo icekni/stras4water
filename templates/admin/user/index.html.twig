@@ -7,19 +7,101 @@
 
 <a href="{{ path('admin_inscription_new') }}" class="btn btn-primary mb-3">Ajouter un utilisateur</a>
 
-
 {% if is_granted('ROLE_ADMIN') %}
 <a class="btn btn-primary mb-3 btn-success" href="{{ path('admin_user_export') }}">
     Exporter les adherents (.csv)
 </a>
 {% endif %}
 
-<!-- Champ de recherche -->
+{# ================================================================ #}
+{# Recherche (toujours visible, ligne dédiée)                        #}
+{# ================================================================ #}
 <div class="mb-3">
-    <input type="text" id="searchInput" class="form-control" value="{{ search }}" placeholder="Rechercher par nom, prénom ou email...">
+    <input type="text" id="searchInput" class="form-control" value="{{ search }}"
+           placeholder="Rechercher par nom, prénom ou email...">
 </div>
 
-<!-- Version desktop : tableau -->
+{# ================================================================ #}
+{# Bouton d'ouverture des filtres (repliés par défaut)              #}
+{# ================================================================ #}
+<div class="mb-2 d-flex align-items-center gap-2">
+    <button class="btn btn-outline-secondary btn-sm" type="button"
+            data-bs-toggle="collapse" data-bs-target="#filtersPanel"
+            aria-expanded="false" aria-controls="filtersPanel">
+        🎛️ Filtres
+        <span id="filtersCount" class="badge bg-primary d-none ms-1">0</span>
+    </button>
+
+    <span id="resultsCount" class="text-muted small">
+        <strong>{{ users|length }}</strong> utilisateur{{ users|length > 1 ? 's' : '' }}
+    </span>
+</div>
+
+<div class="collapse" id="filtersPanel">
+    <div class="card card-body mb-3">
+        <div class="row g-2">
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-2 filter-group" data-filter="discipline" style="max-height:110px; overflow-y:auto;">
+                    <div class="small fw-semibold text-muted mb-1">Disciplines</div>
+                    {% for d in disciplines %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ d.id }}" id="disc_{{ d.id }}">
+                            <label class="form-check-label" for="disc_{{ d.id }}">{{ d.nom }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-2 filter-group" data-filter="abonnement" style="max-height:110px; overflow-y:auto;">
+                    <div class="small fw-semibold text-muted mb-1">Abonnements</div>
+                    {% for a in abonnements %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ a.id }}" id="abo_{{ a.id }}">
+                            <label class="form-check-label" for="abo_{{ a.id }}">{{ a.nom }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-2 filter-group" data-filter="carte" style="max-height:110px; overflow-y:auto;">
+                    <div class="small fw-semibold text-muted mb-1">Cartes</div>
+                    {% for c in cartes %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ c.id }}" id="carte_{{ c.id }}">
+                            <label class="form-check-label" for="carte_{{ c.id }}">{{ c.nom }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-6 col-md-1">
+                <select id="filterAdhesion" class="form-select">
+                    <option value="">Adhésion</option>
+                    <option value="1">Adhérents</option>
+                    <option value="0">Non adhérents</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <select id="filterTarif" class="form-select">
+                    <option value="">Tarif</option>
+                    <option value="1">Tarif réduit</option>
+                    <option value="0">Tarif plein</option>
+                </select>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end">
+                <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">↺ Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ================================================================ #}
+{# Version desktop : tableau                                        #}
+{# ================================================================ #}
 <div class="table-responsive d-none d-md-block">
     <table class="table table-bordered table-striped align-middle" id="usersTable">
         <thead>
@@ -33,7 +115,39 @@
         </thead>
         <tbody>
         {% for user in users %}
-            <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
+            {# ---- Données de filtre précalculées pour ce user ---- #}
+            {% set abonnementIds = [] %}
+            {% set carteIds = [] %}
+            {% set disciplinesIds = [] %}
+            {% set hasTarifReduit = false %}
+            {% for ab in user.abonnementSouscrits %}
+                {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
+                    {% set abonnementIds = abonnementIds|merge([ab.abonnement.id]) %}
+                    {% set disciplinesIds = disciplinesIds|merge([ab.abonnement.discipline.id]) %}
+                    {% if ab.isTarifReduit %}
+                        {% set hasTarifReduit = true %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% for c in user.carteSouscrites %}
+                {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
+                    {% set carteIds = carteIds|merge([c.carte.id]) %}
+                    {% for d in c.carte.disciplines %}
+                        {% set disciplinesIds = disciplinesIds|merge([d.id]) %}
+                    {% endfor %}
+                    {% if c.isTarifReduit %}
+                        {% set hasTarifReduit = true %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            <tr data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}"
+                data-adhesion="{{ user.adhesion ? '1' : '0' }}"
+                data-tarif-reduit="{{ hasTarifReduit ? '1' : '0' }}"
+                data-abonnements="{{ abonnementIds|join(',') }}"
+                data-cartes="{{ carteIds|join(',') }}"
+                data-disciplines="{{ disciplinesIds|join(',') }}">
+
                 <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>{{ user.email }}</td>
                 <td>
@@ -46,17 +160,12 @@
                             <div>
                                 {{ ab.abonnement.nom }}
                                 {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                                    <form
-                                        method="post"
-                                        action="{{ path('admin_abonnement_verifier', {
-                                            id: ab.id
-                                        }) }}"
-                                        class="d-inline"
-                                    >
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-success"
-                                        >
+                                    <form method="post"
+                                          action="{{ path('admin_abonnement_verifier', {id: ab.id}) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('verifier_abonnement' ~ ab.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success">
                                             Vérifier le justificatif
                                         </button>
                                     </form>
@@ -70,18 +179,23 @@
                             <div>
                                 {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
                                 <form method="post"
-                                    action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
-                                    <input type="hidden"
-                                        name="_token"
-                                        value="{{ csrf_token('retirer_seance' ~ c.id) }}">
-
+                                      action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('retirer_seance' ~ c.id) }}">
                                     <button type="submit" class="btn btn-warning">
                                         Retirer une séance
                                     </button>
                                 </form>
                                 {% if c.isTarifReduit and not c.tarifReduitVerifie %}
-                                    <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
-                                    class="btn btn-sm btn-success ms-1">Vérifier</a>
+                                    <form method="post"
+                                          action="{{ path('admin_carte_verifier', {id: c.id}) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('verifier_carte' ~ c.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success ms-1 mb-1">
+                                            Vérifier
+                                        </button>
+                                    </form>
                                 {% endif %}
                             </div>
                             {% set hasAbonnement = true %}
@@ -94,96 +208,57 @@
                 <td>
                     <div class="d-flex flex-column gap-2">
 
-                        {# Actions principales #}
-                        <a
-                            href="{{ path('admin_user_inscription', {'id': user.id}) }}"
-                            class="btn btn-sm btn-primary"
-                        >
+                        <a href="{{ path('admin_user_inscription', {'id': user.id}) }}"
+                           class="btn btn-sm btn-primary">
                             ➕ Ajouter une activité
                         </a>
 
-                        <a
-                            href="{{ path('admin_user_edit', {'id': user.id}) }}"
-                            class="btn btn-sm btn-outline-secondary"
-                        >
+                        <a href="{{ path('admin_user_edit', {'id': user.id}) }}"
+                           class="btn btn-sm btn-outline-secondary">
                             ✏️ Modifier
                         </a>
 
                         {% if is_granted('ROLE_ADMIN') %}
-                            <form
-                                method="post"
-                                action="{{ path('admin_user_delete', {id: user.id}) }}"
-                                onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="_token"
-                                    value="{{ csrf_token('delete_user_' ~ user.id) }}"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-outline-danger w-100"
-                                >
+                            <form method="post"
+                                  action="{{ path('admin_user_delete', {id: user.id}) }}"
+                                  onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
                                     🗑️ Supprimer
                                 </button>
                             </form>
                         {% endif %}
 
-                        {# Carte de membre #}
                         {% if user.adhesion %}
                             <div class="border rounded p-2 mt-2 bg-light">
-                                <div class="small fw-semibold text-muted mb-2">
-                                    Carte de membre
-                                </div>
+                                <div class="small fw-semibold text-muted mb-2">Carte de membre</div>
 
                                 <div class="d-flex flex-wrap gap-2">
-
-                                    <a
-                                        href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                                        class="btn btn-sm btn-outline-info"
-                                        target="_blank"
-                                        download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf"
-                                    >
+                                    <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                                       class="btn btn-sm btn-outline-info"
+                                       target="_blank"
+                                       download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
                                         📄 Télécharger
                                     </a>
 
-                                    <form
-                                        method="post"
-                                        action="{{ path('admin_user_send_card', {id: user.id}) }}"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="_token"
-                                            value="{{ csrf_token('send_card_' ~ user.id) }}"
-                                        >
-
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-outline-info"
-                                            onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');"
-                                        >
+                                    <form method="post"
+                                          action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('send_card_' ~ user.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-info"
+                                                onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
                                             📧 Envoyer
                                         </button>
                                     </form>
-
                                 </div>
 
-                                <form
-                                    method="post"
-                                    action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
-                                    class="mt-2"
-                                >
-                                    <input
-                                        type="hidden"
-                                        name="_token"
-                                        value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-link text-warning px-0"
-                                    >
+                                <form method="post"
+                                      action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
+                                      class="mt-2">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('regenerate_card_' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-link text-warning px-0">
                                         🔄 Régénérer la carte
                                     </button>
                                 </form>
@@ -194,16 +269,50 @@
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="6">Aucun utilisateur.</td></tr>
+            <tr><td colspan="5">Aucun utilisateur.</td></tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!-- Version mobile : cartes -->
+{# ================================================================ #}
+{# Version mobile : cartes                                          #}
+{# ================================================================ #}
 <div class="d-block d-md-none" id="usersCards">
     {% for user in users %}
-        <div class="card mb-2 shadow-sm" data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}">
+        {# ---- Données de filtre précalculées pour ce user ---- #}
+        {% set abonnementIds = [] %}
+        {% set carteIds = [] %}
+        {% set disciplinesIds = [] %}
+        {% set hasTarifReduit = false %}
+        {% for ab in user.abonnementSouscrits %}
+            {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
+                {% set abonnementIds = abonnementIds|merge([ab.abonnement.id]) %}
+                {% set disciplinesIds = disciplinesIds|merge([ab.abonnement.discipline.id]) %}
+                {% if ab.isTarifReduit %}
+                    {% set hasTarifReduit = true %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% for c in user.carteSouscrites %}
+            {% if c.statut != constant('App\\Enum\\Statut::CREATED') %}
+                {% set carteIds = carteIds|merge([c.carte.id]) %}
+                {% for d in c.carte.disciplines %}
+                    {% set disciplinesIds = disciplinesIds|merge([d.id]) %}
+                {% endfor %}
+                {% if c.isTarifReduit %}
+                    {% set hasTarifReduit = true %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="card mb-2 shadow-sm"
+             data-nom="{{ user.nom }}" data-prenom="{{ user.prenom }}" data-email="{{ user.email }}"
+             data-adhesion="{{ user.adhesion ? '1' : '0' }}"
+             data-tarif-reduit="{{ hasTarifReduit ? '1' : '0' }}"
+             data-abonnements="{{ abonnementIds|join(',') }}"
+             data-cartes="{{ carteIds|join(',') }}"
+             data-disciplines="{{ disciplinesIds|join(',') }}">
             <div class="card-body">
                 <h5 class="card-title">{{ user.nom }} {{ user.prenom }}</h5>
                 <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
@@ -211,13 +320,18 @@
 
                 <p class="mb-1"><strong>Abonnements & Cartes:</strong>
                     {% set hasAbonnement = false %}
-                    {% for ab in user.abonnementSouscrits %}                    
+                    {% for ab in user.abonnementSouscrits %}
                         {% if ab.statut != constant('App\\Enum\\Statut::CREATED') %}
                             <div>
                                 {{ ab.abonnement.nom }}
                                 {% if ab.isTarifReduit and not ab.tarifReduitVerifie %}
-                                    <a href="{{ path('admin_abonnement_verifier', {id: ab.id}) }}" 
-                                    class="btn btn-sm btn-success ms-1">Vérifier</a>
+                                    <form method="post"
+                                          action="{{ path('admin_abonnement_verifier', {id: ab.id}) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('verifier_abonnement' ~ ab.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success ms-1">Vérifier</button>
+                                    </form>
                                 {% endif %}
                             </div>
                             {% set hasAbonnement = true %}
@@ -228,18 +342,19 @@
                             <div>
                                 {{ c.carte.nom }} — Séances restantes: {{ c.seancesRestantes }}
                                 <form method="post"
-                                    action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
-                                    <input type="hidden"
-                                        name="_token"
-                                        value="{{ csrf_token('retirer_seance' ~ c.id) }}">
-
-                                    <button type="submit" class="btn btn-warning">
-                                        Retirer une séance
-                                    </button>
+                                      action="{{ path('admin_carte_retirer_seance', {id: c.id}) }}">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('retirer_seance' ~ c.id) }}">
+                                    <button type="submit" class="btn btn-warning">Retirer une séance</button>
                                 </form>
                                 {% if c.isTarifReduit and not c.tarifReduitVerifie %}
-                                    <a href="{{ path('admin_carte_verifier', {id: c.id}) }}" 
-                                    class="btn btn-sm btn-success ms-1 mb-1">Vérifier</a>
+                                    <form method="post"
+                                          action="{{ path('admin_carte_verifier', {id: c.id}) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('verifier_carte' ~ c.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success ms-1 mb-1">Vérifier</button>
+                                    </form>
                                 {% endif %}
                             </div>
                             {% set hasAbonnement = true %}
@@ -251,109 +366,54 @@
                 </p>
 
                 <div class="mt-2">
-
                     <div class="d-grid gap-2">
-
-                        {# Actions principales #}
-                        <a
-                            href="{{ path('admin_user_inscription', {'id': user.id}) }}"
-                            class="btn btn-sm btn-primary"
-                        >
-                            ➕ Ajouter une activité
-                        </a>
-
-                        <a
-                            href="{{ path('admin_user_edit', {'id': user.id}) }}"
-                            class="btn btn-sm btn-outline-secondary"
-                        >
-                            ✏️ Modifier
-                        </a>
+                        <a href="{{ path('admin_user_inscription', {'id': user.id}) }}"
+                           class="btn btn-sm btn-primary">➕ Ajouter une activité</a>
+                        <a href="{{ path('admin_user_edit', {'id': user.id}) }}"
+                           class="btn btn-sm btn-outline-secondary">✏️ Modifier</a>
 
                         {% if is_granted('ROLE_ADMIN') %}
-                            <form
-                                method="post"
-                                action="{{ path('admin_user_delete', {id: user.id}) }}"
-                                onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="_token"
-                                    value="{{ csrf_token('delete_user_' ~ user.id) }}"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-outline-danger w-100"
-                                >
-                                    🗑️ Supprimer
-                                </button>
+                            <form method="post"
+                                  action="{{ path('admin_user_delete', {id: user.id}) }}"
+                                  onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">🗑️ Supprimer</button>
                             </form>
                         {% endif %}
-
                     </div>
 
-                    {# Carte de membre #}
                     {% if user.adhesion %}
                         <div class="border rounded p-3 mt-3 bg-light">
-
-                            <div class="fw-semibold mb-2">
-                                Carte de membre
-                            </div>
-
+                            <div class="fw-semibold mb-2">Carte de membre</div>
                             <div class="d-grid gap-2">
-
-                                <a
-                                    href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
-                                    class="btn btn-sm btn-outline-info"
-                                    target="_blank"
-                                    download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf"
-                                >
+                                <a href="{{ asset('cartesMembre/' ~ user.id ~ '.pdf') }}"
+                                   class="btn btn-sm btn-outline-info"
+                                   target="_blank"
+                                   download="carte-adhesion-{{ user.nom }}-{{ user.prenom }}.pdf">
                                     📄 Télécharger la carte
                                 </a>
-
-                                <form
-                                    method="post"
-                                    action="{{ path('admin_user_send_card', {id: user.id}) }}"
-                                >
-                                    <input
-                                        type="hidden"
-                                        name="_token"
-                                        value="{{ csrf_token('send_card_' ~ user.id) }}"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-sm btn-outline-info w-100"
-                                        onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');"
-                                    >
+                                <form method="post"
+                                      action="{{ path('admin_user_send_card', {id: user.id}) }}">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('send_card_' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-info w-100"
+                                            onclick="return confirm('Envoyer la carte de membre à {{ user.email }} ?');">
                                         📧 Envoyer par email
                                     </button>
                                 </form>
-
                             </div>
-
-                            <form
-                                method="post"
-                                action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
-                                class="mt-2"
-                            >
-                                <input
-                                    type="hidden"
-                                    name="_token"
-                                    value="{{ csrf_token('regenerate_card_' ~ user.id) }}"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-link text-warning px-0"
-                                >
+                            <form method="post"
+                                  action="{{ path('admin_user_regenerate_card', {id: user.id}) }}"
+                                  class="mt-2">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('regenerate_card_' ~ user.id) }}">
+                                <button type="submit" class="btn btn-sm btn-link text-warning px-0">
                                     🔄 Régénérer la carte
                                 </button>
                             </form>
-
                         </div>
                     {% endif %}
-
                 </div>
             </div>
         </div>
@@ -367,7 +427,7 @@
 {% block javascripts %}
 <script>
 function normalize(str) {
-    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 // Algorithme simple Soundex JS
@@ -408,46 +468,115 @@ function levenshtein(a, b) {
     return matrix[bl][al];
 }
 
-document.getElementById("searchInput").addEventListener("input", function() {
-    const term = normalize(this.value);
-    if (term.length < 3) {
-        document.querySelectorAll("#usersTable tbody tr").forEach(tr => tr.style.display="");
-        document.querySelectorAll("#usersCards .card").forEach(card => card.style.display="");
-        return;
+/**
+ * Teste si un élément (ligne desktop OU carte mobile) passe tous les filtres actifs.
+ */
+function matchesFilters(el, term) {
+    // ---- Recherche texte (fuzzy) ----
+    if (term.length >= 3) {
+        const nom = normalize(el.dataset.nom);
+        const prenom = normalize(el.dataset.prenom);
+        const email = normalize(el.dataset.email);
+        const sdxTerm = soundex(term);
+
+        const matchText = [nom, prenom, email].some(str =>
+            str.includes(term)
+            || levenshtein(term, str) <= 2
+            || sdxTerm === soundex(str)
+        );
+        if (!matchText) return false;
     }
 
-    document.querySelectorAll("#usersTable tbody tr").forEach(tr => {
-        const nom = normalize(tr.dataset.nom);
-        const prenom = normalize(tr.dataset.prenom);
-        const email = normalize(tr.dataset.email);
+    // ---- Filtres multi-checkboxes (OU entre cases cochées, ET entre groupes) ----
+    for (const group of document.querySelectorAll('.filter-group')) {
+        const checked = [...group.querySelectorAll('input[type="checkbox"]:checked')].map(i => i.value);
+        if (checked.length === 0) continue;  // aucun coché = pas de filtre
 
-        const match = [nom, prenom, email].some(str => {
-            const sdxTerm = soundex(term);
-            const sdxStr = soundex(str);
-            return str.includes(term) || levenshtein(term,str)<=2 || sdxTerm===sdxStr;
+        const key = group.dataset.filter;   // discipline / abonnement / carte
+        const attrName = { discipline: 'disciplines', abonnement: 'abonnements', carte: 'cartes' }[key];
+        const list = (el.dataset[attrName] || '').split(',').filter(Boolean);
+
+        if (!checked.some(v => list.includes(v))) return false;
+    }
+
+    // ---- Adhésion ----
+    const adh = document.getElementById('filterAdhesion').value;
+    if (adh !== '' && el.dataset.adhesion !== adh) return false;
+
+    // ---- Tarif (réduit / plein) ----
+    const tr = document.getElementById('filterTarif').value;
+    if (tr !== '' && el.dataset.tarifReduit !== tr) return false;
+
+    return true;
+}
+
+/**
+ * Applique tous les filtres aux deux vues + met à jour le badge compteur.
+ */
+function applyFilters() {
+    const term = normalize(document.getElementById('searchInput').value);
+
+    let visible = 0;
+    let total = 0;
+
+    document.querySelectorAll('#usersTable tbody tr[data-nom], #usersCards .card[data-nom]')
+        .forEach(el => {
+            // ne compter qu'une fois par user : desktop OU mobile
+            // (les deux vues existent dans le DOM, on compte la vue desktop)
+            const isDesktopRow = el.closest('#usersTable') !== null;
+            if (isDesktopRow) total++;
         });
 
-        tr.style.display = match ? "" : "none";
-    });
-
-    document.querySelectorAll("#usersCards .card").forEach(card => {
-        const nom = normalize(card.dataset.nom);
-        const prenom = normalize(card.dataset.prenom);
-        const email = normalize(card.dataset.email);
-
-        const match = [nom, prenom, email].some(str => {
-            const sdxTerm = soundex(term);
-            const sdxStr = soundex(str);
-            return str.includes(term) || levenshtein(term,str)<=2 || sdxTerm===sdxStr;
+    document.querySelectorAll('#usersTable tbody tr[data-nom], #usersCards .card[data-nom]')
+        .forEach(el => {
+            const show = matchesFilters(el, term);
+            el.style.display = show ? '' : 'none';
+            const isDesktopRow = el.closest('#usersTable') !== null;
+            if (show && isDesktopRow) visible++;
         });
 
-        card.style.display = match ? "" : "none";
-    });
+    // ---- Compteur de résultats ----
+    const counter = document.getElementById('resultsCount');
+    if (counter) {
+        counter.innerHTML = '<strong>' + visible + '</strong> utilisateur' + (visible > 1 ? 's' : '')
+            + ' affiché' + (visible > 1 ? 's' : '')
+            + (visible < total ? ' sur ' + total : '');
+    }
+
+    // Badge : nombre de filtres actifs sur le bouton "Filtres"
+    let count = document.querySelectorAll('.filter-group input[type="checkbox"]:checked').length;
+    if (document.getElementById('filterAdhesion').value) count++;
+    if (document.getElementById('filterTarif').value) count++;
+    const badge = document.getElementById('filtersCount');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('d-none', count === 0);
+    }
+}
+
+// ---- Écouteurs en DÉLÉGATION sur document : robustes quel que soit
+//      l'ordre de chargement du script par rapport au HTML ----
+document.addEventListener('input', e => {
+    if (e.target && e.target.id === 'searchInput') applyFilters();
 });
 
-const searchInput = document.getElementById("searchInput");
-if (searchInput.value.trim() !== "") {
-    searchInput.dispatchEvent(new Event("input"));
-}
+document.addEventListener('change', e => {
+    if (!e.target) return;
+    if (e.target.closest && e.target.closest('.filter-group')) applyFilters();
+    if (e.target.id === 'filterAdhesion' || e.target.id === 'filterTarif') applyFilters();
+});
+
+document.addEventListener('click', e => {
+    if (e.target && e.target.id === 'resetFilters') {
+        document.querySelectorAll('.filter-group input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('filterAdhesion').value = '';
+        document.getElementById('filterTarif').value = '';
+        applyFilters();
+    }
+});
+
+// État initial (recherche éventuellement pré-remplie depuis l'URL)
+document.addEventListener('DOMContentLoaded', applyFilters);
+applyFilters();
 </script>
 {% endblock %}

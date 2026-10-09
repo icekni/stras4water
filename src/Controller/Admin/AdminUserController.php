@@ -27,6 +27,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\GroupeControle;
 use App\Repository\GroupeControleRepository;
+use App\Repository\DisciplineRepository;
+use App\Repository\AbonnementRepository;
+use App\Repository\CarteRepository;
 use App\Service\ControleAccesService;
 
 #[IsGranted('ROLE_ACCUEIL')]
@@ -34,7 +37,13 @@ use App\Service\ControleAccesService;
 class AdminUserController extends AbstractController
 {
     #[Route('/', name: 'admin_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository, Request $request): Response
+    public function index(
+        UserRepository $userRepository, 
+        Request $request, 
+        DisciplineRepository $disciplineRepository, 
+        AbonnementRepository $abonnementRepository,
+        CarteRepository $carteRepository
+    ): Response
     {
         $users = $userRepository->findAll();
         
@@ -43,6 +52,9 @@ class AdminUserController extends AbstractController
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
             'search' => $search,
+            'disciplines' => $disciplineRepository->findBy([], ['nom' => 'ASC']),
+            'abonnements' => $abonnementRepository->findBy([], ['nom' => 'ASC']),
+            'cartes'      => $carteRepository->findBy([], ['nom' => 'ASC']),
         ]);
     }
     
