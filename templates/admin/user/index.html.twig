@@ -212,13 +212,13 @@
                            class="btn btn-sm btn-primary">
                             ➕ Ajouter une activité
                         </a>
+                        {% if is_granted('ROLE_ADMIN') %}
 
                         <a href="{{ path('admin_user_edit', {'id': user.id}) }}"
                            class="btn btn-sm btn-outline-secondary">
                             ✏️ Modifier
                         </a>
 
-                        {% if is_granted('ROLE_ADMIN') %}
                             <form method="post"
                                   action="{{ path('admin_user_delete', {id: user.id}) }}"
                                   onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
