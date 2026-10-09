@@ -226,9 +226,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAbonnementSouscrits(): Collection
     {
         return $this->abonnementSouscrits->filter(fn(AbonnementSouscrit $abonnementSouscrit) => 
-            ($s->getStatut() === Statut::PENDING
-                || $s->getStatut() === Statut::ACTIVE)
-                && $s->getAbonnement()?->isActif());
+            ($abonnementSouscrit->getStatut() === Statut::PENDING
+                || $abonnementSouscrit->getStatut() === Statut::ACTIVE)
+                && $abonnementSouscrit->getAbonnement()?->isActif());
     }
 
     public function addAbonnementSouscrit(AbonnementSouscrit $abonnementSouscrit): static
