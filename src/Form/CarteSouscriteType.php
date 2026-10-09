@@ -9,6 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class CarteSouscriteType extends AbstractType
 {
@@ -19,6 +20,14 @@ class CarteSouscriteType extends AbstractType
                 'class' => Carte::class,
                 'choice_label' => 'nom',
                 'label' => 'Carte',
+            ])
+            ->add('isTarifReduit', CheckboxType::class, [
+                'label' => 'Tarif réduit',
+                'required' => false,
+            ])
+            ->add('tarifReduitVerifie', CheckboxType::class, [
+                'label' => 'Justificatif fourni',
+                'required' => false,
             ])
             ->add('seancesRestantes', IntegerType::class, [
                 'label' => 'Nombre de séances',

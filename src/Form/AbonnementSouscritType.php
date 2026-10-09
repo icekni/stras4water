@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class AbonnementSouscritType extends AbstractType
 {
@@ -18,6 +19,14 @@ class AbonnementSouscritType extends AbstractType
                 'class' => Abonnement::class,
                 'choice_label' => 'nom',
                 'label' => 'Abonnement',
+            ])
+            ->add('isTarifReduit', CheckboxType::class, [
+                'label' => 'Tarif réduit',
+                'required' => false,
+            ])
+            ->add('tarifReduitVerifie', CheckboxType::class, [
+                'label' => 'Justificatif fourni',
+                'required' => false,
             ])
             ->add('moyenPaiement', EnumType::class, [
                 'class' => MoyenPaiement::class,
