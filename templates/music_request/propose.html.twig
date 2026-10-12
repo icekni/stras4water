@@ -5,109 +5,156 @@
 {% block body %}
 <div class="container py-4">
 
-	<h1 class="mb-3">🎵 Proposer un morceau</h1>
+    <h1 class="mb-3">🎵 Proposer un morceau</h1>
 
-	<div class="alert-s4w-info mb-4">
-		<strong>Comment ça marche ?</strong><br>
-		Propose ton morceau et fais-le voter par les autres danseurs.
-		<strong>À {{ nbVotesRequis }} votes, il passe dans le prochain set !</strong><br>
-		Tu ne veux pas attendre ?
-		<strong>Tu peux aussi le faire passer immédiatement pour {{ price }} €.</strong>
-	</div>
+    <div class="alert-s4w-info mb-4">
+        <strong>Comment ça marche ?</strong><br>
+        Propose ton morceau et fais-le voter par les autres danseurs.
+        <strong>À {{ nbVotesRequis }} votes, il passe dans le prochain set !</strong><br>
+        Tu ne veux pas attendre ?
+        <strong>Tu peux aussi le faire passer immédiatement pour {{ price }} €.</strong>
+    </div>
 
-	<div class="row g-4">
+    <div class="row g-4">
 
-		{# ===== Formulaire ===== #}
-		<div class="col-12 col-lg-5">
-			<div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
-				<div class="card-body">
-					<h2 class="h4 mb-3">Proposer un morceau</h2>
+        {# ===== Formulaire (en haut, repliable en mobile) ===== #}
+        <div class="col-12 col-lg-5">
+            {# Bouton toggle : mobile uniquement #}
+            <div class="d-lg-none">
+                <button class="btn btn-primary w-100 rounded-pill" type="button"
+                        id="musicFormToggle"
+                        data-bs-toggle="collapse" data-bs-target="#musicForm"
+                        aria-expanded="false" aria-controls="musicForm">
+                    ➕ Proposer un morceau
+                </button>
+            </div>
 
-					{{ form_start(form) }}
-						{{ form_row(form.titre) }}
-						{{ form_row(form.artiste) }}
-						{{ form_row(form.youtubeUrl) }}
+            {# Toujours visible en desktop (d-lg-block), replié en mobile —
+               forcé ouvert si le formulaire a des erreurs de validation #}
+            {% set formHasErrors = not form.vars.valid %}
+            <div class="collapse d-lg-block {% if formHasErrors %}show{% endif %}" id="musicForm">
+                <div class="card border-0 shadow-sm h-100 mt-lg-0 mt-3" style="border-radius: 10px;">
+                    <div class="card-body">
+                        <h2 class="h4 mb-3 d-none d-lg-block">Proposer un morceau</h2>
 
-						<div class="mt-3">
-							{{ form_row(form.submit, {'attr': {'class': 'btn btn-primary w-100 rounded-pill'}}) }}
-						</div>
-					{{ form_end(form) }}
-				</div>
-			</div>
-		</div>
+                        {{ form_start(form) }}
+                            {{ form_row(form.titre) }}
+                            {{ form_row(form.artiste) }}
+                            {{ form_row(form.youtubeUrl) }}
 
-		{# ===== Liste des morceaux ===== #}
-		<div class="col-12 col-lg-7">
-			<div class="card border-0 shadow-sm" style="border-radius: 10px;">
-				<div class="card-body">
-					<h2 class="h4 mb-3">Morceaux proposés</h2>
+                            <div class="mt-3">
+                                {{ form_row(form.submit, {'attr': {'class': 'btn btn-primary w-100 rounded-pill'}}) }}
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-					{% if musicRequests|length > 0 %}
-						<div class="d-flex flex-column gap-3">
-							{% for musicRequest in musicRequests %}
-								<div class="border rounded p-3" style="border-radius: 10px;">
-									<div class="d-flex justify-content-between align-items-start gap-3">
-										<div>
-											<h3 class="h5 mb-1">{{ musicRequest.titre }}</h3>
-											<div class="text-muted">{{ musicRequest.artiste }}</div>
-										</div>
-										{% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::PENDING') %}
-											<div class="text-end text-nowrap">
-												<strong>{{ musicRequest.votes }}</strong>
-												<div class="small text-muted">
-													vote{% if musicRequest.votes != 1 %}s{% endif %}
-												</div>
-											</div>
-										{% endif %}
-									</div>
+        {# ===== Liste des morceaux ===== #}
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Morceaux proposés</h2>
 
-									{% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::VALIDATED') %}
-										<div class="alert alert-success text-center mt-3 mb-0">
-											<strong>✅ Morceau validé !</strong>
-										</div>
-									{% else %}
-										{# Progression vers les X votes #}
-										<div class="mt-3">
-											<div class="progress" style="height: 8px; background: var(--s4w-bleu-bg);">
-												<div class="progress-bar"
-													role="progressbar"
-													style="width: {{ min(100, (musicRequest.votes / nbVotesRequis) * 100) }}%; background: var(--s4w-bleu-vif);"
-													aria-valuenow="{{ musicRequest.votes }}"
-													aria-valuemin="0"
-													aria-valuemax="{{ nbVotesRequis }}">
-												</div>
-											</div>
-											<div class="small text-muted mt-1">
-												{{ musicRequest.votes }}/{{ nbVotesRequis }} votes
-											</div>
-										</div>
+                    {% if musicRequests|length > 0 %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for musicRequest in musicRequests %}
+                                <div class="border rounded p-3" style="border-radius: 10px;">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <h3 class="h5 mb-1">{{ musicRequest.titre }}</h3>
+                                            <div class="text-muted">{{ musicRequest.artiste }}</div>
+                                        </div>
+                                        {% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::PENDING') %}
+                                            <div class="text-end text-nowrap">
+                                                <strong>{{ musicRequest.votes }}</strong>
+                                                <div class="small text-muted">
+                                                    vote{% if musicRequest.votes != 1 %}s{% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
 
-										{# Actions #}
-										<div class="d-flex flex-wrap gap-2 mt-3">
-											<form method="post" action="{{ path('music_request_vote', {id: musicRequest.id}) }}">
-												<input type="hidden" name="_token" value="{{ csrf_token('music_request_vote_' ~ musicRequest.id) }}">
-												<button type="submit" class="btn btn-outline-s4w btn-sm rounded-pill">👍 Voter</button>
-											</form>
-											<form method="post" action="{{ path('music_request_pay', {id: musicRequest.id}) }}">
-												<input type="hidden" name="_token" value="{{ csrf_token('music_request_pay_' ~ musicRequest.id) }}">
-												<button type="submit" class="btn btn-success btn-sm rounded-pill">
-													💶 Valider sans attendre : {{ price }} €
-												</button>
-											</form>
-										</div>
-									{% endif %}
-								</div>
-							{% endfor %}
-						</div>
-					{% else %}
-						<div class="text-center text-muted py-4">
-							<p class="mb-0">Aucun morceau n'a encore été proposé.</p>
-							<small>Sois le premier à en proposer un !</small>
-						</div>
-					{% endif %}
-				</div>
-			</div>
-		</div>
-	</div>
+                                    {% if musicRequest.status == constant('App\\Enum\\MusicRequestStatus::VALIDATED') %}
+                                        <div class="alert alert-success text-center mt-3 mb-0">
+                                            <strong>✅ Morceau validé !</strong>
+                                        </div>
+                                    {% else %}
+                                        {# Progression vers les X votes #}
+                                        <div class="mt-3">
+                                            <div class="progress" style="height: 8px; background: var(--s4w-bleu-bg);">
+                                                <div class="progress-bar"
+                                                    role="progressbar"
+                                                    style="width: {{ min(100, (musicRequest.votes / nbVotesRequis) * 100) }}%; background: var(--s4w-bleu-vif);"
+                                                    aria-valuenow="{{ musicRequest.votes }}"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="{{ nbVotesRequis }}">
+                                                </div>
+                                            </div>
+                                            <div class="small text-muted mt-1">
+                                                {{ musicRequest.votes }}/{{ nbVotesRequis }} votes
+                                            </div>
+                                        </div>
+
+                                        {# Actions #}
+                                        <div class="d-flex flex-wrap gap-2 mt-3">
+                                            <form method="post" action="{{ path('music_request_vote', {id: musicRequest.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('music_request_vote_' ~ musicRequest.id) }}">
+                                                <button type="submit" class="btn btn-outline-s4w btn-sm rounded-pill">👍 Voter</button>
+                                            </form>
+                                            <form method="post" action="{{ path('music_request_pay', {id: musicRequest.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('music_request_pay_' ~ musicRequest.id) }}">
+                                                <button type="submit" class="btn btn-success btn-sm rounded-pill">
+                                                    💶 Valider sans attendre : {{ price }} €
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <p class="mb-0">Aucun morceau n'a encore été proposé.</p>
+                            <small>Sois le premier à en proposer un !</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function() {
+    const toggleBtn = document.getElementById('musicFormToggle');
+    const collapseEl = document.getElementById('musicForm');
+
+    if (!toggleBtn || !collapseEl) return;
+
+    // Libellé du bouton synchronisé avec l'état réel du collapse
+    const syncLabel = () => {
+        const open = collapseEl.classList.contains('show');
+        toggleBtn.setAttribute('aria-expanded', open);
+        toggleBtn.textContent = open ? '✕ Fermer' : '➕ Proposer un morceau';
+    };
+
+    collapseEl.addEventListener('shown.bs.collapse', syncLabel);
+    collapseEl.addEventListener('hidden.bs.collapse', syncLabel);
+    syncLabel(); // état initial (y compris "ouvert car erreurs")
+
+    // Sur mobile, l'ouverture remonte au niveau du BOUTON :
+    // l'utilisateur voit le bouton puis le formulaire déplié en dessous,
+    // pas le formulaire coupé en deux en milieu de fold.
+    collapseEl.addEventListener('shown.bs.collapse', () => {
+        if (window.innerWidth < 992) {
+            toggleBtn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+})();
+</script>
 {% endblock %}

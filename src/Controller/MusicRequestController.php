@@ -293,7 +293,7 @@ final class MusicRequestController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $musicRequest->setVotes(0);
+            $musicRequest->setVotes(1);
             $musicRequest->setStatus(MusicRequestStatus::PENDING);
 
             $entityManager->persist($musicRequest);
