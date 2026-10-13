@@ -4,32 +4,31 @@
 
 {% block style %}
 <style>
-    /* ---------- Flash visuel au nouveau scan ----------
-       Appliqué au PREMIER enfant du fragment (le bandeau verdict) :
-       le contenu du fragment a ses propres fonds et masquerait
-       une animation posée sur #qr-result lui-même. */
+    /* ---------- Flash visuel au nouveau scan ---------- */
     @keyframes flash-scan {
         0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
         25%  { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(25,135,84,.45); }
         100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
     }
     #qr-result.flash > *:first-child { animation: flash-scan .7s ease-out; }
+
+    @keyframes flash-scan-warning {
+        0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        25%  { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255,193,7,.5); }
+        100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+    }
+    #qr-result.flash-warn > *:first-child { animation: flash-scan-warning .7s ease-out; }
 </style>
 {% endblock %}
 
 {% block body %}
 
 {# ============================================================
-   Layout "une main, un écran" (mobile-first) :
-   - Groupe : bandeau compact en haut
-   - Caméra : compacte (220px) — assez pour viser un QR, sans manger l'écran
-   - VERDICT : épinglé en BAS de l'écran (sticky bottom).
-     → toujours visible sans scroller, même si le fragment est long.
-     Le panneau complet reste scrollable juste au-dessus.
+   Layout "une main, un écran" (mobile-first)
    ============================================================ #}
 <div class="d-flex flex-column" style="min-height: calc(100vh - 60px);">
 
-    {# Sélecteur de groupe — compact, en haut, CIBLE DE L'ANCRE D'ARRIVÉE #}
+    {# Sélecteur de groupe — CIBLE DE L'ANCRE D'ARRIVÉE #}
     <div class="px-2 pt-2" id="scan-top">
         <div class="d-flex align-items-center gap-2">
             <label for="groupe-controle" class="form-label small mb-0 text-nowrap fw-bold">Groupe :</label>
@@ -65,7 +64,7 @@
 
 </div>
 
-{# Retour discret : le bénévole n'en a pas besoin pendant le cours #}
+{# Retour discret #}
 <div class="px-3 pb-2">
     <a href="{{ path('admin_user_index') }}" class="btn btn-link btn-sm text-secondary p-0">
         ← Retour à la liste
@@ -84,13 +83,16 @@ let lastScanned = null;      // dernier QR décodé
 let lastScannedAt = 0;       // timestamp du dernier scan
 const COOLDOWN_MS = 3000;    // même QR ignoré pendant 3 s
 const REARM_MS = 1500;       // réarmement du scanner après un scan
+const FETCH_TIMEOUT_MS = 8000;  // abandon du fetch au bout de 8 s
+const RETRY_DELAY_MS = 1500;    // pause avant le retry auto
+const MAX_RETRIES = 2;           // 1er essai + 2 retries
 
 const groupeSelect = document.getElementById('groupe-controle');
 const qrResult = document.getElementById('qr-result');
 const scanStatus = document.getElementById('scan-status');
 
 /**
- * URL du fragment de contrôle (route AJAX à créer côté contrôleur).
+ * URL du fragment de contrôle.
  */
 function getFragmentUrl(decodedText) {
     let url = "{{ path('admin_user_scan_fragment', {'hexId': 'ID_REPLACE'}) }}"
@@ -102,11 +104,7 @@ function getFragmentUrl(decodedText) {
 }
 
 /**
- * FEEDBACK NOUVEAU SCAN — 3 canaux redondants :
- * 1. FLASH VISUEL : le panneau flash (vert = OK, rouge = refus, orange = action requise)
- * 2. VIBRATION    : Android (navigator.vibrate, absent sur iOS)
- * 3. BIP          : AudioContext — fonctionne sur iPhone même en mode silencieux
- *                   (le son est déverrouillé dès le premier toucher sur la page)
+ * FEEDBACK NOUVEAU SCAN — flash, vibration, bip.
  */
 let audioCtx = null;
 function beep(frequency = 880, duration = 0.12, pattern = 1) {
@@ -128,15 +126,13 @@ function beep(frequency = 880, duration = 0.12, pattern = 1) {
     } catch (e) { console.warn('bip indisponible', e); }
 }
 
-// Chrome bloque Audio/vibrate tant que l'utilisateur n'a pas interagi avec
-// la page. On lève un flag au 1er tap (ex : choix du groupe).
 let userInteracted = false;
 ['pointerdown', 'touchstart', 'click'].forEach(evt =>
     window.addEventListener(evt, () => { userInteracted = true; }, { once: true, passive: true })
 );
 
 function vibrate(verdict) {
-    if (!navigator.vibrate || !userInteracted) return; // iPhone/Chrome : bip + flash prennent le relais
+    if (!navigator.vibrate || !userInteracted) return;
     if (verdict === 'ok')          navigator.vibrate(80);
     else if (verdict === 'refuse') navigator.vibrate([200, 100, 200]);
     else                           navigator.vibrate([120, 80, 120]);
@@ -146,73 +142,172 @@ function beepVerdict(verdict) {
     if (verdict === 'ok')          beep(880, 0.12, 1);   // un bip aigu court
     else if (verdict === 'refuse') beep(220, 0.25, 2);   // deux bips graves
     else if (verdict === 'consult') beep(660, 0.10, 1);  // un bip neutre
-    else                           beep(520, 0.14, 2);   // deux bips médiums
+    else if (verdict === 'network') beep(520, 0.14, 3);  // trois bips médiums = problème réseau
+    else                           beep(520, 0.14, 2);
 }
 
-function flashVerdict() {
-    qrResult.classList.remove('flash');
+function flashVerdict(warn = false) {
+    qrResult.classList.remove('flash', 'flash-warn');
     void qrResult.offsetWidth; // retrigger de l'animation CSS
-    qrResult.classList.add('flash');
+    qrResult.classList.add(warn ? 'flash-warn' : 'flash');
 }
 
 function feedback(verdict) {
     vibrate(verdict);
     beepVerdict(verdict);
-    flashVerdict();
+    flashVerdict(verdict === 'network' || verdict === 'session');
 }
 
 /**
  * Détermine le verdict depuis le fragment HTML injecté (data attribute).
+ * Retourne null si le fragment ne contient PAS de data-verdict :
+ * ce n'est pas un fragment de contrôle valide (ex : page de login
+ * renvoyée après expiration de session) → à traiter comme une erreur,
+ * jamais comme un "ok" par défaut.
  */
 function readVerdict() {
     const el = qrResult.querySelector('[data-verdict]');
-    return el ? el.getAttribute('data-verdict') : 'ok';
+    return el ? el.getAttribute('data-verdict') : null;
+}
+
+/**
+ * Affiche une erreur réseau SANS écraser le dernier utilisateur,
+ * pour que le bénévole garde le contexte du scan en échec.
+ * Le bandeau s'insère AU-DESSUS du fragment conservé.
+ */
+function showNetworkError(message, retryFn) {
+    // Si un bandeau d'erreur précédent existe déjà, le retirer
+    document.getElementById('net-error-banner')?.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'net-error-banner';
+    banner.className = 'alert alert-warning text-center mb-2 py-2';
+    banner.innerHTML = `
+        <strong>📡 ${message}</strong><br>
+        <span class="small">Le dernier scan n'a pas été compté comme refusé.</span>
+        <button type="button" class="btn btn-sm btn-warning mt-2" id="net-retry-btn">🔄 Réessayer</button>
+    `;
+
+    qrResult.prepend(banner);
+    banner.querySelector('#net-retry-btn').addEventListener('click', () => {
+        banner.remove();
+        if (typeof retryFn === 'function') retryFn();
+    });
+}
+
+function removeNetworkBanner() {
+    document.getElementById('net-error-banner')?.remove();
 }
 
 /**
  * Charge et affiche le résultat d'un scan.
+ * — timeout explicite + retries automatiques pour les micro-coupures wifi
+ * — erreur réseau → bandeau dédié, JAMAIS un verdict "refuse"
+ * — session expirée (redirect login avec statut 200) → message clair
  */
-async function handleScan(decodedText) {
+async function handleScan(decodedText, attempt = 0) {
     busy = true;
-    scanStatus.innerText = '⏳ Vérification en cours…';
+    scanStatus.innerText = '⏳ Vérification en cours…'
+        + (attempt > 0 ? ' (tentative ' + (attempt + 1) + ')' : '');
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     try {
         const res = await fetch(getFragmentUrl(decodedText), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            signal: controller.signal
         });
 
-        // QR INCONNU (autre QR posé sur la table, ticket, etc.) :
-        // on IGNORE — le panneau garde le dernier utilisateur affiché,
-        // pas de bip "refusé" mensonger, re-scan possible immédiatement.
+        // QR INCONNU : on IGNORE — pas de bip "refusé" mensonger.
         if (res.status === 404) {
             scanStatus.innerText = '⚠️ QR code inconnu — ignoré.';
             busy = false;
             return;
         }
 
+        // 403 : session expirée (le firewall redirige parfois en 302→login,
+        // mais un access denied direct arrive aussi). À distinguer d'un refus :
+        // le refus métier arrive en 200 avec data-verdict="refuse".
+        if (res.status === 403) {
+            showSessionExpired();
+            busy = false;
+            return;
+        }
+
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        qrResult.innerHTML = '<div class="text-muted">Chargement du contrôle…</div>';
-        qrResult.innerHTML = await res.text();
 
+        const html = await res.text();
+        clearTimeout(timer);
+
+        // Le fetch suit les redirections : si la session a expiré, on reçoit
+        // la page de LOGIN (statut 200) au lieu du fragment. Détection :
+        // pas de data-verdict dans le HTML reçu.
+        qrResult.innerHTML = html;
         const verdict = readVerdict();
-        feedback(verdict);
 
+        if (verdict === null) {
+            showSessionExpired();
+            busy = false;
+            return;
+        }
+
+        // Fragment valide : retirer un éventuel bandeau réseau précédent
+        removeNetworkBanner();
+        feedback(verdict);
         scanStatus.innerText = '✅ Scanné — prêt pour la prochaine carte.';
+
     } catch (e) {
+        clearTimeout(timer);
+
+        // Retry automatique (timeout / micro-coupure wifi) avant d'annoncer
+        // l'erreur — la majorité des échecs réseau passent au 2e essai.
+        if (attempt < MAX_RETRIES - 1) {
+            scanStatus.innerText = '⏳ Connexion instable — nouvel essai…';
+            setTimeout(() => handleScan(decodedText, attempt + 1), RETRY_DELAY_MS);
+            return; // busy reste true : pas de double-scan pendant le retry
+        }
+
+        // Vraie erreur réseau après retries :
+        // - PAS de verdict "refuse" (le serveur n'a rien dit)
+        // - le dernier utilisateur reste affiché dessous, contexte conservé
         console.error(e);
-        // Vraie erreur serveur : on garde le panneau précédent affiché
-        // (plus utile qu'un panneau rouge qui efface tout).
-        scanStatus.innerText = '❌ Erreur réseau — réessayez.';
+        showNetworkError('Réseau indisponible', () => handleScan(decodedText));
+        feedback('network'); // flash jaune + bip distinctif, pas rouge
+        scanStatus.innerText = '📡 Réseau indisponible — bouton Réessayer affiché.';
+
     } finally {
-        // Réarmement : on accepte un NOUVEAU QR dès 1,5 s,
-        // le même QR reste bloqué par le cooldown
+        clearTimeout(timer);
+        // Réarmement (sauf si un retry est en cours : géré dans le catch)
         setTimeout(() => { busy = false; }, REARM_MS);
     }
 }
 
 /**
- * Intercepte les formulaires du fragment (Déduire 1 séance / Vérifier justificatif)
- * pour ne PAS quitter la page : fetch, puis re-render du fragment.
+ * Session expirée : cas très fréquent après ~1h de scan.
+ * Message explicite + bouton de reconnexion (la page de scan
+ * doit être rechargée après re-login pour retrouver le contexte).
+ */
+function showSessionExpired() {
+    document.getElementById('net-error-banner')?.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'net-error-banner';
+    banner.className = 'alert alert-danger text-center mb-2 py-2';
+    banner.innerHTML = `
+        <strong>🔒 Session expirée</strong><br>
+        <span class="small">Reconnecte-toi pour continuer le contrôle d'accès.</span>
+        <div class="mt-2">
+            <a href="{{ path('app_login') }}" class="btn btn-sm btn-danger">Se reconnecter</a>
+        </div>
+    `;
+    qrResult.prepend(banner);
+    feedback('session');
+    scanStatus.innerText = '🔒 Session expirée — reconnexion nécessaire.';
+}
+
+/**
+ * Intercepte les formulaires du fragment (Déduire 1 séance / Vérifier justificatif).
  */
 qrResult.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -220,7 +315,6 @@ qrResult.addEventListener('submit', async function (e) {
     const btn = form.querySelector('button');
     if (btn) { btn.disabled = true; btn.innerText = '…'; }
 
-    // confirm() éventuel géré avant interception via data-confirm
     if (form.dataset.confirm && !confirm(form.dataset.confirm)) {
         if (btn) { btn.disabled = false; btn.innerText = form.dataset.label || 'OK'; }
         return;
@@ -233,11 +327,7 @@ qrResult.addEventListener('submit', async function (e) {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        qrResult.innerHTML = await res.text(); // le contrôleur renvoie le fragment mis à jour
-
-        // PAS de bip/vibration : l'action vient du bénévole, il la voit.
-        // La confirmation ("séance retirée" / "justificatif vérifié") est rendue
-        // par le TEMPLATE via action_effectuee — plus de badge JS approximatif.
+        qrResult.innerHTML = await res.text();
     } catch (e) {
         console.error(e);
         alert('Erreur lors de l\'action. Rechargez la page.');
@@ -274,11 +364,9 @@ function startScanner(cameraIndex = 0) {
             decodedText => {
                 const now = Date.now();
 
-                // Même QR que le précédent, il y a moins de 3 s → on ignore
                 if (decodedText === lastScanned && (now - lastScannedAt) < COOLDOWN_MS) {
                     return;
                 }
-                // Un scan est déjà en cours de traitement → on ignore
                 if (busy) {
                     return;
                 }
@@ -286,7 +374,7 @@ function startScanner(cameraIndex = 0) {
                 lastScanned = decodedText;
                 lastScannedAt = now;
 
-                handleScan(decodedText); // ne STOPPE PAS le scanner
+                handleScan(decodedText);
             },
             () => { /* erreurs de lecture ignorées */ }
         ).catch(err => console.error("Erreur démarrage scanner :", err));
@@ -295,7 +383,6 @@ function startScanner(cameraIndex = 0) {
 }
 
 groupeSelect.addEventListener('change', () => {
-    // le groupe sera utilisé au prochain scan, rien à redémarrer
     scanStatus.innerText = 'Scanner actif — en attente d\u2019un QR code…';
 });
 
@@ -307,12 +394,20 @@ document.getElementById('switch-camera').addEventListener('click', () => {
     });
 });
 
+// Surveiller la connectivité : bannière dès que le device passe offline,
+// pour prévenir AVANT le prochain scan raté.
+window.addEventListener('offline', () => {
+    showNetworkError('Appareil hors ligne (Wi-Fi/4G perdu)', null);
+    scanStatus.innerText = '📡 Hors ligne — reconnexion en cours…';
+});
+window.addEventListener('online', () => {
+    removeNetworkBanner();
+    scanStatus.innerText = '✅ Connexion rétablie — scanner prêt.';
+});
+
 window.addEventListener('DOMContentLoaded', () => {
     startScanner();
 
-    // Arrivée sur la page : scroll direct sur le sélecteur de groupe,
-    // pour que caméra + verdict soient visibles sans manipuler le téléphone.
-    // (le header admin reste au-dessus, accessible en remontant)
     setTimeout(() => {
         document.getElementById('scan-top')?.scrollIntoView({ block: 'start' });
     }, 100);
