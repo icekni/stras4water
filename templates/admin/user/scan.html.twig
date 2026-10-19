@@ -18,6 +18,33 @@
         100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(0,0,0,0); }
     }
     #qr-result.flash-warn > *:first-child { animation: flash-scan-warning .7s ease-out; }
+
+    /* ---------- Contention de la caméra html5-qrcode (iOS) ----------
+    Sur iPhone, le <video> garde son ratio natif (portrait 4:3, 16:9...)
+    et déborde du conteneur 220x220, recouvrant le bouton "Changer de
+    caméra". On force le contenu à tenir DANS le conteneur. */
+    #qr-reader video,
+    #qr-reader canvas {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;           /* remplit le carré sans déformer */
+        display: block;
+        border-radius: 8px;
+    }
+
+    /* Filet de sécurité : même si la lib génère autre chose (img, div...),
+    rien ne doit sortir du conteneur */
+    #qr-reader {
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Le bouton repasse TOUJOURS devant, quel que soit ce que fait la lib */
+    #switch-camera {
+        position: relative;
+        z-index: 1000;
+    }
+
 </style>
 {% endblock %}
 
